@@ -396,14 +396,14 @@
             font-size: 0.6em;
         }
 
-        .card.start {
+        .card.star {
             background: linear-gradient(145deg, #00b894, #00a085);
             color: white;
             font-size: 0.7em;
             position: relative;
         }
 
-        .card.start:before {
+        .card.star:before {
             content: '✨';
             position: absolute;
             top: 5px;
@@ -681,11 +681,14 @@
         <ul>
             <li><strong>Players:</strong> Exactly 4 players</li>
             <li><strong>Starting Cards:</strong> 7 per player</li>
-            <li><strong>Cannot finish on:</strong> Cards 1-4, Peak, Reverse</li>
+            <li><strong>Cannot finish on:</strong> Cards 1-4, Peak, Reverse, Star, Goblin, Pause</li>
             <li><strong>Can finish on:</strong> Cards 5-6</li>
             <li><strong>Can finish on 8-10:</strong> Only if high card played this round</li>
-            <li><strong>Peak cards:</strong> Next player draws 5 cards</li>
+            <li><strong>Peak cards:</strong> ⛰️ Next player draws 5 cards</li>
             <li><strong>Reverse cards:</strong> 🔄 Changes play direction</li>
+            <li><strong>Star cards:</strong> ✨ Removes all Peak cards from other players</li>
+            <li><strong>Goblin cards:</strong> 👹 Gives bad cards (1-4) to all other players</li>
+            <li><strong>Pause cards:</strong> ⏸️ Pauses another player for 2 minutes</li>
             <li><strong>Disqualified:</strong> Over 20 cards</li>
             <li><strong>Winner:</strong> Last player standing</li>
         </ul>
@@ -819,7 +822,7 @@
             REGULAR: 'regular',
             PEAK: 'peak',
             REVERSE: 'reverse',
-            START: 'start',
+            STAR: 'star',
             GOBLIN: 'goblin',
             PAUSE: 'pause'
         };
@@ -834,7 +837,7 @@
             toString() {
                 if (this.type === CardType.PEAK) return 'Peak';
                 if (this.type === CardType.REVERSE) return 'Reverse';
-                if (this.type === CardType.START) return 'Start';
+                if (this.type === CardType.STAR) return 'Star';
                 if (this.type === CardType.GOBLIN) return 'Goblin';
                 if (this.type === CardType.PAUSE) return 'Pause';
                 return this.value.toString();
@@ -846,7 +849,7 @@
 
             canFinishOn() {
                 // Special cards cannot be finished on
-                if (this.isPeakCard() || this.isReverseCard() || this.isStartCard() || this.isGoblinCard() || this.isPauseCard()) return false;
+                if (this.isPeakCard() || this.isReverseCard() || this.isStarCard() || this.isGoblinCard() || this.isPauseCard()) return false;
                 if (this.value >= 1 && this.value <= 4) return false;
                 if (this.value >= 5 && this.value <= 6) return true;
                 if (this.value >= 8 && this.value <= 10) return true;
@@ -857,8 +860,8 @@
                 return this.type === CardType.REVERSE;
             }
 
-            isStartCard() {
-                return this.type === CardType.START;
+            isStarCard() {
+                return this.type === CardType.STAR;
             }
 
             isGoblinCard() {
@@ -943,9 +946,9 @@
             for (let i = 0; i < 8; i++) {
                 deck.push(new Card(0, CardType.REVERSE));
             }
-            // Add 5 Start cards (removes Peak cards from others)
+            // Add 5 Star cards (removes Peak cards from others)
             for (let i = 0; i < 5; i++) {
-                deck.push(new Card(0, CardType.START));
+                deck.push(new Card(0, CardType.STAR));
             }
             // Add 5 Goblin cards (gives bad cards to others)
             for (let i = 0; i < 5; i++) {
@@ -955,7 +958,7 @@
             for (let i = 0; i < 3; i++) {
                 deck.push(new Card(0, CardType.PAUSE));
             }
-            return shuffleDeck(deck);  // Now we have 71 total cards (40 regular + 10 Peak + 8 Reverse + 5 Start + 5 Goblin + 3 Pause)
+            return shuffleDeck(deck);  // Now we have 71 total cards (40 regular + 10 Peak + 8 Reverse + 5 Star + 5 Goblin + 3 Pause)
         }
 
         function shuffleDeck(deck) {
@@ -978,9 +981,9 @@
 
         function canPlayCard(card, lastCard = null) {
             // Special cards can always be played
-            if (card.isPeakCard() || card.isReverseCard() || card.isStartCard() || card.isGoblinCard() || card.isPauseCard()) return true;
+            if (card.isPeakCard() || card.isReverseCard() || card.isStarCard() || card.isGoblinCard() || card.isPauseCard()) return true;
             if (!lastCard) return true;
-            if (lastCard.isPeakCard() || lastCard.isReverseCard() || lastCard.isStartCard() || lastCard.isGoblinCard() || lastCard.isPauseCard()) return true;
+            if (lastCard.isPeakCard() || lastCard.isReverseCard() || lastCard.isStarCard() || lastCard.isGoblinCard() || lastCard.isPauseCard()) return true;
             
             // Regular cards follow adjacency rules
             if (card.type === CardType.REGULAR && lastCard.type === CardType.REGULAR) {
@@ -1058,9 +1061,9 @@
                 handleReverseCard();
             }
 
-            // Handle Start card
-            if (cardToRemove.isStartCard()) {
-                handleStartCard();
+            // Handle Star card
+            if (cardToRemove.isStarCard()) {
+                handleStarCard();
             }
 
             // Handle Goblin card
@@ -1124,8 +1127,8 @@
             console.log('🔄 Game direction changed to:', directionText);
         }
 
-        function handleStartCard() {
-            console.log('✨ Start card played - removing Peak cards from other players');
+        function handleStarCard() {
+            console.log('✨ Star card played - removing Peak cards from other players');
             let totalPeakCardsRemoved = 0;
             
             game.players.forEach((player, index) => {
@@ -1151,9 +1154,9 @@
             });
             
             if (totalPeakCardsRemoved > 0) {
-                showMessage(`🌟 Start card removed ${totalPeakCardsRemoved} Peak card(s) from other players!`, 'success');
+                showMessage(`🌟 Star card removed ${totalPeakCardsRemoved} Peak card(s) from other players!`, 'success');
             } else {
-                showMessage(`🌟 Start card played, but no Peak cards were found to remove`, 'info');
+                showMessage(`🌟 Star card played, but no Peak cards were found to remove`, 'info');
             }
         }
 
@@ -1559,20 +1562,30 @@
             // Generate 4-digit PIN
             const pin = Math.floor(1000 + Math.random() * 9000).toString();
             
+            const hostPlayer = {
+                id: generatePlayerId(),
+                name: playerName,
+                isHost: true
+            };
+            
             gameSession = {
                 pin: pin,
                 isHost: true,
                 playerName: playerName,
-                playerId: generatePlayerId(),
-                lobbyPlayers: [{
-                    id: generatePlayerId(),
-                    name: playerName,
-                    isHost: true
-                }],
+                playerId: hostPlayer.id,
+                lobbyPlayers: [hostPlayer],
                 gameStarted: false
             };
 
+            // Save to localStorage so others can join
+            localStorage.setItem(`gameSession_${pin}`, JSON.stringify({
+                pin: pin,
+                lobbyPlayers: gameSession.lobbyPlayers,
+                gameStarted: false
+            }));
+
             showLobby();
+            startLobbyPolling(); // Start polling for updates
             console.log('Game created with PIN:', pin);
         }
 
@@ -1590,17 +1603,51 @@
                 return;
             }
 
-            // Simulate joining (in real app, this would be server call)
+            // Check if game session exists in localStorage
+            const existingSession = localStorage.getItem(`gameSession_${pin}`);
+            if (!existingSession) {
+                alert('Game not found! Please check the PIN.');
+                return;
+            }
+
+            const sessionData = JSON.parse(existingSession);
+            
+            // Check if game is full
+            if (sessionData.lobbyPlayers.length >= 4) {
+                alert('Game is full! Maximum 4 players allowed.');
+                return;
+            }
+
+            // Check if player name already exists
+            if (sessionData.lobbyPlayers.some(p => p.name === playerName)) {
+                alert('Player name already taken! Please choose a different name.');
+                return;
+            }
+
+            // Add new player to existing session
+            const newPlayer = {
+                id: generatePlayerId(),
+                name: playerName,
+                isHost: false
+            };
+            
+            sessionData.lobbyPlayers.push(newPlayer);
+            
+            // Update localStorage
+            localStorage.setItem(`gameSession_${pin}`, JSON.stringify(sessionData));
+
+            // Set up local game session
             gameSession = {
                 pin: pin,
                 isHost: false,
                 playerName: playerName,
-                playerId: generatePlayerId(),
-                lobbyPlayers: simulateLobbyPlayers(playerName),
+                playerId: newPlayer.id,
+                lobbyPlayers: sessionData.lobbyPlayers,
                 gameStarted: false
             };
 
             showLobby();
+            startLobbyPolling(); // Start polling for updates
             console.log('Joined game with PIN:', pin);
         }
 
@@ -1608,20 +1655,7 @@
             return 'player_' + Math.random().toString(36).substr(2, 9);
         }
 
-        function simulateLobbyPlayers(newPlayerName) {
-            // Simulate other players already in lobby (for demo purposes)
-            const existingPlayers = [
-                { id: 'host_123', name: 'Host Player', isHost: true }
-            ];
-            
-            existingPlayers.push({
-                id: generatePlayerId(),
-                name: newPlayerName,
-                isHost: false
-            });
-            
-            return existingPlayers;
-        }
+
 
         function showLobby() {
             document.getElementById('startScreen').style.display = 'none';
@@ -1661,7 +1695,52 @@
             }
         }
 
+        let lobbyPollingInterval = null;
+
+        function startLobbyPolling() {
+            if (lobbyPollingInterval) {
+                clearInterval(lobbyPollingInterval);
+            }
+
+            lobbyPollingInterval = setInterval(() => {
+                // Check for updates to the game session
+                const sessionData = localStorage.getItem(`gameSession_${gameSession.pin}`);
+                if (sessionData) {
+                    const updatedSession = JSON.parse(sessionData);
+                    
+                    // Check if player count has changed
+                    if (updatedSession.lobbyPlayers.length !== gameSession.lobbyPlayers.length) {
+                        console.log('Lobby updated! New player count:', updatedSession.lobbyPlayers.length);
+                        gameSession.lobbyPlayers = updatedSession.lobbyPlayers;
+                        updateLobbyDisplay();
+                    }
+                    
+                    // Check if game has started
+                    if (updatedSession.gameStarted && !gameSession.gameStarted) {
+                        gameSession.gameStarted = true;
+                        stopLobbyPolling();
+                        startActualGame();
+                    }
+                }
+            }, 1000); // Check every second
+        }
+
+        function stopLobbyPolling() {
+            if (lobbyPollingInterval) {
+                clearInterval(lobbyPollingInterval);
+                lobbyPollingInterval = null;
+            }
+        }
+
         function leaveLobby() {
+            // Stop polling for updates
+            stopLobbyPolling();
+            
+            // If host is leaving, clean up the game session
+            if (gameSession.isHost && gameSession.pin) {
+                localStorage.removeItem(`gameSession_${gameSession.pin}`);
+            }
+            
             document.getElementById('lobbyScreen').style.display = 'none';
             document.getElementById('startScreen').style.display = 'block';
             
@@ -1685,6 +1764,17 @@
                 return;
             }
 
+            // Update localStorage to notify all players game is starting
+            const sessionData = JSON.parse(localStorage.getItem(`gameSession_${gameSession.pin}`));
+            sessionData.gameStarted = true;
+            localStorage.setItem(`gameSession_${gameSession.pin}`, JSON.stringify(sessionData));
+
+            // Stop polling and start the actual game
+            stopLobbyPolling();
+            startActualGame();
+        }
+
+        function startActualGame() {
             // Initialize game with lobby players
             const playerNames = gameSession.lobbyPlayers.map(p => p.name);
             
