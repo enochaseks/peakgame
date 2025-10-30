@@ -774,11 +774,11 @@
                 <div id="gamePinDisplay" style="font-size: 2em; font-weight: bold; color: #4CAF50; margin: 10px 0;"></div>
                 <p>🌍 Share this PIN with friends anywhere in the world!</p>
                 <div id="shareableLink" style="margin: 10px 0; padding: 10px; background: #f0f0f0; border-radius: 5px; font-size: 0.9em;">
-                    <strong>Quick Share Link:</strong><br>
+                    <strong>🔗 Quick Share Link:</strong><br>
                     <span id="shareUrl" style="color: #2196F3; word-break: break-all;"></span><br>
                     <button onclick="copyShareLink()" style="margin-top: 5px; padding: 5px 10px; background: #2196F3; color: white; border: none; border-radius: 3px; cursor: pointer;">📋 Copy Link</button>
                 </div>
-                <p style="font-size: 0.9em; color: #666;">Friends can join by clicking the link or entering the PIN manually</p>
+                <p style="font-size: 0.9em; color: #666;">✅ <strong>Now powered by Firebase</strong> - Friends can join from any device worldwide!</p>
                 <div id="playersList" style="margin: 20px 0; text-align: left;">
                     <h4>Players Joined:</h4>
                     <ul id="playersUL" style="list-style: none; padding: 0;"></ul>
@@ -823,109 +823,71 @@
             gameStarted: false
         };
 
-        // Cloud multiplayer using JSONBin.io (free, works immediately)
-        const JSONBIN_API_KEY = '$2a$10$rK5eQvlm8jOlRnfTzHqvSuTJGPKo2k3fHdKZPxCqJbHgGjDhPbMfe';
-        const JSONBIN_BASE_URL = 'https://api.jsonbin.io/v3/b';
+        // Firebase Realtime Database for true cross-device multiplayer
+        const FIREBASE_URL = 'https://peakgame-19c4e-default-rtdb.europe-west1.firebasedatabase.app';
 
         async function saveGameToCloud(pin, gameData) {
             try {
-                // Try to update existing bin first
-                const existingBinId = localStorage.getItem(`binId_${pin}`);
-                
-                if (existingBinId) {
-                    // Update existing bin
-                    const response = await fetch(`${JSONBIN_BASE_URL}/${existingBinId}`, {
-                        method: 'PUT',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-Master-Key': JSONBIN_API_KEY
-                        },
-                        body: JSON.stringify(gameData)
-                    });
-                    
-                    if (response.ok) {
-                        console.log('✅ Game updated in cloud:', pin);
-                        return true;
-                    }
-                }
-                
-                // Create new bin
-                const response = await fetch(JSONBIN_BASE_URL, {
-                    method: 'POST',
+                const response = await fetch(`${FIREBASE_URL}/games/${pin}.json`, {
+                    method: 'PUT',
                     headers: {
-                        'Content-Type': 'application/json',
-                        'X-Master-Key': JSONBIN_API_KEY,
-                        'X-Bin-Name': `peakgame_${pin}`
+                        'Content-Type': 'application/json'
                     },
                     body: JSON.stringify(gameData)
                 });
                 
                 if (response.ok) {
-                    const result = await response.json();
-                    localStorage.setItem(`binId_${pin}`, result.metadata.id);
-                    console.log('✅ Game created in cloud:', pin);
+                    console.log('✅ Game saved to Firebase:', pin);
                     return true;
+                } else {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
                 }
-                throw new Error('Failed to save');
             } catch (error) {
-                console.error('❌ Error saving to cloud:', error);
-                // Fallback to localStorage
-                localStorage.setItem(`gameSession_${pin}`, JSON.stringify(gameData));
-                return true;
+                console.error('❌ Error saving to Firebase:', error);
+                alert('Error connecting to game server. Please check your internet connection.');
+                return false;
             }
         }
 
         async function loadGameFromCloud(pin) {
             try {
-                // First try to load with stored bin ID
-                const binId = localStorage.getItem(`binId_${pin}`);
+                const response = await fetch(`${FIREBASE_URL}/games/${pin}.json`);
                 
-                if (binId) {
-                    const response = await fetch(`${JSONBIN_BASE_URL}/${binId}/latest`, {
-                        method: 'GET',
-                        headers: {
-                            'X-Master-Key': JSONBIN_API_KEY
-                        }
-                    });
-                    
-                    if (response.ok) {
-                        const result = await response.json();
-                        console.log('✅ Game loaded from cloud:', pin);
-                        return result.record;
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data && data.pin) {
+                        console.log('✅ Game loaded from Firebase:', pin);
+                        return data;
+                    } else {
+                        console.log('❌ Game not found in Firebase:', pin);
+                        return null;
                     }
+                } else {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
                 }
-                
-                return null;
             } catch (error) {
-                console.error('❌ Error loading from cloud:', error);
-                // Fallback to localStorage
-                const data = localStorage.getItem(`gameSession_${pin}`);
-                return data ? JSON.parse(data) : null;
+                console.error('❌ Error loading from Firebase:', error);
+                return null;
             }
         }
 
         async function removeGameFromCloud(pin) {
             try {
-                const binId = localStorage.getItem(`binId_${pin}`);
+                const response = await fetch(`${FIREBASE_URL}/games/${pin}.json`, {
+                    method: 'DELETE'
+                });
                 
-                if (binId) {
-                    await fetch(`${JSONBIN_BASE_URL}/${binId}`, {
-                        method: 'DELETE',
-                        headers: {
-                            'X-Master-Key': JSONBIN_API_KEY
-                        }
-                    });
-                    localStorage.removeItem(`binId_${pin}`);
-                    console.log('✅ Game removed from cloud:', pin);
+                if (response.ok) {
+                    console.log('✅ Game removed from Firebase:', pin);
+                } else {
+                    console.error('❌ Error removing game from Firebase');
                 }
             } catch (error) {
-                console.error('❌ Error removing from cloud:', error);
+                console.error('❌ Error removing from Firebase:', error);
             }
-            // Also remove from localStorage
-            localStorage.removeItem(`gameSession_${pin}`);
         }
 
-        // Real-time listener for game updates
+        // Real-time listener for Firebase updates
         let gameUpdateListener = null;
 
         function startRealTimeListener(pin) {
@@ -933,31 +895,41 @@
                 stopRealTimeListener();
             }
 
-            // Poll for changes every 2 seconds
+            console.log('🔄 Starting real-time listener for PIN:', pin);
+            
+            // Poll Firebase for changes every 2 seconds
             gameUpdateListener = setInterval(async () => {
-                const updatedSession = await loadGameFromCloud(pin);
-                if (updatedSession && updatedSession.lobbyPlayers) {
-                    // Check if player count has changed
-                    if (updatedSession.lobbyPlayers.length !== gameSession.lobbyPlayers.length) {
-                        console.log('🔄 Lobby updated! New player count:', updatedSession.lobbyPlayers.length);
-                        gameSession.lobbyPlayers = updatedSession.lobbyPlayers;
-                        updateLobbyDisplay();
+                try {
+                    const updatedSession = await loadGameFromCloud(pin);
+                    if (updatedSession && updatedSession.lobbyPlayers) {
+                        // Check if player count has changed
+                        if (updatedSession.lobbyPlayers.length !== gameSession.lobbyPlayers.length) {
+                            console.log('🔄 Lobby updated! New player count:', updatedSession.lobbyPlayers.length);
+                            gameSession.lobbyPlayers = updatedSession.lobbyPlayers;
+                            updateLobbyDisplay();
+                        }
+                        
+                        // Check if game has started
+                        if (updatedSession.gameStarted && !gameSession.gameStarted) {
+                            console.log('🎮 Game starting!');
+                            gameSession.gameStarted = true;
+                            stopRealTimeListener();
+                            startActualGame();
+                        }
+                    } else if (!updatedSession) {
+                        console.log('⚠️ Game session no longer exists');
                     }
-                    
-                    // Check if game has started
-                    if (updatedSession.gameStarted && !gameSession.gameStarted) {
-                        gameSession.gameStarted = true;
-                        stopRealTimeListener();
-                        startActualGame();
-                    }
+                } catch (error) {
+                    console.error('❌ Error in real-time listener:', error);
                 }
-            }, 3000); // Check every 3 seconds to avoid rate limits
+            }, 2000); // Check every 2 seconds
         }
 
         function stopRealTimeListener() {
             if (gameUpdateListener) {
                 clearInterval(gameUpdateListener);
                 gameUpdateListener = null;
+                console.log('⏹️ Stopped real-time listener');
             }
         }
 
@@ -1738,11 +1710,18 @@
             };
 
             // Save to cloud so others can join from different devices
-            await saveGameToCloud(pin, {
+            console.log('💾 Saving game to Firebase with PIN:', pin);
+            const saveSuccess = await saveGameToCloud(pin, {
                 pin: pin,
                 lobbyPlayers: gameSession.lobbyPlayers,
                 gameStarted: false
             });
+            
+            if (!saveSuccess) {
+                alert('Failed to create game. Please check your internet connection and try again.');
+                return;
+            }
+            console.log('✅ Game successfully saved to Firebase');
 
             showLobby();
             startRealTimeListener(pin); // Start real-time updates
@@ -1764,11 +1743,14 @@
             }
 
             // Check if game session exists in cloud
+            console.log('🔍 Looking for game with PIN:', pin);
             const sessionData = await loadGameFromCloud(pin);
             if (!sessionData) {
-                alert('Game not found! Please check the PIN.');
+                alert('Game not found! Please check the PIN and make sure the host has created the game.');
+                console.log('❌ No game found for PIN:', pin);
                 return;
             }
+            console.log('✅ Found game session:', sessionData);
             
             // Check if game is full
             if (sessionData.lobbyPlayers.length >= 4) {
