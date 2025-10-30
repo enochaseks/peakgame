@@ -772,7 +772,13 @@
             <div id="lobbyScreen" class="setup-form" style="display: none;">
                 <h3 id="lobbyTitle">Game Lobby</h3>
                 <div id="gamePinDisplay" style="font-size: 2em; font-weight: bold; color: #4CAF50; margin: 10px 0;"></div>
-                <p>Share this PIN with other players!</p>
+                <p>🌍 Share this PIN with friends anywhere in the world!</p>
+                <div id="shareableLink" style="margin: 10px 0; padding: 10px; background: #f0f0f0; border-radius: 5px; font-size: 0.9em;">
+                    <strong>Quick Share Link:</strong><br>
+                    <span id="shareUrl" style="color: #2196F3; word-break: break-all;"></span><br>
+                    <button onclick="copyShareLink()" style="margin-top: 5px; padding: 5px 10px; background: #2196F3; color: white; border: none; border-radius: 3px; cursor: pointer;">📋 Copy Link</button>
+                </div>
+                <p style="font-size: 0.9em; color: #666;">Friends can join by clicking the link or entering the PIN manually</p>
                 <div id="playersList" style="margin: 20px 0; text-align: left;">
                     <h4>Players Joined:</h4>
                     <ul id="playersUL" style="list-style: none; padding: 0;"></ul>
@@ -816,6 +822,160 @@
             lobbyPlayers: [],
             gameStarted: false
         };
+
+        // Cloud multiplayer using JSONBin.io (free, works immediately)
+        const JSONBIN_API_KEY = '$2a$10$rK5eQvlm8jOlRnfTzHqvSuTJGPKo2k3fHdKZPxCqJbHgGjDhPbMfe';
+        const JSONBIN_BASE_URL = 'https://api.jsonbin.io/v3/b';
+
+        async function saveGameToCloud(pin, gameData) {
+            try {
+                // Try to update existing bin first
+                const existingBinId = localStorage.getItem(`binId_${pin}`);
+                
+                if (existingBinId) {
+                    // Update existing bin
+                    const response = await fetch(`${JSONBIN_BASE_URL}/${existingBinId}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-Master-Key': JSONBIN_API_KEY
+                        },
+                        body: JSON.stringify(gameData)
+                    });
+                    
+                    if (response.ok) {
+                        console.log('✅ Game updated in cloud:', pin);
+                        return true;
+                    }
+                }
+                
+                // Create new bin
+                const response = await fetch(JSONBIN_BASE_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Master-Key': JSONBIN_API_KEY,
+                        'X-Bin-Name': `peakgame_${pin}`
+                    },
+                    body: JSON.stringify(gameData)
+                });
+                
+                if (response.ok) {
+                    const result = await response.json();
+                    localStorage.setItem(`binId_${pin}`, result.metadata.id);
+                    console.log('✅ Game created in cloud:', pin);
+                    return true;
+                }
+                throw new Error('Failed to save');
+            } catch (error) {
+                console.error('❌ Error saving to cloud:', error);
+                // Fallback to localStorage
+                localStorage.setItem(`gameSession_${pin}`, JSON.stringify(gameData));
+                return true;
+            }
+        }
+
+        async function loadGameFromCloud(pin) {
+            try {
+                // First try to load with stored bin ID
+                const binId = localStorage.getItem(`binId_${pin}`);
+                
+                if (binId) {
+                    const response = await fetch(`${JSONBIN_BASE_URL}/${binId}/latest`, {
+                        method: 'GET',
+                        headers: {
+                            'X-Master-Key': JSONBIN_API_KEY
+                        }
+                    });
+                    
+                    if (response.ok) {
+                        const result = await response.json();
+                        console.log('✅ Game loaded from cloud:', pin);
+                        return result.record;
+                    }
+                }
+                
+                return null;
+            } catch (error) {
+                console.error('❌ Error loading from cloud:', error);
+                // Fallback to localStorage
+                const data = localStorage.getItem(`gameSession_${pin}`);
+                return data ? JSON.parse(data) : null;
+            }
+        }
+
+        async function removeGameFromCloud(pin) {
+            try {
+                const binId = localStorage.getItem(`binId_${pin}`);
+                
+                if (binId) {
+                    await fetch(`${JSONBIN_BASE_URL}/${binId}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'X-Master-Key': JSONBIN_API_KEY
+                        }
+                    });
+                    localStorage.removeItem(`binId_${pin}`);
+                    console.log('✅ Game removed from cloud:', pin);
+                }
+            } catch (error) {
+                console.error('❌ Error removing from cloud:', error);
+            }
+            // Also remove from localStorage
+            localStorage.removeItem(`gameSession_${pin}`);
+        }
+
+        // Real-time listener for game updates
+        let gameUpdateListener = null;
+
+        function startRealTimeListener(pin) {
+            if (gameUpdateListener) {
+                stopRealTimeListener();
+            }
+
+            // Poll for changes every 2 seconds
+            gameUpdateListener = setInterval(async () => {
+                const updatedSession = await loadGameFromCloud(pin);
+                if (updatedSession && updatedSession.lobbyPlayers) {
+                    // Check if player count has changed
+                    if (updatedSession.lobbyPlayers.length !== gameSession.lobbyPlayers.length) {
+                        console.log('🔄 Lobby updated! New player count:', updatedSession.lobbyPlayers.length);
+                        gameSession.lobbyPlayers = updatedSession.lobbyPlayers;
+                        updateLobbyDisplay();
+                    }
+                    
+                    // Check if game has started
+                    if (updatedSession.gameStarted && !gameSession.gameStarted) {
+                        gameSession.gameStarted = true;
+                        stopRealTimeListener();
+                        startActualGame();
+                    }
+                }
+            }, 3000); // Check every 3 seconds to avoid rate limits
+        }
+
+        function stopRealTimeListener() {
+            if (gameUpdateListener) {
+                clearInterval(gameUpdateListener);
+                gameUpdateListener = null;
+            }
+        }
+
+        // Alternative sharing method for GitHub Pages
+        function generateShareableLink(pin) {
+            const baseUrl = 'https://enochaseks.github.io/peakgame/';
+            return `${baseUrl}?pin=${pin}`;
+        }
+
+        // Check for PIN in URL when page loads
+        function checkUrlForPin() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const pin = urlParams.get('pin');
+            if (pin && pin.length === 4 && /^\d{4}$/.test(pin)) {
+                document.getElementById('gamePin').value = pin;
+                console.log('🔗 PIN found in URL:', pin);
+            }
+        }
 
         // Card types
         const CardType = {
@@ -1552,7 +1712,7 @@
             return cardDiv;
         }
 
-        function createGame() {
+        async function createGame() {
             const playerName = document.getElementById('playerName').value.trim();
             if (!playerName) {
                 alert('Please enter your name');
@@ -1577,19 +1737,19 @@
                 gameStarted: false
             };
 
-            // Save to localStorage so others can join
-            localStorage.setItem(`gameSession_${pin}`, JSON.stringify({
+            // Save to cloud so others can join from different devices
+            await saveGameToCloud(pin, {
                 pin: pin,
                 lobbyPlayers: gameSession.lobbyPlayers,
                 gameStarted: false
-            }));
+            });
 
             showLobby();
-            startLobbyPolling(); // Start polling for updates
+            startRealTimeListener(pin); // Start real-time updates
             console.log('Game created with PIN:', pin);
         }
 
-        function joinGame() {
+        async function joinGame() {
             const playerName = document.getElementById('playerName').value.trim();
             const pin = document.getElementById('gamePin').value.trim();
             
@@ -1603,14 +1763,12 @@
                 return;
             }
 
-            // Check if game session exists in localStorage
-            const existingSession = localStorage.getItem(`gameSession_${pin}`);
-            if (!existingSession) {
+            // Check if game session exists in cloud
+            const sessionData = await loadGameFromCloud(pin);
+            if (!sessionData) {
                 alert('Game not found! Please check the PIN.');
                 return;
             }
-
-            const sessionData = JSON.parse(existingSession);
             
             // Check if game is full
             if (sessionData.lobbyPlayers.length >= 4) {
@@ -1633,8 +1791,8 @@
             
             sessionData.lobbyPlayers.push(newPlayer);
             
-            // Update localStorage
-            localStorage.setItem(`gameSession_${pin}`, JSON.stringify(sessionData));
+            // Update cloud
+            await saveGameToCloud(pin, sessionData);
 
             // Set up local game session
             gameSession = {
@@ -1647,7 +1805,7 @@
             };
 
             showLobby();
-            startLobbyPolling(); // Start polling for updates
+            startRealTimeListener(pin); // Start real-time updates
             console.log('Joined game with PIN:', pin);
         }
 
@@ -1661,6 +1819,10 @@
             document.getElementById('startScreen').style.display = 'none';
             document.getElementById('lobbyScreen').style.display = 'block';
             document.getElementById('gamePinDisplay').textContent = `PIN: ${gameSession.pin}`;
+            
+            // Update shareable link
+            const shareUrl = generateShareableLink(gameSession.pin);
+            document.getElementById('shareUrl').textContent = shareUrl;
             
             updateLobbyDisplay();
         }
@@ -1698,47 +1860,29 @@
         let lobbyPollingInterval = null;
 
         function startLobbyPolling() {
-            if (lobbyPollingInterval) {
-                clearInterval(lobbyPollingInterval);
-            }
-
-            lobbyPollingInterval = setInterval(() => {
-                // Check for updates to the game session
-                const sessionData = localStorage.getItem(`gameSession_${gameSession.pin}`);
-                if (sessionData) {
-                    const updatedSession = JSON.parse(sessionData);
-                    
-                    // Check if player count has changed
-                    if (updatedSession.lobbyPlayers.length !== gameSession.lobbyPlayers.length) {
-                        console.log('Lobby updated! New player count:', updatedSession.lobbyPlayers.length);
-                        gameSession.lobbyPlayers = updatedSession.lobbyPlayers;
-                        updateLobbyDisplay();
-                    }
-                    
-                    // Check if game has started
-                    if (updatedSession.gameStarted && !gameSession.gameStarted) {
-                        gameSession.gameStarted = true;
-                        stopLobbyPolling();
-                        startActualGame();
-                    }
-                }
-            }, 1000); // Check every second
+            // This function is now replaced by startRealTimeListener
+            // Keeping for compatibility but redirecting to new function
+            console.log('⚠️ startLobbyPolling is deprecated, using startRealTimeListener instead');
+            startRealTimeListener(gameSession.pin);
         }
 
         function stopLobbyPolling() {
+            // This function is now replaced by stopRealTimeListener
+            console.log('⚠️ stopLobbyPolling is deprecated, using stopRealTimeListener instead');
+            stopRealTimeListener();
             if (lobbyPollingInterval) {
                 clearInterval(lobbyPollingInterval);
                 lobbyPollingInterval = null;
             }
         }
 
-        function leaveLobby() {
-            // Stop polling for updates
-            stopLobbyPolling();
+        async function leaveLobby() {
+            // Stop real-time updates
+            stopRealTimeListener();
             
             // If host is leaving, clean up the game session
             if (gameSession.isHost && gameSession.pin) {
-                localStorage.removeItem(`gameSession_${gameSession.pin}`);
+                await removeGameFromCloud(gameSession.pin);
             }
             
             document.getElementById('lobbyScreen').style.display = 'none';
@@ -1758,19 +1902,21 @@
             };
         }
 
-        function startGameFromLobby() {
+        async function startGameFromLobby() {
             if (!gameSession.isHost || gameSession.lobbyPlayers.length !== 4) {
                 alert('Cannot start game');
                 return;
             }
 
-            // Update localStorage to notify all players game is starting
-            const sessionData = JSON.parse(localStorage.getItem(`gameSession_${gameSession.pin}`));
-            sessionData.gameStarted = true;
-            localStorage.setItem(`gameSession_${gameSession.pin}`, JSON.stringify(sessionData));
+            // Update cloud to notify all players game is starting
+            const sessionData = await loadGameFromCloud(gameSession.pin);
+            if (sessionData) {
+                sessionData.gameStarted = true;
+                await saveGameToCloud(gameSession.pin, sessionData);
+            }
 
-            // Stop polling and start the actual game
-            stopLobbyPolling();
+            // Stop real-time updates and start the actual game
+            stopRealTimeListener();
             startActualGame();
         }
 
@@ -1829,9 +1975,34 @@
             panel.style.display = panel.style.display === 'block' ? 'none' : 'block';
         }
 
+        // Copy share link to clipboard
+        function copyShareLink() {
+            const shareUrl = document.getElementById('shareUrl').textContent;
+            navigator.clipboard.writeText(shareUrl).then(() => {
+                const button = event.target;
+                const originalText = button.textContent;
+                button.textContent = '✅ Copied!';
+                button.style.background = '#4CAF50';
+                setTimeout(() => {
+                    button.textContent = originalText;
+                    button.style.background = '#2196F3';
+                }, 2000);
+            }).catch(() => {
+                // Fallback for older browsers
+                const textArea = document.createElement('textarea');
+                textArea.value = shareUrl;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                alert('Link copied to clipboard!');
+            });
+        }
+
         // Initialize game
         window.onload = function() {
             showSetup();
+            checkUrlForPin(); // Check if PIN is in URL
             
             // Add PIN input validation
             const pinInput = document.getElementById('gamePin');

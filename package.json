@@ -1,0 +1,13 @@
+{
+  "name": "peak-card-game",
+  "version": "1.0.0",
+  "description": "Peak Card Game - Multiplayer Card Game",
+  "main": "simple-server.js",
+  "scripts": {
+    "start": "node simple-server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5"
+  }
+}
