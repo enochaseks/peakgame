@@ -1211,7 +1211,7 @@
         function createDeck() {
             const deck = [];
             // Add regular cards 1-10 (multiple copies to have enough cards)
-            for (let copy = 0; copy < 4; copy++) {  // 4 copies of each number
+            for (let copy = 0; copy < 6; copy++) {  // 6 copies of each number = 60 cards
                 for (let i = 1; i <= 10; i++) {
                     deck.push(new Card(i, CardType.REGULAR));
                 }
@@ -1220,23 +1220,23 @@
             for (let i = 0; i < 10; i++) {
                 deck.push(new Card(0, CardType.PEAK));
             }
-            // Add 8 Reverse cards
-            for (let i = 0; i < 8; i++) {
+            // Add 12 Reverse cards
+            for (let i = 0; i < 12; i++) {
                 deck.push(new Card(0, CardType.REVERSE));
             }
-            // Add 5 Star cards (removes Peak cards from others)
-            for (let i = 0; i < 5; i++) {
+            // Add 8 Star cards (removes Peak cards from others)
+            for (let i = 0; i < 8; i++) {
                 deck.push(new Card(0, CardType.STAR));
             }
-            // Add 5 Goblin cards (gives bad cards to others)
-            for (let i = 0; i < 5; i++) {
+            // Add 7 Goblin cards (gives bad cards to others)
+            for (let i = 0; i < 7; i++) {
                 deck.push(new Card(0, CardType.GOBLIN));
             }
             // Add 3 Pause cards (pauses other player for 2 minutes)
             for (let i = 0; i < 3; i++) {
                 deck.push(new Card(0, CardType.PAUSE));
             }
-            return shuffleDeck(deck);  // Now we have 71 total cards (40 regular + 10 Peak + 8 Reverse + 5 Star + 5 Goblin + 3 Pause)
+            return shuffleDeck(deck);  // Now we have 100 total cards (60 regular + 10 Peak + 12 Reverse + 8 Star + 7 Goblin + 3 Pause)
         }
 
         function shuffleDeck(deck) {
