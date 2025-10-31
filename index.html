@@ -849,6 +849,72 @@
             }
         }
 
+        // Save the ENTIRE game state to Firebase (not just lobby)
+        async function saveGameStateToCloud(pin, gameState) {
+            try {
+                const response = await fetch(`${FIREBASE_URL}/games/${pin}/gameState.json`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(gameState)
+                });
+                
+                if (response.ok) {
+                    console.log('✅ Game state saved to Firebase:', pin);
+                    return true;
+                } else {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+            } catch (error) {
+                console.error('❌ Error saving game state to Firebase:', error);
+                return false;
+            }
+        }
+
+        // Load the ENTIRE game state from Firebase
+        async function loadGameStateFromCloud(pin) {
+            try {
+                const response = await fetch(`${FIREBASE_URL}/games/${pin}/gameState.json`);
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data) {
+                        console.log('✅ Game state loaded from Firebase:', pin);
+                        return data;
+                    }
+                }
+                return null;
+            } catch (error) {
+                console.error('❌ Error loading game state from Firebase:', error);
+                return null;
+            }
+        }
+
+        // Reconstruct game state with proper Card and Player objects
+        function reconstructGameState(gameState) {
+            const reconstructedGame = {
+                players: gameState.players.map(playerData => {
+                    const player = new Player(playerData.name);
+                    player.hand = playerData.hand.map(cardData => new Card(cardData.value, cardData.type));
+                    player.isDisqualified = playerData.isDisqualified;
+                    player.hasFinished = playerData.hasFinished;
+                    player.isPaused = playerData.isPaused || false;
+                    player.pausedUntil = playerData.pausedUntil || 0;
+                    return player;
+                }),
+                deck: gameState.deck.map(cardData => new Card(cardData.value, cardData.type)),
+                discardPile: gameState.discardPile.map(cardData => new Card(cardData.value, cardData.type)),
+                currentPlayerIndex: gameState.currentPlayerIndex,
+                roundNumber: gameState.roundNumber,
+                highCardPlayedThisRound: gameState.highCardPlayedThisRound,
+                gameOver: gameState.gameOver,
+                winner: gameState.winner,
+                direction: gameState.direction
+            };
+            return reconstructedGame;
+        }
+
         async function loadGameFromCloud(pin) {
             try {
                 const response = await fetch(`${FIREBASE_URL}/games/${pin}.json`);
@@ -889,6 +955,7 @@
 
         // Real-time listener for Firebase updates
         let gameUpdateListener = null;
+        let gameStateListener = null;
 
         function startRealTimeListener(pin) {
             if (gameUpdateListener) {
@@ -897,7 +964,7 @@
 
             console.log('🔄 Starting real-time listener for PIN:', pin);
             
-            // Poll Firebase for changes every 2 seconds
+            // Poll Firebase for lobby changes every 2 seconds
             gameUpdateListener = setInterval(async () => {
                 try {
                     const updatedSession = await loadGameFromCloud(pin);
@@ -911,10 +978,29 @@
                         
                         // Check if game has started
                         if (updatedSession.gameStarted && !gameSession.gameStarted) {
-                            console.log('🎮 Game starting!');
                             gameSession.gameStarted = true;
                             stopRealTimeListener();
-                            startActualGame();
+                            
+                            // Initialize basic game state for non-host players using proper Player objects
+                            game = {
+                                players: updatedSession.lobbyPlayers.map(p => new Player(p.name)),
+                                deck: [],
+                                discardPile: [],
+                                currentPlayerIndex: 0,
+                                roundNumber: 1,
+                                highCardPlayedThisRound: false,
+                                gameOver: false,
+                                winner: null,
+                                direction: 1
+                            };
+                            
+                            // Hide lobby and show game
+                            document.getElementById('setupModal').style.display = 'none';
+                            showMessage('Game started!', 'success');
+                            updateDisplay();
+                            
+                            // Start listening for real game state from host
+                            startGameStateListener(pin);
                         }
                     } else if (!updatedSession) {
                         console.log('⚠️ Game session no longer exists');
@@ -925,12 +1011,72 @@
             }, 2000); // Check every 2 seconds
         }
 
+        // Separate listener for game state during gameplay
+        function startGameStateListener(pin) {
+            if (gameStateListener) {
+                stopGameStateListener();
+            }
+
+            console.log('🎮 Starting game state listener for PIN:', pin);
+            let lastTimestamp = 0;
+            
+            gameStateListener = setInterval(async () => {
+                try {
+                    const gameState = await loadGameStateFromCloud(pin);
+                    if (gameState && gameState.timestamp && gameState.timestamp > lastTimestamp) {
+                        // Don't update if this player just made the move
+                        if (gameState.lastMoveBy !== gameSession.playerName) {
+                            // Reconstruct Player objects properly from Firebase data
+                            if (gameState.players) {
+                                game.players = gameState.players.map(p => {
+                                    const player = new Player(p.name);
+                                    // Reconstruct Card objects in player's hand
+                                    player.hand = (p.hand || []).map(cardData => new Card(cardData.value, cardData.type));
+                                    player.active = p.active !== undefined ? p.active : true;
+                                    player.isDisqualified = p.isDisqualified || false;
+                                    player.hasFinished = p.hasFinished || false;
+                                    player.isPaused = p.isPaused || false;
+                                    player.pausedUntil = p.pausedUntil || 0;
+                                    return player;
+                                });
+                            }
+                            
+                            // Reconstruct Card objects in deck and discard pile
+                            game.deck = (gameState.deck || game.deck || []).map(cardData => new Card(cardData.value, cardData.type));
+                            game.discardPile = (gameState.discardPile || []).map(cardData => new Card(cardData.value, cardData.type));
+                            game.currentPlayerIndex = gameState.currentPlayerIndex || 0;
+                            game.roundNumber = gameState.roundNumber || 1;
+                            game.highCardPlayedThisRound = gameState.highCardPlayedThisRound || false;
+                            game.gameOver = gameState.gameOver || false;
+                            game.winner = gameState.winner || null;
+                            game.direction = gameState.direction || 1;
+                            
+                            // Update display for all players
+                            updateDisplay();
+                        }
+                        lastTimestamp = gameState.timestamp;
+                    }
+                } catch (error) {
+                    console.error('❌ Error in game state listener:', error);
+                }
+            }, 1000); // Check every 1 second for faster gameplay
+        }
+
+        function stopGameStateListener() {
+            if (gameStateListener) {
+                clearInterval(gameStateListener);
+                gameStateListener = null;
+                console.log('⏹️ Stopped game state listener');
+            }
+        }
+
         function stopRealTimeListener() {
             if (gameUpdateListener) {
                 clearInterval(gameUpdateListener);
                 gameUpdateListener = null;
                 console.log('⏹️ Stopped real-time listener');
             }
+            stopGameStateListener();
         }
 
         // Alternative sharing method for GitHub Pages
@@ -1137,43 +1283,17 @@
             return !card.isPeakCard() && !card.isReverseCard() && card.value >= 8 && card.value <= 10;
         }
 
-        function playCard(playerIndex, cardIndex) {
-            console.log(`🎮 PlayCard called: player ${playerIndex} (${game.players[playerIndex].name}), card index ${cardIndex}`);
-            
+        async function playCard(playerIndex, cardIndex) {
             const player = game.players[playerIndex];
             const card = player.hand[cardIndex];
-            const lastCard = game.discardPile.length > 0 ? game.discardPile[game.discardPile.length - 1] : null;
-
-            console.log(`🃏 Playing card: ${card.toString()}`);
-            console.log(`📋 Last card: ${lastCard ? lastCard.toString() : 'None'}`);
-            console.log(`👤 Current player index: ${game.currentPlayerIndex}`);
-
-            // Validation checks
-            if (playerIndex !== game.currentPlayerIndex) {
-                showMessage("It's not your turn!", 'error');
-                console.log('❌ Not player\'s turn');
-                return false;
-            }
-
-            if (!canPlayCard(card, lastCard)) {
-                showMessage(`Cannot play ${card} - invalid move!`, 'error');
-                console.log('❌ Invalid card play');
-                return false;
-            }
-
-            // Play the card - this is the critical part
-            console.log(`✅ Playing card ${card.toString()}`);
-            console.log('🔍 Before: Hand size =', player.hand.length, 'Discard pile size =', game.discardPile.length);
             
-            // Remove card from player's hand
+            if (!player || !card) {
+                return false;
+            }
+
+            // Remove card from player's hand and add to discard pile
             const cardToRemove = player.hand.splice(cardIndex, 1)[0];
-            console.log('🗑️ Removed card:', cardToRemove.toString());
-            
-            // Add to discard pile
             game.discardPile.push(cardToRemove);
-            console.log('📤 Added to discard pile');
-            
-            console.log('🔍 After: Hand size =', player.hand.length, 'Discard pile size =', game.discardPile.length);
             
             showMessage(`${player.name} played ${cardToRemove}`, 'success');
 
@@ -1231,6 +1351,33 @@
             // Update the display immediately
             console.log('🔄 Updating display...');
             updateDisplay();
+            
+            // Save game state to Firebase for all players
+            if (gameSession.pin) {
+                await saveGameStateToCloud(gameSession.pin, {
+                    players: game.players.map(p => ({
+                        name: p.name,
+                        hand: p.hand,
+                        active: p.active,
+                        isDisqualified: p.isDisqualified,
+                        hasFinished: p.hasFinished,
+                        isPaused: p.isPaused,
+                        pausedUntil: p.pausedUntil
+                    })),
+                    deck: game.deck,
+                    discardPile: game.discardPile,
+                    currentPlayerIndex: game.currentPlayerIndex,
+                    roundNumber: game.roundNumber,
+                    highCardPlayedThisRound: game.highCardPlayedThisRound,
+                    gameOver: game.gameOver,
+                    winner: game.winner,
+                    direction: game.direction,
+                    lastMoveBy: gameSession.playerName,
+                    timestamp: Date.now()
+                });
+                console.log('💾 Game state saved to Firebase after move');
+            }
+            
             console.log('✅ Card play completed');
             
             return true;
@@ -1491,7 +1638,7 @@
             document.getElementById('gameDirection').textContent = game.direction === 1 ? '↻ Clockwise' : '↺ Counter-CW';
 
             // Update last played card
-            const lastCard = game.discardPile[game.discardPile.length - 1];
+            const lastCard = game.discardPile && game.discardPile.length > 0 ? game.discardPile[game.discardPile.length - 1] : null;
             const lastCardElement = document.getElementById('lastPlayedCard');
             if (lastCard) {
                 const cardElement = createCardElement(lastCard, -1, -1, true);
@@ -1598,27 +1745,19 @@
 
                 const lastCard = game.discardPile[game.discardPile.length - 1];
                 
-                // Show cards based on whether this is the current player's view
-                const isCurrentPlayer = gameSession.gameStarted ? 
-                    (player.name === gameSession.playerName) : 
-                    (playerIndex === game.currentPlayerIndex);
-                
-                const cardsToShow = isCurrentPlayer ? player.hand : player.hand.slice(0, 3);
+                // Show cards based on whether this is the logged-in player's own hand
+                const isOwnHand = (player.name === gameSession.playerName);
+                const cardsToShow = isOwnHand ? player.hand : player.hand.slice(0, 3);
                 
                 cardsToShow.forEach((card, cardIndex) => {
-                    const isPlayable = isCurrentPlayer && 
-                                     playerIndex === game.currentPlayerIndex && 
-                                     player.isActive() && 
-                                     canPlayCard(card, lastCard);
-                    
-                    // Show card back for other players
-                    const displayCard = isCurrentPlayer ? card : createCardBack();
-                    const cardElement = createCardElement(displayCard, playerIndex, cardIndex, false, isPlayable, !isCurrentPlayer);
+                    const isPlayable = isOwnHand && game.players && game.players[playerIndex];
+                    const displayCard = isOwnHand ? card : createCardBack();
+                    const cardElement = createCardElement(displayCard, playerIndex, cardIndex, false, isPlayable, !isOwnHand);
                     handDiv.appendChild(cardElement);
                 });
 
-                // If player has more than 3 cards and not current player, show "..."
-                if (!isCurrentPlayer && player.hand.length > 3) {
+                // If player has more than 3 cards and it's not own hand, show "..."
+                if (!isOwnHand && player.hand.length > 3) {
                     const moreDiv = document.createElement('div');
                     moreDiv.style.fontSize = '0.8em';
                     moreDiv.style.color = '#666';
@@ -1631,10 +1770,8 @@
                 avatarDiv.appendChild(iconDiv);
                 avatarDiv.appendChild(nameDiv);
                 avatarDiv.appendChild(cardCountDiv);
-                // Only show cards for current player or if they have very few cards
-                if (playerIndex === game.currentPlayerIndex || player.hand.length <= 5) {
-                    avatarDiv.appendChild(handDiv);
-                }
+                // Always show cards - either own cards (face up) or card backs (face down)
+                avatarDiv.appendChild(handDiv);
 
                 seatDiv.appendChild(avatarDiv);
                 container.appendChild(seatDiv);
@@ -1673,9 +1810,8 @@
                 }
                 if (isPlayable) {
                     cardDiv.classList.add('playable');
-                    cardDiv.onclick = () => {
-                        console.log(`Card clicked: ${card.toString()} by player ${playerIndex} (card index ${cardIndex})`);
-                        playCard(playerIndex, cardIndex);
+                    cardDiv.onclick = async () => {
+                        await playCard(playerIndex, cardIndex);
                     };
                     cardDiv.style.cursor = 'pointer';
                 }
@@ -1885,8 +2021,8 @@
         }
 
         async function startGameFromLobby() {
-            if (!gameSession.isHost || gameSession.lobbyPlayers.length !== 4) {
-                alert('Cannot start game');
+            if (!gameSession.isHost || gameSession.lobbyPlayers.length < 2) {
+                alert('Need at least 2 players to start game');
                 return;
             }
 
@@ -1902,21 +2038,81 @@
             startActualGame();
         }
 
-        function startActualGame() {
-            // Initialize game with lobby players
-            const playerNames = gameSession.lobbyPlayers.map(p => p.name);
-            
-            game = {
-                players: playerNames.map(name => new Player(name)),
-                deck: createDeck(),
-                discardPile: [],
-                currentPlayerIndex: 0,
-                roundNumber: 1,
-                highCardPlayedThisRound: false,
-                gameOver: false,
-                winner: null,
-                direction: 1
-            };
+        async function startActualGame() {
+            // Only the host initializes the game state
+            if (gameSession.isHost) {
+                console.log('🎮 Host initializing game state...');
+                
+                // Initialize game with lobby players
+                const playerNames = gameSession.lobbyPlayers.map(p => p.name);
+                
+                game = {
+                    players: playerNames.map(name => new Player(name)),
+                    deck: createDeck(),
+                    discardPile: [],
+                    currentPlayerIndex: 0,
+                    roundNumber: 1,
+                    highCardPlayedThisRound: false,
+                    gameOver: false,
+                    winner: null,
+                    direction: 1
+                };
+
+                dealCards();
+                
+                // Save initial game state to Firebase
+                await saveGameStateToCloud(gameSession.pin, {
+                    players: game.players.map(p => ({
+                        name: p.name,
+                        hand: p.hand,
+                        active: p.active
+                    })),
+                    deck: game.deck,
+                    discardPile: game.discardPile,
+                    currentPlayerIndex: game.currentPlayerIndex,
+                    roundNumber: game.roundNumber,
+                    highCardPlayedThisRound: game.highCardPlayedThisRound,
+                    gameOver: game.gameOver,
+                    winner: game.winner,
+                    direction: game.direction,
+                    lastMoveBy: 'HOST_INIT',
+                    timestamp: Date.now()
+                });
+                
+                console.log('✅ Initial game state saved to Firebase');
+            } else {
+                console.log('🎮 Non-host waiting for game state...');
+                // Non-host players wait and load game state from Firebase
+                let attempts = 0;
+                while (attempts < 10) {
+                    const gameState = await loadGameStateFromCloud(gameSession.pin);
+                    if (gameState && gameState.players) {
+                        // Reconstruct Player objects properly
+                        game = {
+                            players: gameState.players.map(p => {
+                                const player = new Player(p.name);
+                                // Reconstruct Card objects in player's hand
+                                player.hand = (p.hand || []).map(cardData => new Card(cardData.value, cardData.type));
+                                player.active = p.active !== undefined ? p.active : true;
+                                return player;
+                            }),
+                            // Reconstruct Card objects in deck and discard pile
+                            deck: (gameState.deck || []).map(cardData => new Card(cardData.value, cardData.type)),
+                            discardPile: (gameState.discardPile || []).map(cardData => new Card(cardData.value, cardData.type)),
+                            currentPlayerIndex: gameState.currentPlayerIndex || 0,
+                            roundNumber: gameState.roundNumber || 1,
+                            highCardPlayedThisRound: gameState.highCardPlayedThisRound || false,
+                            gameOver: gameState.gameOver || false,
+                            winner: gameState.winner || null,
+                            direction: gameState.direction || 1
+                        };
+                        console.log('✅ Game state loaded from Firebase');
+                        break;
+                    }
+                    attempts++;
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+                }
+            }
 
             // Set current player ID for card visibility
             gameSession.gameStarted = true;
@@ -1925,8 +2121,6 @@
                 gameSession.currentPlayerIndex = currentPlayerIndex;
             }
 
-            dealCards();
-            
             console.log('Game started from lobby:');
             console.log('Players:', game.players.map(p => `${p.name}: ${p.hand.length} cards`));
             console.log('Current player for this client:', gameSession.playerName);
@@ -1934,6 +2128,9 @@
             document.getElementById('setupModal').style.display = 'none';
             showMessage('Game started! Each player has 7 cards.', 'success');
             updateDisplay();
+            
+            // Start listening for game state changes
+            startGameStateListener(gameSession.pin);
         }
 
         // Legacy function for compatibility
