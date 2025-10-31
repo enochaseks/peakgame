@@ -1051,6 +1051,13 @@
                             game.winner = gameState.winner || null;
                             game.direction = gameState.direction || 1;
                             
+                            // Check if game is over and show winner to all players
+                            if (game.gameOver && game.winner) {
+                                showGameOver(`🎉 ${game.winner.name} wins!`);
+                            } else if (game.gameOver && !game.winner) {
+                                showGameOver("😞 Game ended with no winner.");
+                            }
+                            
                             // Update display for all players
                             updateDisplay();
                         }
@@ -1346,7 +1353,7 @@
                     player.hasFinished = true;
                     showMessage(`🏆 ${player.name} has finished the game!`, 'success');
                     updateDisplay();
-                    checkGameOver();
+                    await checkGameOver();
                     return true;
                 } else {
                     showMessage(`${player.name} cannot finish on ${cardToRemove}!`, 'error');
@@ -1595,7 +1602,7 @@
             return true;
         }
 
-        function checkGameOver() {
+        async function checkGameOver() {
             const activePlayers = game.players.filter(p => p.isActive());
             const finishedPlayers = game.players.filter(p => p.hasFinished);
 
@@ -1603,13 +1610,64 @@
                 game.gameOver = true;
                 game.winner = finishedPlayers[0];
                 showGameOver(`🎉 ${game.winner.name} wins!`);
+                
+                // Save final game state to Firebase so all players see the winner
+                if (gameSession.pin) {
+                    await saveGameStateToCloud(gameSession.pin, {
+                        players: game.players.map(p => ({
+                            name: p.name,
+                            hand: p.hand,
+                            active: p.active,
+                            isDisqualified: p.isDisqualified,
+                            hasFinished: p.hasFinished,
+                            isPaused: p.isPaused,
+                            pausedUntil: p.pausedUntil
+                        })),
+                        deck: game.deck,
+                        discardPile: game.discardPile,
+                        currentPlayerIndex: game.currentPlayerIndex,
+                        roundNumber: game.roundNumber,
+                        highCardPlayedThisRound: game.highCardPlayedThisRound,
+                        gameOver: game.gameOver,
+                        winner: game.winner ? {name: game.winner.name} : null,
+                        direction: game.direction,
+                        lastMoveBy: gameSession.playerName,
+                        timestamp: Date.now()
+                    });
+                }
             } else if (activePlayers.length <= 1) {
                 game.gameOver = true;
                 if (activePlayers.length === 1) {
                     game.winner = activePlayers[0];
                     showGameOver(`🎉 ${game.winner.name} wins!`);
                 } else {
+                    game.winner = null;
                     showGameOver("😞 Game ended with no winner.");
+                }
+                
+                // Save final game state to Firebase so all players see the result
+                if (gameSession.pin) {
+                    await saveGameStateToCloud(gameSession.pin, {
+                        players: game.players.map(p => ({
+                            name: p.name,
+                            hand: p.hand,
+                            active: p.active,
+                            isDisqualified: p.isDisqualified,
+                            hasFinished: p.hasFinished,
+                            isPaused: p.isPaused,
+                            pausedUntil: p.pausedUntil
+                        })),
+                        deck: game.deck,
+                        discardPile: game.discardPile,
+                        currentPlayerIndex: game.currentPlayerIndex,
+                        roundNumber: game.roundNumber,
+                        highCardPlayedThisRound: game.highCardPlayedThisRound,
+                        gameOver: game.gameOver,
+                        winner: game.winner ? {name: game.winner.name} : null,
+                        direction: game.direction,
+                        lastMoveBy: gameSession.playerName,
+                        timestamp: Date.now()
+                    });
                 }
             }
         }
@@ -1641,7 +1699,7 @@
             }, 5000);
         }
 
-        function updateDisplay() {
+        async function updateDisplay() {
                 // Update game info
             document.getElementById('roundNumber').textContent = game.roundNumber;
             document.getElementById('deckCount').textContent = game.deck.length;
@@ -1673,7 +1731,7 @@
 
             // Check for game over
             if (!game.gameOver) {
-                checkGameOver();
+                await checkGameOver();
             }
         }
 
