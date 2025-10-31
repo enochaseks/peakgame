@@ -1,9 +1,69 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Peak Card Game</title>
+    
+    <!-- Audio Elements with Multi-Format Support -->
+    <audio id="bgMusic" loop preload="auto" volume="0.3">
+        <source src="audio/music/background-music.mp3" type="audio/mpeg">
+        <source src="audio/music/background-music.ogg" type="audio/ogg">
+        <source src="audio/music/background-music.wav" type="audio/wav">
+    </audio>
+    
+    <audio id="cardFlip" preload="auto" volume="0.7">
+        <source src="audio/sfx/card-flip.wav" type="audio/wav">
+        <source src="audio/sfx/card-flip.mp3" type="audio/mpeg">
+        <source src="audio/sfx/card-flip.ogg" type="audio/ogg">
+    </audio>
+    
+    <audio id="cardPlace" preload="auto" volume="0.6">
+        <source src="audio/sfx/card-place.wav" type="audio/wav">
+        <source src="audio/sfx/card-place.mp3" type="audio/mpeg">
+        <source src="audio/sfx/card-place.ogg" type="audio/ogg">
+    </audio>
+    
+    <audio id="peakCard" preload="auto" volume="0.8">
+        <source src="audio/sfx/peak-card.m4a" type="audio/mp4">
+        <source src="audio/sfx/peak-card.mp3" type="audio/mpeg">
+        <source src="audio/sfx/peak-card.wav" type="audio/wav">
+        <source src="audio/sfx/peak-card.ogg" type="audio/ogg">
+    </audio>
+
+    <audio id="goblinSound" preload="auto" volume="0.8">
+        <source src="audio/sfx/goblin-sound.wav" type="audio/wav">
+    </audio>
+
+    <audio id="starSound" preload="auto" volume="0.8">
+        <source src="audio/sfx/star-sound.wav" type="audio/wav">
+    </audio>
+    
+    <audio id="winSound" preload="auto" volume="0.9">
+        <source src="audio/sfx/win-sound.wav" type="audio/wav">
+        <source src="audio/sfx/win-sound.mp3" type="audio/mpeg">
+        <source src="audio/sfx/win-sound.ogg" type="audio/ogg">
+    </audio>
+    
+    <audio id="loseSound" preload="auto" volume="0.5">
+        <source src="audio/sfx/lose-sound.mp3" type="audio/mpeg">
+        <source src="audio/sfx/lose-sound.wav" type="audio/wav">
+        <source src="audio/sfx/lose-sound.ogg" type="audio/ogg">
+    </audio>
+    
+    <audio id="buttonClick" preload="auto" volume="0.4">
+        <source src="audio/sfx/button-click.wav" type="audio/wav">
+        <source src="audio/sfx/button-click.mp3" type="audio/mpeg">
+        <source src="audio/sfx/button-click.ogg" type="audio/ogg">
+    </audio>
+    
+    <!-- Turn notification removed - file not available -->
+    <!--<audio id="turnNotification" preload="auto" volume="0.6">
+        <source src="audio/sfx/turn-notification.mp3" type="audio/mpeg">
+        <source src="audio/sfx/turn-notification.wav" type="audio/wav">
+        <source src="audio/sfx/turn-notification.ogg" type="audio/ogg">
+    </audio>-->
+    
     <style>
         * {
             margin: 0;
@@ -37,6 +97,49 @@
             0% { background-position: 0% 50%; }
             50% { background-position: 100% 50%; }
             100% { background-position: 0% 50%; }
+        }
+        
+        @keyframes playerTurnHighlight {
+            0% { transform: scale(1); background-color: transparent; }
+            50% { transform: scale(1.1); background-color: rgba(255, 255, 0, 0.2); }
+            100% { transform: scale(1); background-color: transparent; }
+        }
+        
+        .player-turn-highlight {
+            animation: playerTurnHighlight 1s ease-in-out;
+            border-radius: 4px;
+            padding: 2px 6px;
+        }
+        
+        .card-stack {
+            transition: all 0.3s ease-in-out;
+        }
+        
+        .card-stack .card {
+            transition: all 0.3s ease-in-out;
+            box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
+        }
+        
+        @keyframes lastPlayedHighlight {
+            0% { transform: scale(1); box-shadow: 0 0 0 rgba(255, 215, 0, 0); }
+            50% { transform: scale(1.05); box-shadow: 0 0 15px rgba(255, 215, 0, 0.5); }
+            100% { transform: scale(1); box-shadow: 0 0 0 rgba(255, 215, 0, 0); }
+        }
+        
+        .last-played-highlight {
+            animation: lastPlayedHighlight 1s ease-in-out;
+            z-index: 10 !important;
+        }
+        
+        @keyframes directionChange {
+            0% { transform: scale(1) rotate(0deg); opacity: 1; }
+            50% { transform: scale(1.2) rotate(180deg); opacity: 0.7; }
+            100% { transform: scale(1) rotate(360deg); opacity: 1; }
+        }
+        
+        .direction-change {
+            animation: directionChange 1s ease-in-out;
+            display: inline-block;
         }
 
         .game-container {
@@ -107,6 +210,110 @@
                 transform: scale(1.1);
             }
         }
+        
+        /* Audio Controls Styles */
+        .audio-controls-main {
+            background: rgba(255,255,255,0.95);
+            border-radius: 15px;
+            padding: 15px;
+            margin: 15px 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            backdrop-filter: blur(10px);
+            flex-wrap: wrap;
+        }
+        
+        @media (max-width: 480px) {
+            .audio-controls-main {
+                flex-direction: column;
+                gap: 10px;
+            }
+        }
+        
+        .audio-btn {
+            background: linear-gradient(145deg, #55efc4, #00b894);
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.9em;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            min-width: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+        }
+        
+        .audio-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(85, 239, 196, 0.4);
+        }
+        
+        .audio-btn:active {
+            transform: translateY(0);
+        }
+        
+        .audio-btn.muted {
+            background: linear-gradient(145deg, #e74c3c, #c0392b);
+        }
+        
+        .volume-control {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            background: rgba(255,255,255,0.7);
+            border-radius: 15px;
+            border: 2px solid #ddd;
+        }
+        
+        .volume-control span {
+            font-size: 1.2em;
+            color: #333;
+        }
+        
+        #volumeSlider {
+            width: 100px;
+            height: 6px;
+            border-radius: 3px;
+            background: #ddd;
+            outline: none;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+        
+        @media (max-width: 480px) {
+            #volumeSlider {
+                width: 120px;
+            }
+        }
+        
+        #volumeSlider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #55efc4;
+            cursor: pointer;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+        }
+        
+        #volumeSlider::-moz-range-thumb {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #55efc4;
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+        }
 
         .game-header {
             text-align: center;
@@ -129,6 +336,24 @@
             margin-bottom: 20px;
             padding: 10px;
             flex-wrap: wrap;
+        }
+        
+        .modal-title {
+            transform: scale(0.6);
+            margin: -25px auto -30px auto; /* Increased negative bottom margin to pull content up */
+            flex-direction: column;
+            padding: 0;
+        }
+        
+        .modal-title .peak-cards {
+            margin-bottom: 2px;
+            transform: scale(0.9);
+        }
+        
+        .modal-title .subtitle {
+            margin-top: 2px;
+            font-size: 1em;
+            margin-bottom: -10px; /* Pull up the content below */
         }
         
         @media (min-width: 768px) {
@@ -1018,8 +1243,367 @@
             padding: 30px;
             border-radius: 15px;
             text-align: center;
-            min-width: 400px;
+            width: 90%;
+            max-width: 500px;
+            min-width: 320px;
+            max-height: 90vh;
+            overflow-y: auto;
             box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        /* Ensure modal displays properly on desktop */
+        @media (min-width: 768px) {
+            .modal-content {
+                width: 80%;
+                max-width: 600px;
+                min-width: 500px;
+            }
+        }
+
+        @media (min-width: 1024px) {
+            .modal-content {
+                width: 70%;
+                max-width: 700px;
+                min-width: 600px;
+            }
+        }
+
+        /* Settings Gear Button */
+        .settings-gear {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(255,255,255,0.9);
+            border: 2px solid #ddd;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            font-size: 1.5em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+        }
+
+        .settings-gear:hover {
+            background: #fff;
+            border-color: #55efc4;
+            transform: rotate(90deg) scale(1.1);
+            box-shadow: 0 4px 12px rgba(85, 239, 196, 0.3);
+        }
+
+        /* Settings Modal Specific Styles */
+        #settingsModal .modal-content {
+            text-align: left;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .modal-header h2 {
+            margin: 0;
+            color: #333;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 1.5em;
+            cursor: pointer;
+            color: #999;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+        }
+
+        .close-btn:hover {
+            background: #f0f0f0;
+            color: #333;
+        }
+
+        .settings-section {
+            margin-bottom: 25px;
+        }
+
+        .settings-section h3 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.1em;
+        }
+
+        .setting-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid #f0f0f0;
+            min-height: 50px;
+        }
+
+        .setting-item:last-child {
+            border-bottom: none;
+        }
+
+        .setting-item label {
+            font-weight: 500;
+            color: #333;
+            font-size: 1em;
+            flex: 1;
+        }
+
+        /* Toggle Switch */
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 24px;
+            cursor: pointer;
+        }
+
+        .toggle-switch input {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+            z-index: 2;
+            margin: 0;
+            padding: 0;
+        }
+
+        .slider {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: 0.3s;
+            border-radius: 24px;
+            pointer-events: none;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: 0.3s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: #55efc4;
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+
+        /* Volume Slider in Settings */
+        .volume-slider-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            min-width: 200px;
+        }
+
+        #volumeSliderModal {
+            width: 150px;
+            height: 6px;
+            border-radius: 3px;
+            background: #ddd;
+            outline: none;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+
+        #volumeSliderModal::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #55efc4;
+            cursor: pointer;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+        }
+
+        #volumeSliderModal::-moz-range-thumb {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #55efc4;
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+        }
+
+        #volumePercent {
+            min-width: 45px;
+            font-weight: bold;
+            color: #55efc4;
+            font-size: 1em;
+        }
+
+        .game-credits {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .game-credits p {
+            margin: 5px 0;
+            color: #666;
+        }
+
+        .game-credits p:first-child {
+            font-weight: bold;
+            color: #333;
+            font-size: 1.1em;
+        }
+
+        /* Audio Status Styles - HIDDEN */
+        #audioStatus,
+        .audio-status {
+            display: none !important;
+        }
+        
+        /* Hide the entire audio status section */
+        .settings-section:has(#audioStatus) {
+            display: none !important;
+        }
+
+        .audio-status .loading {
+            color: #666;
+            text-align: center;
+        }
+
+        .audio-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 8px 0;
+            padding: 5px 0;
+        }
+
+        .audio-item.ready {
+            color: #27ae60;
+        }
+
+        .audio-item.not-ready {
+            color: #e74c3c;
+        }
+
+        .audio-item .status {
+            font-weight: bold;
+        }
+
+        .test-audio-btn {
+            width: 100%;
+            margin-top: 10px;
+            background: linear-gradient(145deg, #3498db, #2980b9);
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.95em;
+            transition: all 0.3s ease;
+        }
+
+        .test-audio-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
+        }
+
+        .modal-footer {
+            margin-top: 20px;
+            text-align: center;
+            padding-top: 15px;
+            border-top: 2px solid #f0f0f0;
+        }
+
+        /* Desktop Settings Enhancement */
+        @media (min-width: 768px) {
+            .settings-section {
+                margin-bottom: 30px;
+            }
+            
+            .setting-item {
+                padding: 18px 0;
+            }
+            
+            .toggle-switch {
+                width: 60px;
+                height: 30px;
+            }
+            
+            .slider:before {
+                height: 22px;
+                width: 22px;
+                left: 4px;
+                bottom: 4px;
+            }
+            
+            input:checked + .slider:before {
+                transform: translateX(30px);
+            }
+        }
+
+        /* Responsive Settings Modal */
+        @media (max-width: 767px) {
+            .modal-content {
+                min-width: 300px;
+                max-width: 95%;
+                padding: 20px;
+                margin: 5% auto;
+            }
+            
+            .settings-gear {
+                width: 35px;
+                height: 35px;
+                font-size: 1.2em;
+            }
+            
+            .setting-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+                padding: 15px 0;
+            }
+            
+            .setting-item label {
+                margin-bottom: 5px;
+            }
+            
+            .volume-slider-container {
+                width: 100%;
+                justify-content: space-between;
+                min-width: auto;
+            }
+            
+            #volumeSliderModal {
+                flex: 1;
+                margin: 0 15px;
+                width: auto;
+            }
         }
 
         .setup-form {
@@ -1170,6 +1754,8 @@
             justify-content: center;
             flex-wrap: wrap;
             padding: 0 10px;
+            position: relative;
+            z-index: 1;
         }
         
         @media (min-width: 768px) {
@@ -1191,6 +1777,12 @@
             max-width: 120px;
             display: flex;
             flex-direction: column;
+            position: relative;
+            z-index: 10;
+            pointer-events: auto;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
         }
         
         @media (min-width: 480px) {
@@ -1238,6 +1830,8 @@
             transform: rotate(45deg);
             transition: all 0.3s ease;
             opacity: 0;
+            z-index: -1;
+            pointer-events: none;
         }
 
         .player-count-btn:hover::before {
@@ -1248,12 +1842,16 @@
         .count-emoji {
             font-size: 2em;
             margin-bottom: 5px;
+            pointer-events: none;
+            user-select: none;
         }
 
         .count-text {
             font-size: 1.1em;
             font-weight: bold;
             margin-bottom: 2px;
+            pointer-events: none;
+            user-select: none;
         }
 
         .count-desc {
@@ -1261,6 +1859,8 @@
             opacity: 0.8;
             text-align: center;
             line-height: 1.2;
+            pointer-events: none;
+            user-select: none;
         }
 
         .player-count-btn.selected .count-desc {
@@ -1583,6 +2183,9 @@
         </div>
 
         <div class="game-info">
+            <button class="settings-gear" onclick="openSettings()" title="Game Settings">
+                ⚙️
+            </button>
             <div class="info-item">
                 <div class="info-label">Round</div>
                 <div class="info-value" id="roundNumber">1</div>
@@ -1622,34 +2225,44 @@
         </div>
 
         <div class="controls">
-            <button class="btn draw" id="drawBtn" onclick="drawCard()" disabled>🃏 DRAW CARD</button>
+            <button class="btn draw" id="drawBtn" onclick="drawCard().catch(console.error)" disabled>🃏 DRAW CARD</button>
             <button class="btn quit" id="gameActionBtn" onclick="handleGameAction()">🔄 NEW GAME</button>
             <button class="btn" onclick="showGameState()">📊 GAME STATE</button>
         </div>
+        
+
     </div>
 
     <!-- Setup Modal -->
     <div class="modal" id="setupModal">
         <div class="modal-content">
-            <h2>🏔️ Peak Card Game</h2>
-            <div id="startScreen" class="setup-form">
-                <p>Enter your name:</p>
-                <input type="text" class="player-input" id="playerName" placeholder="Your Name" maxlength="20">
+            <div class="title-container modal-title">
+                <div class="peak-cards">
+                    <div class="peak-card">P</div>
+                    <div class="peak-card">E</div>
+                    <div class="peak-card">A</div>
+                    <div class="peak-card">K</div>
+                </div>
+                <div class="subtitle">Card Game</div>
+            </div>
+            <div id="startScreen" class="setup-form" style="margin-top: -10px;">
+                <p style="margin-top: 5px; margin-bottom: 5px;">Enter your name:</p>
+                <input type="text" class="player-input" id="playerName" placeholder="Your Name" maxlength="20" style="margin-bottom: 10px;">
                 
                 <div id="playerCountSection" style="margin: 20px 0; display: none;">
                     <p>Choose number of players:</p>
                     <div class="player-count-options" style="display: flex; gap: 10px; justify-content: center; margin: 10px 0;">
-                        <button class="player-count-btn" data-count="2" onclick="selectPlayerCount(2)">
+                        <button class="player-count-btn" data-count="2">
                             <span class="count-emoji">👥</span>
                             <span class="count-text">2 Players</span>
                             <span class="count-desc">(You + 1 friend)</span>
                         </button>
-                        <button class="player-count-btn" data-count="3" onclick="selectPlayerCount(3)">
+                        <button class="player-count-btn" data-count="3">
                             <span class="count-emoji">👨‍👩‍👧</span>
                             <span class="count-text">3 Players</span>
                             <span class="count-desc">(You + 2 friends)</span>
                         </button>
-                        <button class="player-count-btn" data-count="4" onclick="selectPlayerCount(4)">
+                        <button class="player-count-btn" data-count="4">
                             <span class="count-emoji">👨‍👩‍👧‍👦</span>
                             <span class="count-text">4 Players</span>
                             <span class="count-desc">(You + 3 friends)</span>
@@ -1657,19 +2270,45 @@
                     </div>
                 </div>
                 
-                <p style="margin-top: 20px;">Game PIN:</p>
-                <input type="text" class="player-input" id="gamePin" placeholder="Enter 4-digit PIN" maxlength="4" pattern="[0-9]{4}">
+                <p style="margin-top: 10px; margin-bottom: 5px;">Game PIN:</p>
+                <input type="text" class="player-input" id="gamePin" placeholder="Enter 4-digit PIN" maxlength="4" pattern="[0-9]{4}" style="margin-bottom: 10px;">
                 <div style="display: flex; gap: 10px; margin-top: 20px;">
                     <button class="btn" onclick="createGame()" id="createGameBtn" style="flex: 1;">🎮 Create Game</button>
                     <button class="btn" onclick="joinGame()" id="joinBtn" disabled style="flex: 1;">🚪 Join Game</button>
                 </div>
+                
+                <!-- Audio Controls -->
+                <div class="audio-controls-main">
+                    <button class="audio-btn" id="startMusicBtn" onclick="startMusicManually()" title="Start Background Music" style="display: none;">
+                        🎵 START MUSIC
+                    </button>
+                    <button class="audio-btn" id="musicToggle" onclick="toggleMusic()" title="Toggle Background Music">
+                        🎵 <span id="musicStatus">ON</span>
+                    </button>
+                    <button class="audio-btn" id="sfxToggle" onclick="toggleSFX()" title="Toggle Sound Effects">
+                        🔊 <span id="sfxStatus">ON</span>
+                    </button>
+                    <div class="volume-control">
+                        <span>🔉</span>
+                        <input type="range" id="volumeSlider" min="0" max="100" value="50" onchange="setVolume(this.value)">
+                    </div>
+                </div>
+                
                 <div id="gameCreationControls" style="display: none; margin-top: 15px;">
                     <button class="btn" onclick="resetGameCreation()" style="background: linear-gradient(145deg, #95a5a6, #7f8c8d);">↩️ Back</button>
                 </div>
             </div>
             
             <div id="lobbyScreen" class="setup-form" style="display: none;">
-                <h3 id="lobbyTitle">Game Lobby</h3>
+                <div class="title-container modal-title">
+                    <div class="peak-cards">
+                        <div class="peak-card">P</div>
+                        <div class="peak-card">E</div>
+                        <div class="peak-card">A</div>
+                        <div class="peak-card">K</div>
+                    </div>
+                    <div class="subtitle">Game Lobby</div>
+                </div>
                 <div id="gamePinDisplay" style="font-size: 2em; font-weight: bold; color: #4CAF50; margin: 10px 0;"></div>
                 <div id="playerCountDisplay" style="font-size: 1.2em; font-weight: bold; color: #666; margin: 5px 0;"></div>
                 <p>🌍 Share this PIN with friends anywhere in the world!</p>
@@ -1696,6 +2335,64 @@
             <h2 id="gameOverTitle">🎉 Game Over!</h2>
             <p id="gameOverMessage"></p>
             <button class="btn" onclick="showSetup()">🔄 Play Again</button>
+        </div>
+    </div>
+
+    <!-- Settings Modal -->
+    <div class="modal" id="settingsModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>⚙️ Game Settings</h2>
+                <button class="close-btn" onclick="closeSettings()">×</button>
+            </div>
+            
+            <div class="settings-section">
+                <h3>🎵 Audio Settings</h3>
+                
+                <div class="setting-item">
+                    <label for="musicToggleModal">Background Music</label>
+                    <div class="toggle-switch">
+                        <input type="checkbox" id="musicToggleModal" onchange="toggleMusicFromSettings()" checked>
+                        <span class="slider"></span>
+                    </div>
+                </div>
+                
+                <div class="setting-item">
+                    <label for="sfxToggleModal">Sound Effects</label>
+                    <div class="toggle-switch">
+                        <input type="checkbox" id="sfxToggleModal" onchange="toggleSFXFromSettings()" checked>
+                        <span class="slider"></span>
+                    </div>
+                </div>
+                
+                <div class="setting-item">
+                    <label for="volumeSliderModal">Master Volume</label>
+                    <div class="volume-slider-container">
+                        <input type="range" id="volumeSliderModal" min="0" max="100" value="50" onchange="setVolumeFromSettings(this.value)">
+                        <span id="volumePercent">50%</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="settings-section">
+                <h3>� Audio Status</h3>
+                <div class="audio-status" id="audioStatus">
+                    <p class="loading">🔄 Testing audio files...</p>
+                </div>
+            </div>
+            
+            <div class="settings-section">
+                <h3>�🎮 Game Info</h3>
+                <div class="game-credits">
+                    <p><strong>Peak Card Game</strong></p>
+                    <p>Version 1.0</p>
+                    <p>Multiplayer card game for 2-4 players</p>
+                </div>
+            </div>
+            
+            <div class="modal-footer">
+                <button class="btn" onclick="closeSettings()">✅ Done</button>
+            </div>
         </div>
     </div>
 
@@ -2145,11 +2842,13 @@
             for (let i = 0; i < 7; i++) {
                 deck.push(new Card(0, CardType.GOBLIN));
             }
-            // Add 3 Pause cards (pauses other player for 2 minutes)
-            for (let i = 0; i < 3; i++) {
-                deck.push(new Card(0, CardType.PAUSE));
-            }
-            return shuffleDeck(deck);  // Now we have 100 total cards (60 regular + 10 Peak + 12 Reverse + 8 Star + 7 Goblin + 3 Pause)
+            // Add just 1 rare Pause card (the most powerful special card)
+            deck.push(new Card(0, CardType.PAUSE));
+            // Show special message when the Pause card is dealt
+            const pauseCard = deck[deck.length - 1];
+            pauseCard.isRare = true; // Mark it as a rare card
+            
+            return shuffleDeck(deck);  // Now we have 98 total cards (60 regular + 10 Peak + 12 Reverse + 8 Star + 7 Goblin + 1 Pause)
         }
 
         function shuffleDeck(deck) {
@@ -2164,7 +2863,20 @@
             for (let player of game.players) {
                 for (let i = 0; i < 7; i++) {
                     if (game.deck.length > 0) {
-                        player.addCard(game.deck.pop());
+                        const card = game.deck.pop();
+                        player.addCard(card);
+                        
+                        // Special handling for the rare Pause card
+                        if (card.type === CardType.PAUSE && card.isRare) {
+                            // Play special animation and sound for everyone
+                            playSpecialCardAnimationEnhanced('legendary');
+                            showMessage(`🎉 ${player.name} has received the Legendary Pause Card! A rare and powerful artifact!`, 'special');
+                            // Extra visual feedback for the lucky player
+                            if (player.name === gameSession.playerName) {
+                                triggerVibration([100, 200, 300, 200, 100]); // Special vibration pattern
+                                showMessage('✨ You have been chosen! The Legendary Pause Card is now yours!', 'legendary');
+                            }
+                        }
                     }
                 }
             }
@@ -2185,15 +2897,31 @@
         }
 
         function canFinishOnCard(card, highCardPlayed = false) {
-            if (card.isPeakCard()) return false;
+            // Cannot finish on any special cards
+            if (card.isPeakCard() || card.isReverseCard() || card.isStarCard() || 
+                card.isGoblinCard() || card.isPauseCard()) {
+                return false;
+            }
+
+            // Rules for regular number cards:
+            // 1-4: Cannot finish on these
             if (card.value >= 1 && card.value <= 4) return false;
+
+            // 5-6: Can always finish on these
             if (card.value >= 5 && card.value <= 6) return true;
+
+            // 7: Can never finish on this (middle card)
+            if (card.value === 7) return false;
+
+            // 8-10: Can only finish if someone else played a high card this round
             if (card.value >= 8 && card.value <= 10) return highCardPlayed;
+
             return false;
         }
 
         function isHighValueCard(card) {
-            return !card.isPeakCard() && !card.isReverseCard() && card.value >= 8 && card.value <= 10;
+            // Only regular number cards 8-10 are considered high value
+            return card.type === CardType.REGULAR && card.value >= 8 && card.value <= 10;
         }
 
         async function playCard(playerIndex, cardIndex) {
@@ -2207,12 +2935,14 @@
             // Check if it's this player's turn
             if (game.currentPlayerIndex !== playerIndex) {
                 showMessage("It's not your turn! Wait for your turn to play.", 'error');
+                audioManager?.playSound('loseSound', 0.3);
                 return false;
             }
 
             // Check if this is the current user trying to play
             if (player.name !== gameSession.playerName) {
                 showMessage("You can only play your own cards!", 'error');
+                audioManager?.playSound('loseSound', 0.3);
                 return false;
             }
 
@@ -2220,38 +2950,66 @@
             const cardToRemove = player.hand.splice(cardIndex, 1)[0];
             game.discardPile.push(cardToRemove);
             
-            showMessage(`${player.name} played ${cardToRemove}`, 'success');
+            // Play base card sound and show card played animation
+            audioManager?.playSound(cardToRemove.isPeakCard() ? 'peakCard' : 'cardPlace');
+            
+            // Update the display immediately to show the played card
+            updateDisplay();
 
-            // Check if high value card
+            // Check if high value card was played
             if (isHighValueCard(cardToRemove)) {
                 game.highCardPlayedThisRound = true;
-                showMessage("High card played! Players can now finish on cards 8-10.", 'info');
+                showMessage(`🎯 High card ${cardToRemove.value} played by ${player.name}! Others can now finish on cards 8-10.`, 'info');
             }
 
-            // Handle Peak card
-            if (cardToRemove.isPeakCard()) {
-                handlePeakCard();
-            }
+            // Show initial play message
+            showMessage(`${player.name} played ${cardToRemove}`, 'success');
 
-            // Handle Reverse card
-            if (cardToRemove.isReverseCard()) {
-                handleReverseCard();
+            // Handle special cards first
+            try {
+                if (cardToRemove.isPeakCard()) {
+                    await handlePeakCard();
+                } else if (cardToRemove.isReverseCard()) {
+                    await handleReverseCard();
+                } else if (cardToRemove.isStarCard()) {
+                    await handleStarCard();
+                } else if (cardToRemove.isGoblinCard()) {
+                    await handleGoblinCard();
+                } else if (cardToRemove.isPauseCard()) {
+                    await handlePauseCard(playerIndex);
+                }
+            } catch (error) {
+                console.error('Error handling special card:', error);
+                showMessage('Error handling special card effect', 'error');
             }
-
-            // Handle Star card
-            if (cardToRemove.isStarCard()) {
-                handleStarCard();
-            }
-
-            // Handle Goblin card
-            if (cardToRemove.isGoblinCard()) {
-                handleGoblinCard();
-            }
-
-            // Handle Pause card
-            if (cardToRemove.isPauseCard()) {
-                handlePauseCard(playerIndex);
-            }
+            
+            // GUARANTEED: Switch to next player after ANY card is played
+            console.log('Switching to next player after card play');
+            await nextTurn();
+            showMessage(`🎮 It's ${game.players[game.currentPlayerIndex].name}'s turn!`, 'info');
+            
+            // Save game state
+            await saveGameStateToCloud(gameSession.pin, {
+                players: game.players.map(p => ({
+                    name: p.name,
+                    hand: p.hand,
+                    active: p.active,
+                    isDisqualified: p.isDisqualified,
+                    hasFinished: p.hasFinished,
+                    isPaused: p.isPaused,
+                    pausedUntil: p.pausedUntil
+                })),
+                deck: game.deck,
+                discardPile: game.discardPile,
+                currentPlayerIndex: game.currentPlayerIndex,
+                roundNumber: game.roundNumber,
+                direction: game.direction,
+                lastMoveBy: gameSession.playerName,
+                timestamp: Date.now()
+            });
+            
+            // Update display to show new turn
+            updateDisplay();
 
             // Check if player finished
             if (player.hand.length === 0) {
@@ -2262,16 +3020,29 @@
                     await checkGameOver();
                     return true;
                 } else {
-                    showMessage(`${player.name} cannot finish on ${cardToRemove}!`, 'error');
+                    let errorMessage = '';
+                    if (cardToRemove.isPeakCard() || cardToRemove.isReverseCard() || 
+                        cardToRemove.isStarCard() || cardToRemove.isGoblinCard() || 
+                        cardToRemove.isPauseCard()) {
+                        errorMessage = `${player.name} cannot finish on a special card!`;
+                    } else if (cardToRemove.value >= 1 && cardToRemove.value <= 4) {
+                        errorMessage = `${player.name} cannot finish on a low card (1-4)!`;
+                    } else if (cardToRemove.value === 7) {
+                        errorMessage = `${player.name} cannot finish on a 7!`;
+                    } else if (cardToRemove.value >= 8 && cardToRemove.value <= 10 && !game.highCardPlayedThisRound) {
+                        errorMessage = `${player.name} cannot finish on ${cardToRemove.value} until someone else plays a high card (8-10)!`;
+                    } else {
+                        errorMessage = `${player.name} cannot finish on ${cardToRemove}!`;
+                    }
+                    showMessage(errorMessage, 'error');
+                    
+                    // Give penalty card
                     if (game.deck.length > 0) {
                         player.addCard(game.deck.pop());
-                        showMessage(`${player.name} picks up a penalty card`, 'warning');
+                        showMessage(`${player.name} picks up a penalty card for invalid finish`, 'warning');
                     }
                 }
             }
-
-            // Move to next player
-            nextPlayer();
             
             // Update the display immediately
             console.log('🔄 Updating display...');
@@ -2308,44 +3079,84 @@
             return true;
         }
 
-        function handlePeakCard() {
+        async function handlePeakCard() {
             // Broadcast Peak card animation to all players
             broadcastSpecialCardAnimation('peak', game.players[game.currentPlayerIndex].name);
             
             const nextPlayer = getNextActivePlayer();
-            if (nextPlayer && game.deck.length >= 5) {
+            if (nextPlayer && game.deck.length > 0) {
                 const cards = [];
+                // Give 5 cards or as many as possible from the deck
                 for (let i = 0; i < 5 && game.deck.length > 0; i++) {
                     cards.push(game.deck.pop());
                 }
+                
+                // Update UI to show cards being drawn
+                showMessage(`🎴 Drawing ${cards.length} cards for ${nextPlayer.name}...`, 'info');
+                await new Promise(resolve => setTimeout(resolve, 500)); // Dramatic pause
+                
+                // Add cards to next player's hand
                 nextPlayer.addCards(cards);
-                showMessage(`${nextPlayer.name} must pick up ${cards.length} cards due to Peak card!`, 'warning');
+                audioManager?.playSound('cardFlip');
+                
+                showMessage(`⚡ ${nextPlayer.name} picked up ${cards.length} cards due to Peak card!`, 'warning');
                 
                 if (nextPlayer.isDisqualified) {
-                    showMessage(`${nextPlayer.name} is disqualified for having over 20 cards!`, 'error');
+                    showMessage(`❌ ${nextPlayer.name} is disqualified for having over 20 cards!`, 'error');
+                    audioManager?.playSound('loseSound');
                 }
+                
+                // Update the display to show new deck count
+                document.getElementById('deckCount').textContent = game.deck.length;
+            } else {
+                showMessage(`No cards left in deck or no next player available!`, 'warning');
             }
         }
 
-        function handleReverseCard() {
+        async function handleReverseCard() {
             // Broadcast Reverse card animation to all players
             broadcastSpecialCardAnimation('reverse', game.players[game.currentPlayerIndex].name);
             
-            game.direction *= -1;  // Flip the direction
-            const directionText = game.direction === 1 ? 'clockwise' : 'counter-clockwise';
-            showMessage(`🔄 Direction reversed! Now playing ${directionText}`, 'info');
+            // Add dramatic pause before direction change
+            await new Promise(resolve => setTimeout(resolve, 300));
+            
+            // Flip the direction with visual feedback
+            game.direction *= -1;
+            const directionText = game.direction === 1 ? 'clockwise ↻' : 'counter-clockwise ↺';
+            
+            // Play sound effect for direction change
+            audioManager?.playSound('buttonClick');
+            
+            // Show direction change message with animation
+            showMessage(`🔄 Direction reversed! Now playing ${directionText}`, 'special');
+            
+            // Update direction display immediately
+            const directionElement = document.getElementById('gameDirection');
+            directionElement.textContent = game.direction === 1 ? '↻ Clockwise' : '↺ Counter-CW';
+            directionElement.classList.add('direction-change');
+            setTimeout(() => directionElement.classList.remove('direction-change'), 1000);
+            
             console.log('🔄 Game direction changed to:', directionText);
         }
 
-        function handleStarCard() {
+        async function handleStarCard() {
             // Broadcast Star card animation to all players
             broadcastSpecialCardAnimation('star', game.players[game.currentPlayerIndex].name);
+            
+            // Play star sound effect
+            audioManager?.playSound('starSound');
             
             console.log('✨ Star card played - removing Peak cards from other players');
             let totalPeakCardsRemoved = 0;
             
-            game.players.forEach((player, index) => {
+            // Process each player with a delay for dramatic effect
+            for (let index = 0; index < game.players.length; index++) {
+                const player = game.players[index];
                 if (index !== game.currentPlayerIndex && player.isActive()) {
+                    // Show checking animation
+                    showMessage(`✨ Checking ${player.name}'s cards...`, 'info');
+                    await new Promise(resolve => setTimeout(resolve, 500));
+                    
                     // Find and remove all Peak cards from this player's hand
                     const peakCards = [];
                     for (let i = player.hand.length - 1; i >= 0; i--) {
@@ -2356,15 +3167,19 @@
                     
                     if (peakCards.length > 0) {
                         totalPeakCardsRemoved += peakCards.length;
-                        showMessage(`✨ ${player.name} had ${peakCards.length} Peak card(s) removed!`, 'info');
+                        showMessage(`⭐ ${player.name} had ${peakCards.length} Peak card(s) removed!`, 'success');
+                        audioManager?.playSound('cardPlace');
                         console.log(`Removed ${peakCards.length} Peak cards from ${player.name}`);
                         
                         // Put the Peak cards back into the deck and shuffle
                         game.deck.push(...peakCards);
                         game.deck = shuffleDeck(game.deck);
+                        
+                        // Update deck count
+                        document.getElementById('deckCount').textContent = game.deck.length;
                     }
                 }
-            });
+            }
             
             if (totalPeakCardsRemoved > 0) {
                 showMessage(`🌟 Star card removed ${totalPeakCardsRemoved} Peak card(s) from other players!`, 'success');
@@ -2373,20 +3188,29 @@
             }
         }
 
-        function handleGoblinCard() {
+        async function handleGoblinCard() {
             // Broadcast Goblin card animation to all players
             broadcastSpecialCardAnimation('goblin', game.players[game.currentPlayerIndex].name);
             
+            // Play goblin sound effect
+            audioManager?.playSound('goblinSound');
+            
             console.log('👹 Goblin card played - giving bad cards to other players');
             const badCards = [1, 2, 3, 4]; // Bad cards that can't be finished with
+            let affectedPlayers = 0;
             
-            game.players.forEach((player, index) => {
+            // Process each player
+            for (let index = 0; index < game.players.length; index++) {
+                const player = game.players[index];
                 if (index !== game.currentPlayerIndex && player.isActive()) {
                     // Give each other player a random bad card (1-4)
                     const badCardValue = badCards[Math.floor(Math.random() * badCards.length)];
                     const badCard = new Card(badCardValue, CardType.REGULAR);
                     player.addCard(badCard);
+                    affectedPlayers++;
                     
+                    // Show message with slight delay for dramatic effect
+                    await new Promise(resolve => setTimeout(resolve, 500));
                     showMessage(`👹 ${player.name} received a ${badCardValue} card from the Goblin!`, 'warning');
                     console.log(`Gave ${player.name} a ${badCardValue} card`);
                     
@@ -2394,48 +3218,98 @@
                         showMessage(`${player.name} is disqualified for having over 20 cards!`, 'error');
                     }
                 }
-            });
+            }
             
-            showMessage(`👹 Goblin card cursed all other players with bad cards!`, 'warning');
+            // Only show summary message if players were affected
+            if (affectedPlayers > 0) {
+                showMessage(`👹 Goblin card cursed ${affectedPlayers} other player${affectedPlayers !== 1 ? 's' : ''} with bad cards!`, 'warning');
+            } else {
+                showMessage(`👹 Goblin card played, but no other players were affected!`, 'info');
+            }
         }
 
         function handlePauseCard(currentPlayerIndex) {
-            // Broadcast Pause card animation to all players
+            // Broadcast special legendary animation to all players
             broadcastSpecialCardAnimation('pause', game.players[game.currentPlayerIndex].name);
+            playSpecialCardAnimationEnhanced('legendary'); // Extra effect for the legendary card
             
-            console.log('⏸️ Pause card played - choosing target player');
+            console.log('⏸️ Legendary Pause card played - choosing target player');
             
-            // Find all other active players
-            const targetPlayers = game.players.filter((player, index) => 
-                index !== currentPlayerIndex && player.isActive()
-            );
-            
-            if (targetPlayers.length === 0) {
-                showMessage('⏸️ No players available to pause!', 'info');
-                return;
-            }
-            
-            // For now, pause the next player (in a real game, this could be a choice)
-            const nextPlayer = getNextActivePlayer();
-            if (nextPlayer) {
-                // Set pause timer for 2 minutes (120 seconds)
-                nextPlayer.pausedUntil = Date.now() + (2 * 60 * 1000);
-                nextPlayer.isPaused = true;
+            // Create a dramatic pause before the effect
+            showMessage('🌟 The Legendary Pause Card is being activated...', 'special');
+            setTimeout(() => {
+                // Find all other active players
+                const targetPlayers = game.players.filter((player, index) => 
+                    index !== currentPlayerIndex && player.isActive()
+                );
                 
-                showMessage(`⏸️ ${nextPlayer.name} is paused for 2 minutes!`, 'warning');
-                console.log(`Paused ${nextPlayer.name} until:`, new Date(nextPlayer.pausedUntil));
+                if (targetPlayers.length === 0) {
+                    showMessage('⏸️ No players available to pause!', 'info');
+                    return;
+                }
                 
-                // Start a timer to unpause the player
-                setTimeout(() => {
-                    if (nextPlayer.isPaused) {
-                        nextPlayer.isPaused = false;
-                        nextPlayer.pausedUntil = 0;
-                        showMessage(`▶️ ${nextPlayer.name} is no longer paused!`, 'info');
-                        console.log(`Unpaused ${nextPlayer.name}`);
-                        updateDisplay();
+                // Let the player choose who to pause
+                showPlayerSelectionDialog(targetPlayers, (selectedPlayer) => {
+                    if (selectedPlayer) {
+                        // Set pause timer for 5 minutes (300 seconds) - longer than before!
+                        selectedPlayer.pausedUntil = Date.now() + (5 * 60 * 1000);
+                        selectedPlayer.isPaused = true;
+                        
+                        // Also give them 2 bad cards as an extra penalty
+                        const badCards = [1, 2, 3, 4];
+                        for (let i = 0; i < 2; i++) {
+                            const badCardValue = badCards[Math.floor(Math.random() * badCards.length)];
+                            const badCard = new Card(badCardValue, CardType.REGULAR);
+                            selectedPlayer.addCard(badCard);
+                        }
+                        
+                        showMessage(`🎯 ${selectedPlayer.name} has been frozen in time for 5 minutes!`, 'legendary');
+                        console.log(`Paused ${selectedPlayer.name} until:`, new Date(selectedPlayer.pausedUntil));
+                        
+                        // Dramatic effect for the paused player
+                        if (selectedPlayer.name === gameSession.playerName) {
+                            triggerVibration([300, 500]); // Strong pause effect
+                            showMessage('⏸️ Time has stopped for you! You must wait 5 minutes!', 'warning');
+                        }
+                        
+                        // Start a timer to unpause the player
+                        setTimeout(() => {
+                            if (selectedPlayer.isPaused) {
+                                selectedPlayer.isPaused = false;
+                                selectedPlayer.pausedUntil = 0;
+                                showMessage(`⏯️ Time flows once again for ${selectedPlayer.name}!`, 'special');
+                                console.log(`Unpaused ${selectedPlayer.name}`);
+                                updateDisplay();
+                            }
+                        }, 5 * 60 * 1000);
                     }
-                }, 2 * 60 * 1000);
-            }
+                });
+            }, 2000); // 2-second dramatic pause
+        }
+        
+        // Helper function to show player selection dialog
+        function showPlayerSelectionDialog(players, callback) {
+            const dialog = document.createElement('div');
+            dialog.className = 'modal';
+            dialog.style.display = 'block';
+            
+            const content = document.createElement('div');
+            content.className = 'modal-content';
+            content.innerHTML = '<h2>🎯 Choose a player to pause</h2>';
+            
+            players.forEach(player => {
+                const button = document.createElement('button');
+                button.className = 'player-select-btn';
+                button.textContent = player.name;
+                button.onclick = () => {
+                    dialog.remove();
+                    callback(player);
+                };
+                content.appendChild(button);
+            });
+            
+            dialog.appendChild(content);
+            document.body.appendChild(dialog);
         }
 
         function getNextActivePlayer() {
@@ -2450,10 +3324,14 @@
             return null;
         }
 
-        function nextPlayer() {
+        async function nextTurn() {
             const originalIndex = game.currentPlayerIndex;
-            console.log('⏭️ Moving from player:', game.players[game.currentPlayerIndex].name);
+            const previousPlayer = game.players[game.currentPlayerIndex];
+            console.log('⏭️ Moving from player:', previousPlayer.name);
             console.log('🧭 Direction:', game.direction === 1 ? 'clockwise' : 'counter-clockwise');
+            
+            // Add visual feedback for turn change
+            showMessage(`${previousPlayer.name}'s turn has ended`, 'info');
             
             for (let i = 0; i < game.players.length; i++) {
                 game.currentPlayerIndex = (game.currentPlayerIndex + game.direction + game.players.length) % game.players.length;
@@ -2469,7 +3347,26 @@
                 }
             }
 
-            console.log('⏭️ Next player is:', game.players[game.currentPlayerIndex].name);
+            const nextPlayer = game.players[game.currentPlayerIndex];
+            console.log('⏭️ Next player is:', nextPlayer.name);
+            
+            // Show turn change message with visual feedback
+            showMessage(`🎮 It's ${nextPlayer.name}'s turn!`, 'success');
+            
+            // Play sound effect for the next player
+            if (nextPlayer.name === gameSession.playerName) {
+                audioManager?.playSound('buttonClick', 0.5);
+                // Add vibration feedback if supported
+                if ('vibrate' in navigator) {
+                    navigator.vibrate(200);
+                }
+            }
+            
+            // Play button click sound for turn notification (turnNotification file not available)
+            const currentPlayer = game.players[game.currentPlayerIndex];
+            if (currentPlayer && currentPlayer.name === gameSession.playerName) {
+                audioManager?.playSound('buttonClick', 0.3);
+            }
 
             // Check if we completed a round (more complex with direction changes)
             const roundCompleted = (game.direction === 1 && game.currentPlayerIndex <= originalIndex) ||
@@ -2490,6 +3387,7 @@
             const currentPlayer = game.players[game.currentPlayerIndex];
             if (currentPlayer.name !== gameSession.playerName) {
                 showMessage("It's not your turn! Wait for your turn to draw.", 'error');
+                audioManager?.playSound('loseSound', 0.3);
                 return false;
             }
             
@@ -2499,12 +3397,16 @@
             
             if (game.deck.length === 0) {
                 showMessage("No more cards in the deck!", 'error');
+                audioManager?.playSound('loseSound', 0.3);
                 console.log('❌ No cards left in deck');
                 return false;
             }
 
             const card = game.deck.pop();
             console.log('🎯 Drew card:', card.toString());
+            
+            // Play draw sound
+            audioManager?.playSound('cardFlip');
             
             currentPlayer.addCard(card);
             console.log('✅ Card added to player hand');
@@ -2519,7 +3421,7 @@
             }
 
             // Move to next player
-            nextPlayer();
+            await nextTurn();
             
             // Save game state to Firebase
             await saveGameStateToCloud(gameSession.pin, {
@@ -2559,6 +3461,14 @@
             if (finishedPlayers.length > 0) {
                 game.gameOver = true;
                 game.winner = finishedPlayers[0];
+                
+                // Play win/lose sound based on if current player won
+                if (game.winner.name === gameSession.playerName) {
+                    audioManager?.playSound('winSound');
+                } else {
+                    audioManager?.playSound('loseSound');
+                }
+                
                 showGameOver(`🎉 ${game.winner.name} wins!`);
                 
                 // Save final game state to Firebase so all players see the winner
@@ -2654,18 +3564,49 @@
             document.getElementById('roundNumber').textContent = game.roundNumber;
             document.getElementById('deckCount').textContent = game.deck.length;
             document.getElementById('highCardPlayed').textContent = game.highCardPlayedThisRound ? '✅' : '❌';
-            document.getElementById('currentPlayer').textContent = game.players[game.currentPlayerIndex]?.name || '-';
+            
+            // Update current player with highlight effect
+            const currentPlayerElement = document.getElementById('currentPlayer');
+            currentPlayerElement.textContent = game.players[game.currentPlayerIndex]?.name || '-';
+            currentPlayerElement.classList.remove('player-turn-highlight');
+            void currentPlayerElement.offsetWidth; // Trigger reflow
+            currentPlayerElement.classList.add('player-turn-highlight');
+            
             document.getElementById('gameDirection').textContent = game.direction === 1 ? '↻ Clockwise' : '↺ Counter-CW';
 
-            // Update last played card
-            const lastCard = game.discardPile && game.discardPile.length > 0 ? game.discardPile[game.discardPile.length - 1] : null;
+            // Update discard pile display
             const lastCardElement = document.getElementById('lastPlayedCard');
-            if (lastCard) {
-                const cardElement = createCardElement(lastCard, -1, -1, true);
-                cardElement.style.margin = '0 auto';
-                lastCardElement.innerHTML = '';
-                lastCardElement.appendChild(cardElement);
-                console.log('Updated last played card to:', lastCard.toString());
+            lastCardElement.innerHTML = '';
+
+            if (game.discardPile && game.discardPile.length > 0) {
+                // Show up to 3 most recently played cards with a stacked effect
+                const startIndex = Math.max(0, game.discardPile.length - 3);
+                const recentCards = game.discardPile.slice(startIndex);
+                
+                const stackContainer = document.createElement('div');
+                stackContainer.className = 'card-stack';
+                stackContainer.style.position = 'relative';
+                stackContainer.style.height = '150px';
+                stackContainer.style.width = '100px';
+                stackContainer.style.margin = '0 auto';
+                
+                recentCards.forEach((card, index) => {
+                    const cardElement = createCardElement(card, -1, -1, true);
+                    cardElement.style.position = 'absolute';
+                    cardElement.style.left = `${index * 5}px`;
+                    cardElement.style.top = `${index * 5}px`;
+                    cardElement.style.zIndex = index;
+                    
+                    // Add highlight effect to the most recently played card
+                    if (index === recentCards.length - 1) {
+                        cardElement.classList.add('last-played-highlight');
+                    }
+                    
+                    stackContainer.appendChild(cardElement);
+                });
+                
+                lastCardElement.appendChild(stackContainer);
+                console.log('Updated discard pile display with', recentCards.length, 'cards');
             } else {
                 lastCardElement.innerHTML = '<div class="card regular" style="margin: 0 auto; background: #ddd; color: #666;">No Card Yet</div>';
             }
@@ -2858,6 +3799,7 @@
         }
 
         async function createGame() {
+            audioManager?.playSound('buttonClick');
             const playerName = document.getElementById('playerName').value.trim();
             if (!playerName) {
                 alert('Please enter your name');
@@ -2870,6 +3812,12 @@
             if (playerCountSection.style.display === 'none' || !playerCountSection.style.display) {
                 playerCountSection.style.display = 'block';
                 gameCreationControls.style.display = 'block';
+                
+                // Re-initialize button handlers after showing
+                setTimeout(() => {
+                    initPlayerCountButtons();
+                }, 100);
+                
                 // Auto-select 4 players by default if nothing selected yet
                 if (!document.querySelector('.player-count-btn.selected')) {
                     selectPlayerCount(4);
@@ -2921,6 +3869,7 @@
         }
 
         async function joinGame() {
+            audioManager?.playSound('buttonClick');
             const playerName = document.getElementById('playerName').value.trim();
             const pin = document.getElementById('gamePin').value.trim();
             
@@ -3085,6 +4034,7 @@
         }
 
         async function startGameFromLobby() {
+            audioManager?.playSound('buttonClick');
             const requiredPlayers = gameSession.maxPlayers || 4;
             if (!gameSession.isHost || gameSession.lobbyPlayers.length < requiredPlayers) {
                 alert(`Need exactly ${requiredPlayers} players to start the game!`);
@@ -3202,15 +4152,107 @@
         let selectedPlayerCount = 4; // Default to 4 players
 
         function selectPlayerCount(count) {
+            audioManager?.playSound('buttonClick');
             selectedPlayerCount = count;
             
             // Update UI to show selected state
             document.querySelectorAll('.player-count-btn').forEach(btn => {
                 btn.classList.remove('selected');
             });
-            document.querySelector(`[data-count="${count}"]`).classList.add('selected');
+            const targetBtn = document.querySelector(`[data-count="${count}"]`);
+            if (targetBtn) {
+                targetBtn.classList.add('selected');
+            }
             
             console.log(`Selected player count: ${count}`);
+        }
+
+        // Enhanced click event handling for player count buttons
+        function initPlayerCountButtons() {
+            // Use event delegation instead of direct listeners
+            const playerCountSection = document.getElementById('playerCountSection');
+            
+            // Remove existing delegated listeners
+            const existingHandler = playerCountSection._clickHandler;
+            if (existingHandler) {
+                playerCountSection.removeEventListener('click', existingHandler);
+                playerCountSection.removeEventListener('touchend', existingHandler);
+            }
+            
+            // Create new handler
+            const handlePlayerCountClick = (e) => {
+                const btn = e.target.closest('.player-count-btn');
+                if (btn) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
+                    const count = parseInt(btn.getAttribute('data-count'));
+                    console.log('🎯 Player count button clicked:', count);
+                    audioManager?.playSound('buttonClick');
+                    selectPlayerCount(count);
+                }
+            };
+            
+            // Store handler reference and add listeners
+            playerCountSection._clickHandler = handlePlayerCountClick;
+            playerCountSection.addEventListener('click', handlePlayerCountClick);
+            playerCountSection.addEventListener('touchend', handlePlayerCountClick);
+            
+            // Also ensure buttons are properly initialized
+            document.querySelectorAll('.player-count-btn').forEach(btn => {
+                const count = parseInt(btn.getAttribute('data-count'));
+                
+                // Backup direct listener for compatibility
+                btn.onclick = (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    console.log('🎯 Direct click on player count:', count);
+                    audioManager?.playSound('buttonClick');
+                    selectPlayerCount(count);
+                };
+                
+                // Ensure proper attributes
+                btn.style.pointerEvents = 'auto';
+                btn.style.cursor = 'pointer';
+                
+                // Add visual feedback
+                btn.addEventListener('mousedown', (e) => {
+                    btn.style.transform = 'scale(0.95)';
+                });
+                
+                btn.addEventListener('mouseup', (e) => {
+                    btn.style.transform = '';
+                });
+                
+                btn.addEventListener('mouseleave', (e) => {
+                    btn.style.transform = '';
+                });
+            });
+            
+            console.log('🎮 Player count buttons initialized with enhanced event handling');
+        }
+
+        // Debug function to test button interactions
+        function testButtonInteractions() {
+            console.log('🧪 Testing button interactions...');
+            
+            const buttons = document.querySelectorAll('.player-count-btn');
+            console.log(`Found ${buttons.length} player count buttons`);
+            
+            buttons.forEach((btn, index) => {
+                const count = btn.getAttribute('data-count');
+                console.log(`Button ${index + 1}: data-count=${count}, visible=${btn.offsetWidth > 0}`);
+                
+                // Test if button is clickable
+                const rect = btn.getBoundingClientRect();
+                console.log(`Button ${index + 1} position:`, {
+                    top: rect.top,
+                    left: rect.left,
+                    width: rect.width,
+                    height: rect.height,
+                    visible: rect.width > 0 && rect.height > 0
+                });
+            });
         }
 
         // Reset game creation back to initial state
@@ -3394,52 +4436,266 @@
                         type: cardType,
                         playerName: playerName,
                         timestamp: Date.now(),
-                        id: Math.random().toString(36).substr(2, 9)
+                        id: Math.random().toString(36).substr(2, 9),
+                        effectApplied: false,
+                        soundEffect: getSoundEffectForCard(cardType)
                     };
                     
-                    // Save animation to Firebase so all players can see it
+                    // Save animation and effect status to Firebase
                     const gameData = await loadGameFromCloud(gameSession.pin);
                     if (gameData) {
                         if (!gameData.animations) {
                             gameData.animations = [];
                         }
+                        if (!gameData.effectStatus) {
+                            gameData.effectStatus = {};
+                        }
                         
-                        // Keep only recent animations (last 10)
-                        gameData.animations = gameData.animations.slice(-9);
+                        // Remove old animations but keep more recent ones
+                        const recentTime = Date.now() - 5000; // Keep last 5 seconds
+                        gameData.animations = gameData.animations.filter(a => a.timestamp > recentTime);
                         gameData.animations.push(animationData);
                         
+                        // Track effect status with sound info
+                        gameData.effectStatus[animationData.id] = {
+                            type: cardType,
+                            playerName: playerName,
+                            effectApplied: false,
+                            timestamp: Date.now(),
+                            soundEffect: animationData.soundEffect
+                        };
+                        
                         await saveGameToCloud(gameSession.pin, gameData);
-                        console.log(`📡 Broadcasted ${cardType} animation from ${playerName}`);
+                        console.log(`📡 Broadcasted ${cardType} animation and sound from ${playerName}`);
                     }
                 } catch (error) {
                     console.log('❌ Failed to broadcast animation:', error);
                 }
             }
             
-            // Also play locally
+            // Play locally for the player who played the card
             playSpecialCardAnimationEnhanced(cardType);
+            playSpecialCardSound(cardType);
         }
 
-        // Listen for animation broadcasts from other players
+        // Helper function to get the appropriate sound effect for each card type
+        function getSoundEffectForCard(cardType) {
+            switch (cardType) {
+                case 'peak':
+                    return 'peakCard';
+                case 'star':
+                    return 'starSound';
+                case 'goblin':
+                    return 'goblinSound';
+                case 'pause':
+                    return 'buttonClick';
+                case 'reverse':
+                    return 'buttonClick';
+                default:
+                    return 'cardPlace';
+            }
+        }
+
+        // Play the special card sound effect
+        function playSpecialCardSound(cardType) {
+            const soundEffect = getSoundEffectForCard(cardType);
+            audioManager?.playSound(soundEffect, cardType === 'peak' ? 0.8 : 0.6);
+        }
+
+        // Listen for animation broadcasts and special effects from other players
         let lastProcessedAnimationId = null;
+        let processedEffects = new Set();
         
         function processAnimationBroadcasts(gameData) {
+            if (!gameData) return;
+            
+            // Process animations
             if (gameData.animations && Array.isArray(gameData.animations)) {
                 gameData.animations.forEach(animation => {
-                    // Only process new animations that we haven't seen yet
-                    if (animation.id !== lastProcessedAnimationId) {
+                    // Check if we haven't processed this animation yet
+                    if (!processedEffects.has(animation.id)) {
                         // Don't show your own animations twice
                         if (animation.playerName !== gameSession.playerName) {
                             console.log(`🎬 Playing ${animation.type} animation from ${animation.playerName}`);
+                            
+                            // Play both animation and sound
                             playSpecialCardAnimationEnhanced(animation.type);
+                            playSpecialCardSound(animation.type);
+                            
+                            // Show message about special card
+                            const messages = {
+                                'peak': `⚡ ${animation.playerName} played a Peak card!`,
+                                'star': `✨ ${animation.playerName} played a Star card!`,
+                                'goblin': `👹 ${animation.playerName} played a Goblin card!`,
+                                'reverse': `🔄 ${animation.playerName} played a Reverse card!`,
+                                'pause': `⏸️ ${animation.playerName} played the Legendary Pause card!`
+                            };
+                            showMessage(messages[animation.type] || `${animation.playerName} played a special card!`, 'special');
                         }
+                        // Mark this animation as processed
+                        processedEffects.add(animation.id);
                         lastProcessedAnimationId = animation.id;
+                    }
+                });
+                
+                // Clean up old processed effects
+                const oldTime = Date.now() - 10000; // Clear effects older than 10 seconds
+                processedEffects.forEach(effectId => {
+                    const effect = gameData.effectStatus[effectId];
+                    if (effect && effect.timestamp < oldTime) {
+                        processedEffects.delete(effectId);
+                    }
+                });
+            }
+            
+            // Process special effects
+            if (gameData.effectStatus) {
+                Object.entries(gameData.effectStatus).forEach(async ([effectId, effect]) => {
+                    if (!processedEffects.has(effectId) && effect.playerName !== gameSession.playerName) {
+                        // Check if the effect is recent (within last 10 seconds)
+                        const isRecent = (Date.now() - effect.timestamp) < 10000;
+                        
+                        if (isRecent && !effect.effectApplied) {
+                            console.log(`🎯 Applying ${effect.type} effect from ${effect.playerName}`);
+                            
+                            // Apply the effect locally
+                            switch (effect.type) {
+                                case 'peak':
+                                    await handlePeakCardEffect();
+                                    break;
+                                case 'reverse':
+                                    handleReverseCardEffect();
+                                    break;
+                                case 'star':
+                                    handleStarCardEffect();
+                                    break;
+                                case 'goblin':
+                                    handleGoblinCardEffect();
+                                    break;
+                                case 'pause':
+                                    handlePauseCardEffect();
+                                    break;
+                            }
+                            
+                            // Mark effect as processed locally
+                            processedEffects.add(effectId);
+                            
+                            // Update effect status in Firebase
+                            if (gameSession.pin) {
+                                const currentData = await loadGameFromCloud(gameSession.pin);
+                                if (currentData && currentData.effectStatus && currentData.effectStatus[effectId]) {
+                                    currentData.effectStatus[effectId].effectApplied = true;
+                                    await saveGameToCloud(gameSession.pin, currentData);
+                                }
+                            }
+                        }
+                    }
+                });
+                
+                // Clean up old effects from memory
+                const tenSecondsAgo = Date.now() - 10000;
+                Object.entries(gameData.effectStatus).forEach(([effectId, effect]) => {
+                    if (effect.timestamp < tenSecondsAgo) {
+                        processedEffects.delete(effectId);
                     }
                 });
             }
         }
 
         // Handle game action button (New Game for host, Leave Game for non-host)
+        // Individual effect handlers for remote synchronization
+        async function handlePeakCardEffect() {
+            // Only add cards if we're the next player
+            if (getNextActivePlayer().name === gameSession.playerName) {
+                const cards = [];
+                // Give 5 cards or as many as possible from the deck
+                for (let i = 0; i < 5 && game.deck.length > 0; i++) {
+                    cards.push(game.deck.pop());
+                }
+                const nextPlayer = getNextActivePlayer();
+                nextPlayer.addCards(cards);
+                
+                showMessage(`You picked up ${cards.length} cards due to Peak card!`, 'warning');
+                
+                if (nextPlayer.isDisqualified) {
+                    showMessage(`You are disqualified for having over 20 cards!`, 'error');
+                }
+            }
+        }
+        
+        function handleReverseCardEffect() {
+            game.direction *= -1;  // Flip the direction
+            const directionText = game.direction === 1 ? 'clockwise' : 'counter-clockwise';
+            showMessage(`🔄 Direction reversed! Now playing ${directionText}`, 'info');
+        }
+        
+        function handleStarCardEffect() {
+            // Only remove Peak cards if we're not the one who played the Star card
+            if (game.players[game.currentPlayerIndex].name !== gameSession.playerName) {
+                console.log('✨ Checking for Peak cards to remove');
+                const ourPlayer = game.players.find(p => p.name === gameSession.playerName);
+                if (ourPlayer && ourPlayer.isActive()) {
+                    // Find and remove all Peak cards from our hand
+                    const peakCards = [];
+                    for (let i = ourPlayer.hand.length - 1; i >= 0; i--) {
+                        if (ourPlayer.hand[i].isPeakCard()) {
+                            peakCards.push(ourPlayer.hand.splice(i, 1)[0]);
+                        }
+                    }
+                    
+                    if (peakCards.length > 0) {
+                        showMessage(`✨ ${peakCards.length} Peak card(s) were removed from your hand!`, 'info');
+                        console.log(`Lost ${peakCards.length} Peak cards`);
+                        
+                        // Put the Peak cards back into the deck
+                        game.deck.push(...peakCards);
+                        game.deck = shuffleDeck(game.deck);
+                    }
+                }
+            }
+        }
+        
+        function handleGoblinCardEffect() {
+            // Only add bad cards if we're not the one who played the Goblin card
+            if (game.players[game.currentPlayerIndex].name !== gameSession.playerName) {
+                console.log('👹 Receiving bad card from Goblin');
+                const ourPlayer = game.players.find(p => p.name === gameSession.playerName);
+                if (ourPlayer && ourPlayer.isActive()) {
+                    const badCards = [1, 2, 3, 4];
+                    const badCardValue = badCards[Math.floor(Math.random() * badCards.length)];
+                    const badCard = new Card(badCardValue, CardType.REGULAR);
+                    ourPlayer.addCard(badCard);
+                    
+                    showMessage(`👹 You received a ${badCardValue} card from the Goblin!`, 'warning');
+                    
+                    if (ourPlayer.isDisqualified) {
+                        showMessage(`You are disqualified for having over 20 cards!`, 'error');
+                    }
+                }
+            }
+        }
+        
+        function handlePauseCardEffect() {
+            const nextPlayer = getNextActivePlayer();
+            if (nextPlayer && nextPlayer.name === gameSession.playerName) {
+                // Set pause timer for 2 minutes (120 seconds)
+                nextPlayer.pausedUntil = Date.now() + (2 * 60 * 1000);
+                nextPlayer.isPaused = true;
+                
+                showMessage(`⏸️ You are paused for 2 minutes!`, 'warning');
+                
+                // Start a timer to unpause
+                setTimeout(() => {
+                    if (nextPlayer.isPaused) {
+                        nextPlayer.isPaused = false;
+                        nextPlayer.pausedUntil = 0;
+                        showMessage(`▶️ You are no longer paused!`, 'info');
+                        updateDisplay();
+                    }
+                }, 2 * 60 * 1000);
+            }
+        }
+
         function handleGameAction() {
             if (gameSession.isHost) {
                 // Host can start new game or end current game
@@ -3542,9 +4798,9 @@
 
                 showMessage('🏁 Game ended by host', 'info');
                 
-                // Return to lobby after a delay
+                // Return players to start screen
                 setTimeout(() => {
-                    showLobby();
+                    window.location.reload();
                 }, 2000);
             }
         }
@@ -3658,6 +4914,7 @@
         window.onclick = function(event) {
             const setupModal = document.getElementById('setupModal');
             const gameOverModal = document.getElementById('gameOverModal');
+            const settingsModal = document.getElementById('settingsModal');
             const rulesPanel = document.getElementById('rulesPanel');
             
             if (event.target === setupModal) {
@@ -3666,10 +4923,552 @@
             if (event.target === gameOverModal) {
                 gameOverModal.style.display = 'none';
             }
+            if (event.target === settingsModal) {
+                settingsModal.style.display = 'none';
+            }
             if (!event.target.closest('.rules-toggle') && !event.target.closest('.rules-panel')) {
                 rulesPanel.style.display = 'none';
             }
         };
+        
+        // Audio System with Multi-Format Support
+        class AudioManager {
+            constructor() {
+                this.bgMusic = document.getElementById('bgMusic');
+                this.sounds = {
+                    cardFlip: document.getElementById('cardFlip'),
+                    cardPlace: document.getElementById('cardPlace'),
+                    peakCard: document.getElementById('peakCard'),
+                    winSound: document.getElementById('winSound'),
+                    loseSound: document.getElementById('loseSound'),
+                    buttonClick: document.getElementById('buttonClick'),
+                    goblinSound: document.getElementById('goblinSound'),
+                    starSound: document.getElementById('starSound')
+                    // turnNotification removed - file not available
+                };
+                
+                this.musicEnabled = true;
+                this.sfxEnabled = true;
+                this.volume = 0.5;
+                this.musicStarted = false;
+                
+                // Audio format support detection
+                this.supportedFormats = this.detectAudioSupport();
+                
+                console.log('🎵 Audio Manager initialized with multi-format support');
+                console.log('🎶 Supported formats:', this.supportedFormats);
+                
+                // Set initial volumes and test audio elements
+                this.updateVolumes();
+                this.testAudioElements();
+                
+                // Setup user interaction listeners
+                this.setupAutoPlay();
+            }
+            
+            detectAudioSupport() {
+                const audio = document.createElement('audio');
+                return {
+                    mp3: !!audio.canPlayType('audio/mpeg').replace(/no/, ''),
+                    wav: !!audio.canPlayType('audio/wav').replace(/no/, ''),
+                    m4a: !!audio.canPlayType('audio/mp4').replace(/no/, ''),
+                    ogg: !!audio.canPlayType('audio/ogg').replace(/no/, ''),
+                    webm: !!audio.canPlayType('audio/webm').replace(/no/, '')
+                };
+            }
+            
+            testAudioElements() {
+                // Test each audio element to ensure they can load properly
+                Object.keys(this.sounds).forEach(soundName => {
+                    const sound = this.sounds[soundName];
+                    if (sound) {
+                        sound.addEventListener('loadstart', () => {
+                            console.log(`🎵 ${soundName}: Loading started`);
+                        });
+                        
+                        sound.addEventListener('canplay', () => {
+                            console.log(`✅ ${soundName}: Ready to play`);
+                        });
+                        
+                        sound.addEventListener('error', (e) => {
+                            console.error(`❌ ${soundName}: Audio error`, e);
+                            this.handleAudioError(soundName, sound);
+                        });
+                    }
+                });
+                
+                // Test background music
+                if (this.bgMusic) {
+                    this.bgMusic.addEventListener('canplay', () => {
+                        console.log('✅ Background music: Ready to play');
+                    });
+                    
+                    this.bgMusic.addEventListener('error', (e) => {
+                        console.error('❌ Background music: Audio error', e);
+                    });
+                }
+            }
+            
+            handleAudioError(soundName, audioElement) {
+                console.log(`🔄 Attempting to recover ${soundName} audio...`);
+                
+                // Try to reload the audio element
+                setTimeout(() => {
+                    try {
+                        audioElement.load();
+                    } catch (error) {
+                        console.error(`Failed to reload ${soundName}:`, error);
+                    }
+                }, 1000);
+            }
+            
+
+            
+            setupAutoPlay() {
+                // Start music on first user interaction (required by browsers)
+                const startMusic = () => {
+                    console.log('🎵 Starting music on user interaction');
+                    if (!this.musicStarted && this.musicEnabled) {
+                        this.playBackgroundMusic();
+                        this.musicStarted = true;
+                    }
+                    document.removeEventListener('click', startMusic);
+                    document.removeEventListener('keydown', startMusic);
+                    document.removeEventListener('touchstart', startMusic);
+                };
+                
+                // Listen for any user interaction
+                document.addEventListener('click', startMusic);
+                document.addEventListener('keydown', startMusic);
+                document.addEventListener('touchstart', startMusic);
+                
+                console.log('🎵 Audio system ready - music will start on first user interaction');
+            }
+            
+            playSound(soundName, volume = 1) {
+                if (!this.sfxEnabled) return;
+                
+                const sound = this.sounds[soundName];
+                if (sound) {
+                    try {
+                        // Check if audio element is ready
+                        if (sound.readyState >= 2) { // HAVE_CURRENT_DATA or higher
+                            sound.currentTime = 0;
+                            sound.volume = Math.min(Math.max(this.volume * volume, 0), 1); // Clamp between 0-1
+                            
+                            const playPromise = sound.play();
+                            if (playPromise !== undefined) {
+                                playPromise
+                                    .then(() => {
+                                        console.log(`🎵 ${soundName} played successfully`);
+                                    })
+                                    .catch(error => {
+                                        console.log(`⚠️ ${soundName} play failed:`, error.message);
+                                        this.handlePlaybackError(soundName, sound);
+                                    });
+                            }
+                        } else {
+                            // Audio not ready, wait for it to load
+                            console.log(`⏳ ${soundName} not ready, waiting...`);
+                            sound.addEventListener('canplay', () => {
+                                this.playSound(soundName, volume);
+                            }, { once: true });
+                        }
+                    } catch (error) {
+                        console.error(`❌ ${soundName} error:`, error);
+                        this.handlePlaybackError(soundName, sound);
+                    }
+                } else {
+                    console.warn(`⚠️ Sound '${soundName}' not found`);
+                }
+            }
+            
+            handlePlaybackError(soundName, sound) {
+                console.log(`🔄 Attempting to recover ${soundName} playback...`);
+                
+                // Try to reload and play again
+                setTimeout(() => {
+                    try {
+                        sound.load();
+                        setTimeout(() => {
+                            if (sound.readyState >= 2) {
+                                sound.play().catch(e => {
+                                    console.log(`🔇 ${soundName} playback recovery failed:`, e.message);
+                                });
+                            }
+                        }, 500);
+                    } catch (error) {
+                        console.error(`Failed to recover ${soundName}:`, error);
+                    }
+                }, 100);
+            }
+            
+            playBackgroundMusic() {
+                if (this.musicEnabled && this.bgMusic) {
+                    try {
+                        console.log('🎶 Starting background music');
+                        this.bgMusic.volume = this.volume * 0.3;
+                        this.bgMusic.play().then(() => {
+                            console.log('✅ Background music started successfully');
+                            this.updateMusicButton();
+                            
+                            // Hide start music button
+                            const startBtn = document.getElementById('startMusicBtn');
+                            if (startBtn) {
+                                startBtn.style.display = 'none';
+                            }
+                            
+                            // Show success message
+                            setTimeout(() => {
+                                if (typeof showMessage === 'function') {
+                                    showMessage('🎵 Background music started!', 'success');
+                                }
+                            }, 500);
+                        }).catch(error => {
+                            console.error('❌ Error playing background music:', error);
+                        });
+                    } catch (error) {
+                        console.error('❌ Error starting background music:', error);
+                    }
+                }
+            }
+            
+            stopBackgroundMusic() {
+                if (this.bgMusic) {
+                    console.log('🔇 Stopping background music');
+                    this.bgMusic.pause();
+                    this.bgMusic.currentTime = 0;
+                    this.updateMusicButton();
+                }
+            }
+            
+            toggleMusic() {
+                this.musicEnabled = !this.musicEnabled;
+                
+                if (this.musicEnabled) {
+                    this.playBackgroundMusic();
+                } else {
+                    this.stopBackgroundMusic();
+                }
+                
+                // Update all UI elements
+                const musicToggle = document.getElementById('musicToggle');
+                const musicToggleModal = document.getElementById('musicToggleModal');
+                
+                if (musicToggle) {
+                    musicToggle.classList.toggle('muted', !this.musicEnabled);
+                }
+                if (musicToggleModal) {
+                    musicToggleModal.checked = this.musicEnabled;
+                }
+            }
+            
+            toggleSFX() {
+                this.sfxEnabled = !this.sfxEnabled;
+                
+                // Update all UI elements
+                const sfxToggle = document.getElementById('sfxToggle');
+                const sfxToggleModal = document.getElementById('sfxToggleModal');
+                
+                if (sfxToggle) {
+                    sfxToggle.classList.toggle('muted', !this.sfxEnabled);
+                }
+                if (sfxToggleModal) {
+                    sfxToggleModal.checked = this.sfxEnabled;
+                }
+                
+                // Play test sound when enabling
+                if (this.sfxEnabled) {
+                    this.playSound('buttonClick');
+                }
+            }
+            
+            setVolume(volume) {
+                this.volume = volume / 100;
+                this.updateVolumes();
+            }
+            
+            updateVolumes() {
+                // Update background music volume
+                if (this.bgMusic) {
+                    this.bgMusic.volume = this.volume * 0.3;
+                }
+                
+                // Update all sound effects volumes
+                Object.values(this.sounds).forEach(sound => {
+                    if (sound) {
+                        sound.volume = this.volume;
+                    }
+                });
+            }
+            
+            updateMusicButton() {
+                const button = document.getElementById('musicToggle');
+                const status = document.getElementById('musicStatus');
+                if (button && status) {
+                    status.textContent = this.musicEnabled ? 'ON' : 'OFF';
+                    button.classList.toggle('muted', !this.musicEnabled);
+                }
+            }
+            
+            updateSFXButton() {
+                const button = document.getElementById('sfxToggle');
+                const status = document.getElementById('sfxStatus');
+                if (button && status) {
+                    status.textContent = this.sfxEnabled ? 'ON' : 'OFF';
+                    button.classList.toggle('muted', !this.sfxEnabled);
+                }
+            }
+            
+            // Test all audio files to check format compatibility
+            testAllAudio() {
+                console.log('🧪 Testing all audio files...');
+                
+                const testResults = {
+                    backgroundMusic: false,
+                    soundEffects: {}
+                };
+                
+                // Test background music
+                if (this.bgMusic && this.bgMusic.readyState >= 2) {
+                    testResults.backgroundMusic = true;
+                    console.log('✅ Background music: Ready');
+                } else {
+                    console.log('❌ Background music: Not ready');
+                }
+                
+                // Test all sound effects
+                Object.keys(this.sounds).forEach(soundName => {
+                    const sound = this.sounds[soundName];
+                    if (sound && sound.readyState >= 2) {
+                        testResults.soundEffects[soundName] = true;
+                        console.log(`✅ ${soundName}: Ready`);
+                    } else {
+                        testResults.soundEffects[soundName] = false;
+                        console.log(`❌ ${soundName}: Not ready`);
+                    }
+                });
+                
+                // Show summary
+                const totalSounds = Object.keys(this.sounds).length + 1; // +1 for bg music
+                const readySounds = (testResults.backgroundMusic ? 1 : 0) + 
+                    Object.values(testResults.soundEffects).filter(ready => ready).length;
+                
+                console.log(`🎵 Audio Test Results: ${readySounds}/${totalSounds} audio files ready`);
+                
+                if (readySounds === totalSounds) {
+                    console.log('🎉 All audio files are working perfectly!');
+                } else {
+                    console.log('⚠️ Some audio files may need format conversion or re-encoding');
+                }
+                
+                return testResults;
+            }
+        }
+
+        // Global audio manager instance
+        let audioManager;
+        
+        // Audio control functions
+        function startMusicManually() {
+            console.log('🎵 Manual music start requested');
+            audioManager?.playSound('buttonClick');
+            audioManager?.playBackgroundMusic();
+        }
+        
+        function toggleMusic() {
+            audioManager?.playSound('buttonClick');
+            audioManager?.toggleMusic();
+        }
+        
+        function toggleSFX() {
+            if (audioManager?.sfxEnabled) {
+                audioManager.playSound('buttonClick');
+            }
+            audioManager?.toggleSFX();
+        }
+        
+        function setVolume(volume) {
+            audioManager?.setVolume(volume);
+        }
+
+        // Debug function to test all audio files (call from browser console)
+        function testAudio() {
+            if (audioManager) {
+                console.log('🎵 Running manual audio test...');
+                const results = audioManager.testAllAudio();
+                updateAudioStatusDisplay(results);
+                
+                // Test each sound effect
+                Object.keys(audioManager.sounds).forEach((soundName, index) => {
+                    setTimeout(() => {
+                        console.log(`🎵 Testing ${soundName}...`);
+                        audioManager.playSound(soundName, 0.5);
+                    }, index * 1000);
+                });
+                
+                return results;
+            } else {
+                console.log('❌ Audio manager not initialized');
+                return null;
+            }
+        }
+
+        // Manual audio test function for the settings button
+        function testAudioManual() {
+            audioManager?.playSound('buttonClick');
+            
+            if (audioManager) {
+                const results = audioManager.testAllAudio();
+                updateAudioStatusDisplay(results);
+                
+                // Play a sample of each sound
+                Object.keys(audioManager.sounds).forEach((soundName, index) => {
+                    setTimeout(() => {
+                        audioManager.playSound(soundName, 0.3);
+                    }, index * 800);
+                });
+                
+                showMessage('🎵 Audio test complete! Check settings for results.', 'info');
+            }
+        }
+
+        // Update the audio status display in settings - DISABLED
+        function updateAudioStatusDisplay(results = null) {
+            return; // Audio status section removed
+            const audioStatus = document.getElementById('audioStatus');
+            if (!audioStatus || !audioManager) return;
+            
+            // Get results if not provided
+            if (!results) {
+                results = audioManager.testAllAudio();
+            }
+            
+            let html = '';
+            
+            // Background Music Status
+            const bgStatus = results.backgroundMusic ? 
+                '<span class="status">✅ Ready</span>' : 
+                '<span class="status">❌ Not Ready</span>';
+            html += `<div class="audio-item ${results.backgroundMusic ? 'ready' : 'not-ready'}">
+                <span>🎶 Background Music</span>
+                ${bgStatus}
+            </div>`;
+            
+            // Sound Effects Status
+            const soundNames = {
+                cardFlip: '🂠 Card Flip',
+                cardPlace: '🎯 Card Place', 
+                peakCard: '⚡ Peak Card',
+                winSound: '🏆 Win Sound',
+                loseSound: '💔 Lose Sound',
+                buttonClick: '🔘 Button Click'
+                // turnNotification removed - file not available
+            };
+            
+            Object.keys(results.soundEffects).forEach(soundName => {
+                const isReady = results.soundEffects[soundName];
+                const displayName = soundNames[soundName] || soundName;
+                const status = isReady ? 
+                    '<span class="status">✅ Ready</span>' : 
+                    '<span class="status">❌ Not Ready</span>';
+                
+                html += `<div class="audio-item ${isReady ? 'ready' : 'not-ready'}">
+                    <span>${displayName}</span>
+                    ${status}
+                </div>`;
+            });
+            
+            // Summary
+            const totalSounds = Object.keys(results.soundEffects).length + 1;
+            const readySounds = (results.backgroundMusic ? 1 : 0) + 
+                Object.values(results.soundEffects).filter(ready => ready).length;
+            
+            if (readySounds === totalSounds) {
+                html += '<div style="margin-top: 10px; text-align: center; color: #27ae60; font-weight: bold;">🎉 All audio files working!</div>';
+            } else {
+                html += `<div style="margin-top: 10px; text-align: center; color: #e74c3c; font-weight: bold;">⚠️ ${totalSounds - readySounds} audio files need attention</div>`;
+            }
+            
+            audioStatus.innerHTML = html;
+        }
+
+        // Settings Modal Functions
+        function openSettings() {
+            audioManager?.playSound('buttonClick');
+            const modal = document.getElementById('settingsModal');
+            modal.style.display = 'block';
+            
+            // Sync settings with current audio manager state
+            syncSettingsWithAudioManager();
+            
+            // Update audio status display
+            setTimeout(() => {
+                updateAudioStatusDisplay();
+            }, 100);
+        }
+        
+        function closeSettings() {
+            audioManager?.playSound('buttonClick');
+            const modal = document.getElementById('settingsModal');
+            modal.style.display = 'none';
+        }
+        
+        function syncSettingsWithAudioManager() {
+            if (!audioManager) return;
+            
+            const musicToggle = document.getElementById('musicToggleModal');
+            const sfxToggle = document.getElementById('sfxToggleModal');
+            const volumeSlider = document.getElementById('volumeSliderModal');
+            const volumePercent = document.getElementById('volumePercent');
+            
+            if (musicToggle) musicToggle.checked = audioManager.musicEnabled;
+            if (sfxToggle) sfxToggle.checked = audioManager.sfxEnabled;
+            
+            if (volumeSlider && volumePercent) {
+                const volume = Math.round(audioManager.volume * 100);
+                volumeSlider.value = volume;
+                volumePercent.textContent = volume + '%';
+            }
+        }
+        
+        function toggleMusicFromSettings() {
+            if (!audioManager) return;
+            audioManager.toggleMusic();
+        }
+        
+        function toggleSFXFromSettings() {
+            if (!audioManager) return;
+            audioManager.toggleSFX();
+        }
+        
+        function setVolumeFromSettings(volume) {
+            const volumePercent = Math.round(volume);
+            document.getElementById('volumePercent').textContent = volumePercent + '%';
+            audioManager?.setVolume(volume);
+        }
+
+        // Initialize audio system when DOM is loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            audioManager = new AudioManager();
+            
+            // Test all audio files after a brief delay to allow loading
+            setTimeout(() => {
+                const results = audioManager.testAllAudio();
+                updateAudioStatusDisplay(results);
+            }, 2000);
+            
+            // Initialize player count button handlers
+            initPlayerCountButtons();
+            
+            // Show start music button initially
+            setTimeout(() => {
+                const startBtn = document.getElementById('startMusicBtn');
+                if (startBtn) {
+                    startBtn.style.display = 'inline-flex';
+                }
+            }, 1000);
+        });
     </script>
 </body>
 </html>
