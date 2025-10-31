@@ -7,47 +7,52 @@
     
     <!-- Audio Elements with Multi-Format Support -->
     <audio id="bgMusic" loop preload="auto" volume="0.3">
-        <source src="audio/music/background-music.mp3" type="audio/mpeg">
-        <source src="audio/music/background-music.ogg" type="audio/ogg">
-        <source src="audio/music/background-music.wav" type="audio/wav">
+        <source src="assets/audio/music/background-music.mp3" type="audio/mpeg">
+        <source src="assets/audio/music/background-music.ogg" type="audio/ogg">
+        <source src="assets/audio/music/background-music.wav" type="audio/wav">
     </audio>
-    
+
     <audio id="cardFlip" preload="auto" volume="0.7">
-        <source src="audio/sfx/card-flip.wav" type="audio/wav">
-        <source src="audio/sfx/card-flip.mp3" type="audio/mpeg">
-        <source src="audio/sfx/card-flip.ogg" type="audio/ogg">
+        <source src="assets/audio/sfx/card-flip.wav" type="audio/wav">
+        <source src="assets/audio/sfx/card-flip.mp3" type="audio/mpeg">
+        <source src="assets/audio/sfx/card-flip.ogg" type="audio/ogg">
     </audio>
     
     <audio id="cardPlace" preload="auto" volume="0.6">
-        <source src="audio/sfx/card-place.wav" type="audio/wav">
-        <source src="audio/sfx/card-place.mp3" type="audio/mpeg">
-        <source src="audio/sfx/card-place.ogg" type="audio/ogg">
+        <source src="assets/audio/sfx/card-place.wav" type="audio/wav">
+        <source src="assets/audio/sfx/card-place.mp3" type="audio/mpeg">
+        <source src="assets/audio/sfx/card-place.ogg" type="audio/ogg">
     </audio>
     
     <audio id="peakCard" preload="auto" volume="0.8">
-        <source src="audio/sfx/peak-card.m4a" type="audio/mp4">
-        <source src="audio/sfx/peak-card.mp3" type="audio/mpeg">
-        <source src="audio/sfx/peak-card.wav" type="audio/wav">
-        <source src="audio/sfx/peak-card.ogg" type="audio/ogg">
+        <source src="assets/audio/sfx/peak-card.m4a" type="audio/mp4">
+        <source src="assets/audio/sfx/peak-card.mp3" type="audio/mpeg">
+        <source src="assets/audio/sfx/peak-card.wav" type="audio/wav">
+        <source src="assets/audio/sfx/peak-card.ogg" type="audio/ogg">
     </audio>
 
     <audio id="goblinSound" preload="auto" volume="0.8">
-        <source src="audio/sfx/goblin-sound.wav" type="audio/wav">
+        <source src="assets/audio/sfx/goblin-sound.wav" type="audio/wav">
     </audio>
 
     <audio id="starSound" preload="auto" volume="0.8">
-        <source src="audio/sfx/star-sound.wav" type="audio/wav">
+        <source src="assets/audio/sfx/star-sound.wav" type="audio/wav">
     </audio>
     
     <audio id="winSound" preload="auto" volume="0.9">
-        <source src="audio/sfx/win-sound.wav" type="audio/wav">
-        <source src="audio/sfx/win-sound.mp3" type="audio/mpeg">
-        <source src="audio/sfx/win-sound.ogg" type="audio/ogg">
+        <source src="assets/audio/sfx/win-sound.wav" type="audio/wav">
+        <source src="assets/audio/sfx/win-sound.mp3" type="audio/mpeg">
+        <source src="assets/audio/sfx/win-sound.ogg" type="audio/ogg">
     </audio>
     
     <audio id="loseSound" preload="auto" volume="0.5">
-        <source src="audio/sfx/lose-sound.mp3" type="audio/mpeg">
-        <source src="audio/sfx/lose-sound.wav" type="audio/wav">
+        <source src="assets/audio/sfx/lose-sound.mp3" type="audio/mpeg">
+        <source src="assets/audio/sfx/lose-sound.wav" type="audio/wav">
+    </audio>
+
+    <audio id="buttonClick" preload="auto" volume="0.4">
+        <source src="assets/audio/sfx/button-click.wav" type="audio/wav">
+    </audio>
         <source src="audio/sfx/lose-sound.ogg" type="audio/ogg">
     </audio>
     
@@ -4976,37 +4981,83 @@
                     webm: !!audio.canPlayType('audio/webm').replace(/no/, '')
                 };
             }
+
+            handleAudioError(soundName, sound) {
+                console.error(`🔍 Debugging ${soundName} audio error:`);
+                const sources = sound.getElementsByTagName('source');
+                Array.from(sources).forEach(source => {
+                    console.log(`- Trying to load: ${source.src}`);
+                    // Try to fetch the file to check if it exists
+                    fetch(source.src)
+                        .then(response => {
+                            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                            console.log(`✅ ${source.src} is accessible`);
+                        })
+                        .catch(error => console.error(`❌ ${source.src} is not accessible:`, error));
+                });
+            }
             
             testAudioElements() {
-                // Test each audio element to ensure they can load properly
-                Object.keys(this.sounds).forEach(soundName => {
-                    const sound = this.sounds[soundName];
-                    if (sound) {
-                        sound.addEventListener('loadstart', () => {
-                            console.log(`🎵 ${soundName}: Loading started`);
-                        });
-                        
-                        sound.addEventListener('canplay', () => {
-                            console.log(`✅ ${soundName}: Ready to play`);
-                        });
-                        
-                        sound.addEventListener('error', (e) => {
-                            console.error(`❌ ${soundName}: Audio error`, e);
-                            this.handleAudioError(soundName, sound);
-                        });
-                    }
-                });
+                console.log('🔍 Testing audio elements...');
+                // Preload all audio files
+                const preloadPromises = [];
                 
-                // Test background music
-                if (this.bgMusic) {
-                    this.bgMusic.addEventListener('canplay', () => {
-                        console.log('✅ Background music: Ready to play');
+                Object.entries(this.sounds).forEach(([soundName, sound]) => {
+                    if (!sound) {
+                        console.error(`❌ Audio element not found: ${soundName}`);
+                        return;
+                    }
+
+                    // Create a promise for this sound's loading
+                    const loadPromise = new Promise((resolve) => {
+                        const loadHandler = () => {
+                            sound.removeEventListener('canplaythrough', loadHandler);
+                            sound.removeEventListener('error', errorHandler);
+                            console.log(`✅ ${soundName}: Ready`);
+                            resolve();
+                        };
+                        const errorHandler = () => {
+                            sound.removeEventListener('canplaythrough', loadHandler);
+                            sound.removeEventListener('error', errorHandler);
+                            console.warn(`⚠️ ${soundName}: Failed to load`);
+                            resolve(); // Resolve anyway to not block other sounds
+                        };
+                        
+                        sound.addEventListener('canplaythrough', loadHandler);
+                        sound.addEventListener('error', errorHandler);
+                        sound.load();
                     });
                     
-                    this.bgMusic.addEventListener('error', (e) => {
-                        console.error('❌ Background music: Audio error', e);
+                    preloadPromises.push(loadPromise);
+                });
+
+                // Also preload background music
+                if (this.bgMusic) {
+                    const bgMusicPromise = new Promise((resolve) => {
+                        const loadHandler = () => {
+                            this.bgMusic.removeEventListener('canplaythrough', loadHandler);
+                            this.bgMusic.removeEventListener('error', errorHandler);
+                            console.log('✅ Background music: Ready');
+                            resolve();
+                        };
+                        const errorHandler = () => {
+                            this.bgMusic.removeEventListener('canplaythrough', loadHandler);
+                            this.bgMusic.removeEventListener('error', errorHandler);
+                            console.warn('⚠️ Background music: Failed to load');
+                            resolve();
+                        };
+                        
+                        this.bgMusic.addEventListener('canplaythrough', loadHandler);
+                        this.bgMusic.addEventListener('error', errorHandler);
+                        this.bgMusic.load();
                     });
+                    preloadPromises.push(bgMusicPromise);
                 }
+
+                // Wait for all sounds to either load or fail
+                Promise.all(preloadPromises).then(() => {
+                    console.log('🎵 Audio system initialization complete');
+                });
             }
             
             handleAudioError(soundName, audioElement) {
@@ -5045,41 +5096,49 @@
                 console.log('🎵 Audio system ready - music will start on first user interaction');
             }
             
-            playSound(soundName, volume = 1) {
+            async playSound(soundName, volume = 1) {
                 if (!this.sfxEnabled) return;
                 
                 const sound = this.sounds[soundName];
-                if (sound) {
-                    try {
-                        // Check if audio element is ready
-                        if (sound.readyState >= 2) { // HAVE_CURRENT_DATA or higher
-                            sound.currentTime = 0;
-                            sound.volume = Math.min(Math.max(this.volume * volume, 0), 1); // Clamp between 0-1
-                            
-                            const playPromise = sound.play();
-                            if (playPromise !== undefined) {
-                                playPromise
-                                    .then(() => {
-                                        console.log(`🎵 ${soundName} played successfully`);
-                                    })
-                                    .catch(error => {
-                                        console.log(`⚠️ ${soundName} play failed:`, error.message);
-                                        this.handlePlaybackError(soundName, sound);
-                                    });
-                            }
-                        } else {
-                            // Audio not ready, wait for it to load
-                            console.log(`⏳ ${soundName} not ready, waiting...`);
-                            sound.addEventListener('canplay', () => {
-                                this.playSound(soundName, volume);
-                            }, { once: true });
-                        }
-                    } catch (error) {
-                        console.error(`❌ ${soundName} error:`, error);
-                        this.handlePlaybackError(soundName, sound);
-                    }
-                } else {
+                if (!sound) {
                     console.warn(`⚠️ Sound '${soundName}' not found`);
+                    return;
+                }
+
+                // If sound is already playing, stop it first
+                if (!sound.paused) {
+                    sound.pause();
+                    sound.currentTime = 0;
+                }
+
+                // Set the volume before playing
+                sound.volume = Math.min(Math.max(this.volume * volume, 0), 1);
+
+                try {
+                    // If the audio isn't loaded yet, wait for it
+                    if (sound.readyState < 2) { // HAVE_CURRENT_DATA
+                        await new Promise((resolve, reject) => {
+                            const loadHandler = () => {
+                                sound.removeEventListener('canplaythrough', loadHandler);
+                                sound.removeEventListener('error', errorHandler);
+                                resolve();
+                            };
+                            const errorHandler = (error) => {
+                                sound.removeEventListener('canplaythrough', loadHandler);
+                                sound.removeEventListener('error', errorHandler);
+                                reject(error);
+                            };
+                            sound.addEventListener('canplaythrough', loadHandler);
+                            sound.addEventListener('error', errorHandler);
+                            sound.load();
+                        });
+                    }
+
+                    // Play the sound
+                    await sound.play();
+                } catch (error) {
+                    console.warn(`🔇 Could not play ${soundName}:`, error);
+                    // Don't retry - just let it fail silently
                 }
             }
             
