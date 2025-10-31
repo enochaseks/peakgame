@@ -18,19 +18,6 @@
             animation: gradientBg 15s ease infinite;
             min-height: 100vh;
             color: #333;
-            font-size: 14px;
-        }
-        
-        @media (min-width: 480px) {
-            body {
-                font-size: 15px;
-            }
-        }
-        
-        @media (min-width: 768px) {
-            body {
-                font-size: 16px;
-            }
         }
 
         @keyframes gradientBg {
@@ -42,255 +29,128 @@
         .game-container {
             max-width: 1200px;
             margin: 0 auto;
-            padding: 5px;
-        }
-        
-        /* Responsive Design - Mobile First */
-        @media (min-width: 360px) {
-            .game-container {
-                padding: 8px;
-            }
-        }
-        
-        @media (min-width: 480px) {
-            .game-container {
-                padding: 12px;
-            }
-        }
-        
-        @media (min-width: 768px) {
-            .game-container {
-                padding: 20px;
-            }
-        }
-        
-        /* Landscape orientation for mobile devices */
-        @media (max-height: 480px) and (orientation: landscape) {
-            .game-container {
-                padding: 5px;
-            }
-            
-            .game-header {
-                margin-bottom: 10px;
-            }
-            
-            .title-container {
-                margin-bottom: 10px;
-                padding: 5px;
-            }
-            
-            .peak-card {
-                width: 40px;
-                height: 60px;
-                font-size: 1.5em;
-            }
-            
-            .players-container {
-                height: 250px;
-                min-height: 250px;
-            }
-        }
-        
-        /* Touch-friendly improvements */
-        @media (pointer: coarse) {
-            .btn {
-                min-height: 44px;
-                padding: 12px 20px;
-            }
-            
-            .player-count-btn {
-                min-height: 60px;
-                padding: 15px 12px;
-            }
-            
-            .card:hover {
-                transform: scale(1.1);
-            }
+            padding: 20px;
         }
 
         .game-header {
             text-align: center;
-            margin-bottom: 20px;
+            margin-bottom: 40px;
             position: relative;
             overflow: hidden;
         }
-        
-        @media (min-width: 768px) {
-            .game-header {
-                margin-bottom: 40px;
-            }
-        }
 
-        /* Clean Title Container */
-        .title-container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin-bottom: 20px;
-            padding: 10px;
-            flex-wrap: wrap;
-        }
-        
-        @media (min-width: 768px) {
-            .title-container {
-                margin-bottom: 40px;
-                padding: 20px;
-                flex-wrap: nowrap;
-            }
-        }
-
-        /* PEAK Cards Layout */
-        .peak-cards {
-            display: flex;
-            gap: 8px;
-            justify-content: center;
-            align-items: center;
-            flex-wrap: wrap;
-        }
-        
-        @media (min-width: 480px) {
-            .peak-cards {
-                gap: 12px;
-            }
-        }
-        
-        @media (min-width: 768px) {
-            .peak-cards {
-                gap: 15px;
-                flex-wrap: nowrap;
-            }
-        }
-
-        .peak-card {
-            width: 60px;
-            height: 90px;
-            background: linear-gradient(145deg, #ffffff, #f8f9fa);
-            border: 2px solid #333;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 2em;
-            font-weight: 900;
-            color: #333;
-            box-shadow: 
-                0 4px 8px rgba(0,0,0,0.2),
-                inset 0 1px 0 rgba(255,255,255,0.8);
-            animation: cardFloat 3s ease-in-out infinite;
-            position: relative;
-            overflow: hidden;
-            transition: all 0.3s ease;
-        }
-        
-        @media (min-width: 480px) {
-            .peak-card {
-                width: 80px;
-                height: 120px;
-                font-size: 2.5em;
-                border-radius: 10px;
-            }
-        }
-        
-        @media (min-width: 768px) {
-            .peak-card {
-                width: 100px;
-                height: 150px;
-                font-size: 3.5em;
-                border: 3px solid #333;
-                border-radius: 12px;
-                box-shadow: 
-                    0 6px 12px rgba(0,0,0,0.2),
-                    inset 0 1px 0 rgba(255,255,255,0.8);
-            }
-        }
-        
-        @media (min-width: 1024px) {
-            .peak-card {
-                width: 120px;
-                height: 180px;
-                font-size: 4em;
-                border-radius: 15px;
-                box-shadow: 
-                    0 8px 16px rgba(0,0,0,0.2),
-                    inset 0 1px 0 rgba(255,255,255,0.8);
-            }
-        }
-
-        .peak-card::before {
-            content: '';
+        .sparkle {
             position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.4), transparent);
-            transform: rotate(45deg);
-            animation: cardShimmer 4s linear infinite;
+            width: 4px;
+            height: 4px;
+            background: #fff;
+            border-radius: 50%;
+            animation: sparkle 2s linear infinite;
+            box-shadow: 0 0 6px #fff;
         }
 
-        .peak-card:hover {
-            transform: translateY(-10px) scale(1.05);
-            box-shadow: 
-                0 15px 25px rgba(0,0,0,0.3),
-                inset 0 1px 0 rgba(255,255,255,0.9);
+        @keyframes sparkle {
+            0% { opacity: 0; transform: translateY(0px) scale(0); }
+            50% { opacity: 1; transform: scale(1); }
+            100% { opacity: 0; transform: translateY(-100px) scale(0); }
         }
 
-        .peak-card:nth-child(1) { 
-            animation-delay: 0s; 
-            background: linear-gradient(145deg, #ff9a9e, #fecfef, #ffffff);
-        }
-        .peak-card:nth-child(2) { 
-            animation-delay: 0.5s; 
-            background: linear-gradient(145deg, #a8edea, #fed6e3, #ffffff);
-        }
-        .peak-card:nth-child(3) { 
-            animation-delay: 1s; 
-            background: linear-gradient(145deg, #fbc2eb, #a6c1ee, #ffffff);
-        }
-        .peak-card:nth-child(4) { 
-            animation-delay: 1.5s; 
-            background: linear-gradient(145deg, #c2e9fb, #a1c4fd, #ffffff);
+        .sparkle:nth-child(1) { left: 20%; animation-delay: 0s; }
+        .sparkle:nth-child(2) { left: 40%; animation-delay: 0.5s; }
+        .sparkle:nth-child(3) { left: 60%; animation-delay: 1s; }
+        .sparkle:nth-child(4) { left: 80%; animation-delay: 1.5s; }
+
+        .game-title {
+            position: relative;
+            font-size: 5em;
+            font-weight: 900;
+            margin-bottom: 30px;
+            text-shadow: 3px 3px 6px rgba(0,0,0,0.7);
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4, #feca57, #ff9ff3);
+            background-size: 400% 400%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: gradientShift 3s ease-in-out infinite;
+            letter-spacing: 0.1em;
+            z-index: 10;
+            position: relative;
         }
 
-        @keyframes cardFloat {
-            0%, 100% { 
-                transform: translateY(0) rotate(0deg);
-            }
-            50% { 
-                transform: translateY(-15px) rotate(1deg);
-            }
+        @keyframes gradientShift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
         }
 
-        @keyframes cardShimmer {
-            0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
-            100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+        .title-container {
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 20px;
         }
 
-        /* Subtitle styling */
-        .subtitle {
-            font-size: 0.9em;
-            font-weight: 300;
-            color: #666;
-            text-align: center;
-            margin-top: 10px;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-            opacity: 0.8;
+        .title-card {
+            position: absolute;
+            width: 80px;
+            height: 120px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.5em;
+            border: 3px solid #333;
+            box-shadow: 0 6px 12px rgba(0,0,0,0.3);
+            animation: floatCard 4s ease-in-out infinite;
+            z-index: 1;
         }
+
+        .title-card:nth-child(1) {
+            left: -100px;
+            top: 20px;
+            background: linear-gradient(145deg, #ff6b6b, #ee5a24);
+            color: white;
+            animation-delay: 0s;
+            transform: rotate(-15deg);
+        }
+
+        .title-card:nth-child(2) {
+            left: 50%;
+            top: -30px;
+            transform: translateX(-50%) rotate(5deg);
+            background: linear-gradient(145deg, #9b59b6, #8e44ad);
+            color: white;
+            animation-delay: 1s;
+        }
+
+        .title-card:nth-child(3) {
+            right: -100px;
+            top: 25px;
+            background: linear-gradient(145deg, #4ecdc4, #26d0ce);
+            color: white;
+            animation-delay: 2s;
+            transform: rotate(12deg);
+        }
+
+        @keyframes floatCard {
+            0%, 100% { transform: translateY(0px) rotate(var(--rotation, 0deg)); }
+            50% { transform: translateY(-10px) rotate(var(--rotation, 0deg)); }
+        }
+
+        .title-card:nth-child(1) { --rotation: -15deg; }
+        .title-card:nth-child(2) { --rotation: 5deg; }
+        .title-card:nth-child(3) { --rotation: 12deg; }
 
         .game-info {
-            background: linear-gradient(135deg, rgba(255,255,255,0.95), rgba(168, 230, 207, 0.9), rgba(220, 237, 200, 0.9));
+            background: rgba(255,255,255,0.9);
             padding: 20px;
-            border-radius: 20px;
+            border-radius: 15px;
             margin-bottom: 20px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            box-shadow: 
-                0 8px 16px rgba(0,0,0,0.1),
-                0 0 30px rgba(85, 239, 196, 0.2),
-                inset 0 1px 0 rgba(255,255,255,0.6);
-            border: 2px solid rgba(85, 239, 196, 0.3);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
 
         /* Floating game messages overlay: keep messages above all table elements */
@@ -311,32 +171,12 @@
 
         .game-message {
             pointer-events: auto; /* allow interaction with message (if needed) */
-            min-width: 180px;
-            max-width: 90%;
+            min-width: 220px;
+            max-width: 640px;
             text-align: center;
-            border-radius: 8px;
-            padding: 8px 12px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.25);
-            font-size: 0.9em;
-        }
-        
-        @media (min-width: 480px) {
-            .game-message {
-                min-width: 220px;
-                max-width: 500px;
-                border-radius: 9px;
-                padding: 9px 13px;
-                font-size: 1em;
-            }
-        }
-        
-        @media (min-width: 768px) {
-            .game-message {
-                max-width: 640px;
-                border-radius: 10px;
-                padding: 10px 14px;
-                box-shadow: 0 6px 18px rgba(0,0,0,0.25);
-            }
+            border-radius: 10px;
+            padding: 10px 14px;
+            box-shadow: 0 6px 18px rgba(0,0,0,0.25);
         }
 
         .info-item {
@@ -350,13 +190,9 @@
         }
 
         .info-value {
-            font-size: 1.3em;
+            font-size: 1.2em;
             font-weight: bold;
-            background: linear-gradient(45deg, #6c5ce7, #a29bfe, #fd79a8);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+            color: #333;
         }
 
         .game-table {
@@ -364,30 +200,13 @@
             width: 400px;
             height: 400px;
             margin: 0 auto 30px;
-            background: radial-gradient(circle, #00b894 0%, #00a085 30%, #2d5016 60%, #1a3009 100%);
+            background: radial-gradient(circle, #2d5016 0%, #1a3009 70%);
             border-radius: 50%;
-            border: 12px solid #fdcb6e;
+            border: 12px solid #8B4513;
             box-shadow: 
-                0 0 30px rgba(253, 203, 110, 0.6),
-                0 0 50px rgba(0, 184, 148, 0.4),
-                inset 0 0 40px rgba(0,0,0,0.2),
-                inset 0 0 80px rgba(253, 203, 110, 0.1);
-            animation: tableGlow 4s ease-in-out infinite alternate;
-        }
-
-        @keyframes tableGlow {
-            0% {
-                box-shadow: 
-                    0 0 30px rgba(253, 203, 110, 0.6),
-                    0 0 50px rgba(0, 184, 148, 0.4),
-                    inset 0 0 40px rgba(0,0,0,0.2);
-            }
-            100% {
-                box-shadow: 
-                    0 0 50px rgba(253, 203, 110, 0.8),
-                    0 0 70px rgba(0, 184, 148, 0.6),
-                    inset 0 0 60px rgba(0,0,0,0.1);
-            }
+                0 0 25px rgba(0,0,0,0.5),
+                inset 0 0 40px rgba(0,0,0,0.3),
+                inset 0 0 80px rgba(139, 69, 19, 0.2);
         }
 
         .game-table::before {
@@ -398,53 +217,21 @@
             transform: translate(-50%, -50%);
             width: 120px;
             height: 120px;
-            background: radial-gradient(circle, #ff9ff3 0%, #a29bfe 50%, #6c5ce7 100%);
+            background: radial-gradient(circle, #1a3009 0%, #0f1a05 100%);
             border-radius: 50%;
-            border: 3px solid rgba(253, 203, 110, 0.8);
-            animation: centerPulse 3s ease-in-out infinite alternate;
-        }
-
-        @keyframes centerPulse {
-            0% {
-                transform: translate(-50%, -50%) scale(1);
-                box-shadow: 0 0 20px rgba(255, 159, 243, 0.5);
-            }
-            100% {
-                transform: translate(-50%, -50%) scale(1.05);
-                box-shadow: 0 0 30px rgba(255, 159, 243, 0.8);
-            }
+            border: 2px solid rgba(139, 69, 19, 0.5);
         }
 
         .players-container {
             position: relative;
             width: 100%;
-            height: 300px;
-            min-height: 300px;
-        }
-        
-        @media (min-width: 768px) {
-            .players-container {
-                height: 100%;
-                min-height: 400px;
-            }
+            height: 100%;
         }
 
         .player-seat {
             position: absolute;
-            width: 100px;
+            width: 140px;
             transform-origin: center;
-        }
-        
-        @media (min-width: 480px) {
-            .player-seat {
-                width: 120px;
-            }
-        }
-        
-        @media (min-width: 768px) {
-            .player-seat {
-                width: 140px;
-            }
         }
 
         .player-seat:nth-child(1) {
@@ -476,26 +263,13 @@
             flex-direction: column;
             align-items: center;
             background: rgba(255,255,255,0.95);
-            border-radius: 10px;
-            padding: 8px;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+            border-radius: 15px;
+            padding: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
             transition: all 0.3s ease;
             border: 2px solid transparent;
-        }
-        
-        @media (min-width: 480px) {
-            .player-avatar {
-                border-radius: 12px;
-                padding: 9px;
-            }
-        }
-        
-        @media (min-width: 768px) {
-            .player-avatar {
-                border-radius: 15px;
-                padding: 10px;
-                box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-            }
+            backdrop-filter: blur(10px);
+            max-width: 130px;
         }
 
         .player-avatar.current-turn {
@@ -530,47 +304,10 @@
             box-shadow: 0 2px 4px rgba(0,0,0,0.3);
         }
 
-        .avatar-icon {
-            position: relative;
-            animation: avatarPulse 2s ease-in-out infinite;
-        }
-
-        @keyframes avatarPulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.1); }
-        }
-
-        .avatar-icon:nth-child(1) { 
-            background: linear-gradient(135deg, #ff6b6b, #ee5a24, #fd79a8);
-            box-shadow: 0 0 15px rgba(255, 107, 107, 0.6);
-        }
-        .avatar-icon:nth-child(2) { 
-            background: linear-gradient(135deg, #4ecdc4, #00b894, #55efc4);
-            box-shadow: 0 0 15px rgba(78, 205, 196, 0.6);
-        }
-        .avatar-icon:nth-child(3) { 
-            background: linear-gradient(135deg, #a29bfe, #6c5ce7, #fd79a8);
-            box-shadow: 0 0 15px rgba(162, 155, 254, 0.6);
-        }
-        .avatar-icon:nth-child(4) { 
-            background: linear-gradient(135deg, #fdcb6e, #e17055, #fab1a0);
-            box-shadow: 0 0 15px rgba(253, 203, 110, 0.6);
-        }
-
-        .avatar-icon::after {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            font-size: 1.5em;
-            z-index: 1;
-        }
-
-        .player-seat:nth-child(1) .avatar-icon::after { content: '🦄'; }
-        .player-seat:nth-child(2) .avatar-icon::after { content: '🐉'; }
-        .player-seat:nth-child(3) .avatar-icon::after { content: '🦸‍♀️'; }
-        .player-seat:nth-child(4) .avatar-icon::after { content: '🎭'; }
+        .avatar-icon:nth-child(1) { background: linear-gradient(135deg, #ff9a9e, #fecfef); }
+        .avatar-icon:nth-child(2) { background: linear-gradient(135deg, #a8edea, #fed6e3); }
+        .avatar-icon:nth-child(3) { background: linear-gradient(135deg, #fbc2eb, #a6c1ee); }
+        .avatar-icon:nth-child(4) { background: linear-gradient(135deg, #74b9ff, #0984e3); }
 
         .player-name {
             font-size: 0.9em;
@@ -614,122 +351,41 @@
         }
 
         .card {
-            width: 45px;
-            height: 65px;
+            width: 60px;
+            height: 90px;
             border-radius: 8px;
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: bold;
-            font-size: 0.8em;
+            font-size: 1.1em;
             cursor: pointer;
-            transition: all 0.3s ease;
-            border: 2px solid transparent;
-            box-shadow: 
-                0 2px 4px rgba(0,0,0,0.2),
-                0 0 0 1px rgba(255,255,255,0.3) inset,
-                0 0 15px rgba(255,255,255,0.1) inset;
-            position: relative;
-            overflow: hidden;
-        }
-        
-        @media (min-width: 480px) {
-            .card {
-                width: 50px;
-                height: 75px;
-                border-radius: 10px;
-                font-size: 0.9em;
-            }
-        }
-        
-        @media (min-width: 768px) {
-            .card {
-                width: 60px;
-                height: 90px;
-                border-radius: 12px;
-                font-size: 1.1em;
-                border: 3px solid transparent;
-                box-shadow: 
-                    0 4px 8px rgba(0,0,0,0.2),
-                    0 0 0 1px rgba(255,255,255,0.3) inset,
-                    0 0 20px rgba(255,255,255,0.1) inset;
-            }
-        }
-
-        @keyframes cardGlow {
-            0%, 100% { box-shadow: 0 4px 8px rgba(0,0,0,0.2), 0 0 15px rgba(255,255,255,0.1); }
-            50% { box-shadow: 0 6px 12px rgba(0,0,0,0.3), 0 0 25px rgba(255,255,255,0.2); }
-        }
-
-        .card::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.2), transparent);
-            transform: rotate(45deg);
-            animation: cardShimmer 3s linear infinite;
-        }
-
-        @keyframes cardShimmer {
-            0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
-            100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+            transition: all 0.2s ease;
+            border: 2px solid #333;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
 
         .card:hover {
-            transform: translateY(-8px) scale(1.05);
-            box-shadow: 
-                0 8px 16px rgba(0,0,0,0.3),
-                0 0 30px rgba(255,255,255,0.3);
-            border-color: #fff;
+            transform: translateY(-5px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
         }
 
         .card.regular {
-            background: linear-gradient(145deg, #a8e6cf, #dcedc8, #f8f9fa);
-            color: #2d3436;
-            border: 3px solid #00b894;
-            position: relative;
-        }
-
-        .card.regular::after {
-            content: '⭐';
-            position: absolute;
-            top: 3px;
-            right: 5px;
-            font-size: 0.7em;
-            opacity: 0.8;
+            background: linear-gradient(145deg, #ffffff, #f0f0f0);
+            color: #333;
         }
 
         .card.peak {
-            background: linear-gradient(145deg, #ff6b6b, #ee5a24, #fd79a8);
+            background: linear-gradient(145deg, #ff6b6b, #ee5a24);
             color: white;
             font-size: 0.8em;
-            border: 3px solid #d63031;
-            animation: peakPulse 1.5s ease-in-out infinite;
-            position: relative;
-        }
-
-        .card.peak::after {
-            content: '🏔️';
-            position: absolute;
-            top: 3px;
-            right: 3px;
-            font-size: 0.8em;
-        }
-
-        @keyframes peakPulse {
-            0%, 100% { box-shadow: 0 0 10px rgba(255, 107, 107, 0.5); }
-            50% { box-shadow: 0 0 25px rgba(255, 107, 107, 0.8); }
         }
 
         .card.reverse {
-            background: linear-gradient(145deg, #a29bfe, #6c5ce7, #fd79a8);
+            background: linear-gradient(145deg, #9b59b6, #8e44ad);
             color: white;
             font-size: 0.7em;
             position: relative;
-            border: 3px solid #5f3dc4;
         }
 
         .card.reverse:before {
@@ -737,21 +393,14 @@
             position: absolute;
             top: 5px;
             left: 5px;
-            font-size: 0.8em;
+            font-size: 0.6em;
         }
 
         .card.star {
-            background: linear-gradient(145deg, #55efc4, #00b894, #a8e6cf);
+            background: linear-gradient(145deg, #00b894, #00a085);
             color: white;
             font-size: 0.7em;
             position: relative;
-            border: 3px solid #00a085;
-            animation: starTwinkle 1s ease-in-out infinite alternate;
-        }
-
-        @keyframes starTwinkle {
-            0% { box-shadow: 0 0 10px rgba(85, 239, 196, 0.5); }
-            100% { box-shadow: 0 0 30px rgba(85, 239, 196, 0.9); }
         }
 
         .card.star:before {
@@ -759,27 +408,14 @@
             position: absolute;
             top: 5px;
             left: 5px;
-            font-size: 0.8em;
-            animation: starSpin 3s ease-in-out infinite;
-        }
-
-        @keyframes starSpin {
-            0%, 100% { transform: scale(1) rotate(0deg); }
-            50% { transform: scale(1.2) rotate(180deg); }
+            font-size: 0.6em;
         }
 
         .card.goblin {
-            background: linear-gradient(145deg, #fd79a8, #e84393, #a29bfe);
+            background: linear-gradient(145deg, #6c5ce7, #5f3dc4);
             color: white;
             font-size: 0.7em;
             position: relative;
-            border: 3px solid #e84393;
-            animation: goblinBounce 0.8s ease-in-out infinite alternate;
-        }
-
-        @keyframes goblinBounce {
-            0% { transform: scale(1); }
-            100% { transform: scale(1.1); }
         }
 
         .card.goblin:before {
@@ -787,27 +423,14 @@
             position: absolute;
             top: 5px;
             left: 5px;
-            font-size: 0.8em;
-            animation: goblinShake 0.5s ease-in-out infinite alternate;
-        }
-
-        @keyframes goblinShake {
-            0% { transform: translateX(0px); }
-            100% { transform: translateX(2px); }
+            font-size: 0.6em;
         }
 
         .card.pause {
-            background: linear-gradient(145deg, #fdcb6e, #e17055, #fab1a0);
+            background: linear-gradient(145deg, #fdcb6e, #e17055);
             color: white;
             font-size: 0.7em;
             position: relative;
-            border: 3px solid #e17055;
-            animation: pausePulse 2s ease-in-out infinite;
-        }
-
-        @keyframes pausePulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.7; }
         }
 
         .card.pause:before {
@@ -815,7 +438,7 @@
             position: absolute;
             top: 5px;
             left: 5px;
-            font-size: 0.8em;
+            font-size: 0.6em;
         }
 
         .card.card-back {
@@ -870,99 +493,28 @@
 
         .controls {
             background: rgba(255,255,255,0.95);
-            padding: 15px;
-            border-radius: 10px;
+            padding: 20px;
+            border-radius: 15px;
             text-align: center;
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            align-items: center;
-        }
-        
-        @media (min-width: 768px) {
-            .controls {
-                padding: 20px;
-                border-radius: 15px;
-                flex-direction: row;
-                justify-content: center;
-                gap: 0;
-            }
         }
 
         .btn {
-            background: linear-gradient(145deg, #55efc4, #00b894, #4CAF50);
+            background: linear-gradient(145deg, #4CAF50, #45a049);
             color: white;
             border: none;
-            padding: 12px 20px;
+            padding: 12px 24px;
             margin: 5px;
-            border-radius: 20px;
+            border-radius: 8px;
             cursor: pointer;
-            font-size: 0.9em;
-            font-weight: bold;
-            transition: all 0.3s ease;
-            box-shadow: 
-                0 2px 6px rgba(0,0,0,0.2),
-                0 0 15px rgba(85, 239, 196, 0.3);
-            position: relative;
-            overflow: hidden;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            width: 100%;
-            max-width: 200px;
-        }
-        
-        @media (min-width: 480px) {
-            .btn {
-                padding: 14px 25px;
-                margin: 6px;
-                font-size: 1em;
-                max-width: 250px;
-            }
-        }
-        
-        @media (min-width: 768px) {
-            .btn {
-                padding: 15px 30px;
-                margin: 8px;
-                border-radius: 25px;
-                font-size: 1.1em;
-                box-shadow: 
-                    0 4px 8px rgba(0,0,0,0.2),
-                    0 0 20px rgba(85, 239, 196, 0.3);
-                width: auto;
-                max-width: none;
-            }
-        }
-
-        .btn::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.3), transparent);
-            transform: rotate(45deg);
-            transition: all 0.3s ease;
-            opacity: 0;
+            font-size: 1em;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
 
         .btn:hover {
-            transform: translateY(-3px) scale(1.05);
-            box-shadow: 
-                0 8px 16px rgba(0,0,0,0.3),
-                0 0 30px rgba(85, 239, 196, 0.6);
-        }
-
-        .btn:hover::before {
-            opacity: 1;
-            animation: buttonShimmer 0.6s ease-in-out;
-        }
-
-        @keyframes buttonShimmer {
-            0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
-            100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
         }
 
         .btn:disabled {
@@ -972,31 +524,8 @@
             box-shadow: none;
         }
 
-        .btn.draw { 
-            background: linear-gradient(145deg, #74b9ff, #0984e3, #2196F3);
-            box-shadow: 
-                0 4px 8px rgba(0,0,0,0.2),
-                0 0 20px rgba(116, 185, 255, 0.4);
-        }
-        
-        .btn.draw:hover {
-            box-shadow: 
-                0 8px 16px rgba(0,0,0,0.3),
-                0 0 30px rgba(116, 185, 255, 0.7);
-        }
-        
-        .btn.quit { 
-            background: linear-gradient(145deg, #fd79a8, #e84393, #f44336);
-            box-shadow: 
-                0 4px 8px rgba(0,0,0,0.2),
-                0 0 20px rgba(253, 121, 168, 0.4);
-        }
-        
-        .btn.quit:hover {
-            box-shadow: 
-                0 8px 16px rgba(0,0,0,0.3),
-                0 0 30px rgba(253, 121, 168, 0.7);
-        }
+        .btn.draw { background: linear-gradient(145deg, #2196F3, #1976D2); }
+        .btn.quit { background: linear-gradient(145deg, #f44336, #d32f2f); }
 
         .modal {
             display: none;
@@ -1025,32 +554,14 @@
         .setup-form {
             display: flex;
             flex-direction: column;
-            gap: 12px;
-            padding: 15px;
-            max-width: 400px;
-            margin: 0 auto;
-        }
-        
-        @media (min-width: 768px) {
-            .setup-form {
-                gap: 15px;
-                padding: 20px;
-            }
+            gap: 15px;
         }
 
         .player-input {
-            padding: 10px;
+            padding: 12px;
             border: 2px solid #ddd;
-            border-radius: 6px;
+            border-radius: 8px;
             font-size: 1em;
-            width: 100%;
-        }
-        
-        @media (min-width: 768px) {
-            .player-input {
-                padding: 12px;
-                border-radius: 8px;
-            }
         }
 
         .player-input:focus {
@@ -1160,392 +671,6 @@
                 font-size: 1.2em;
             }
         }
-
-
-
-        /* Player Count Selection Styles */
-        .player-count-options {
-            display: flex;
-            gap: 10px;
-            justify-content: center;
-            flex-wrap: wrap;
-            padding: 0 10px;
-        }
-        
-        @media (min-width: 768px) {
-            .player-count-options {
-                gap: 15px;
-                padding: 0;
-            }
-        }
-
-        .player-count-btn {
-            background: linear-gradient(145deg, rgba(255,255,255,0.9), rgba(168, 230, 207, 0.8));
-            border: 2px solid #ddd;
-            border-radius: 15px;
-            padding: 15px 10px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            min-width: 100px;
-            flex: 1;
-            max-width: 120px;
-            display: flex;
-            flex-direction: column;
-        }
-        
-        @media (min-width: 480px) {
-            .player-count-btn {
-                padding: 17px 12px;
-                min-width: 120px;
-                max-width: 140px;
-                border-radius: 17px;
-            }
-        }
-        
-        @media (min-width: 768px) {
-            .player-count-btn {
-                border: 3px solid #ddd;
-                border-radius: 20px;
-                padding: 20px 15px;
-                min-width: 140px;
-                flex: none;
-                max-width: none;
-            }
-        }
-
-        .player-count-btn:hover {
-            transform: translateY(-3px) scale(1.05);
-            border-color: #55efc4;
-            box-shadow: 0 8px 20px rgba(85, 239, 196, 0.4);
-        }
-
-        .player-count-btn.selected {
-            background: linear-gradient(145deg, #55efc4, #00b894);
-            border-color: #00a085;
-            color: white;
-            transform: scale(1.1);
-            box-shadow: 0 0 25px rgba(85, 239, 196, 0.6);
-        }
-
-        .player-count-btn::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.2), transparent);
-            transform: rotate(45deg);
-            transition: all 0.3s ease;
-            opacity: 0;
-        }
-
-        .player-count-btn:hover::before {
-            opacity: 1;
-            animation: buttonShimmer 0.6s ease-in-out;
-        }
-
-        .count-emoji {
-            font-size: 2em;
-            margin-bottom: 5px;
-        }
-
-        .count-text {
-            font-size: 1.1em;
-            font-weight: bold;
-            margin-bottom: 2px;
-        }
-
-        .count-desc {
-            font-size: 0.8em;
-            opacity: 0.8;
-            text-align: center;
-            line-height: 1.2;
-        }
-
-        .player-count-btn.selected .count-desc {
-            opacity: 0.9;
-        }
-
-        #playerCountSection {
-            background: rgba(255,255,255,0.05);
-            border-radius: 15px;
-            padding: 20px;
-            border: 2px solid rgba(85, 239, 196, 0.2);
-        }
-
-        #playerCountSection p {
-            color: #333;
-            font-weight: bold;
-            text-align: center;
-            margin-bottom: 15px;
-            font-size: 1.1em;
-        }
-
-        /* Special Card Animation Overlays */
-        .special-card-animation {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 9999;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        /* Peak Card Animation - Mountain avalanche effect */
-        .peak-animation {
-            animation: peakEffect 2s ease-out forwards;
-        }
-
-        @keyframes peakEffect {
-            0% {
-                background: radial-gradient(circle, transparent 0%, rgba(255, 107, 107, 0) 50%);
-            }
-            25% {
-                background: radial-gradient(circle, rgba(255, 107, 107, 0.3) 0%, rgba(255, 107, 107, 0.1) 50%, transparent 70%);
-            }
-            50% {
-                background: radial-gradient(circle, rgba(255, 107, 107, 0.5) 0%, rgba(255, 107, 107, 0.2) 50%, transparent 70%);
-            }
-            100% {
-                background: radial-gradient(circle, transparent 0%, transparent 50%);
-                opacity: 0;
-            }
-        }
-
-        .peak-text {
-            font-size: 6em;
-            font-weight: 900;
-            color: #ff6b6b;
-            text-shadow: 
-                4px 4px 0px #ee5a24,
-                8px 8px 0px #d63031,
-                12px 12px 20px rgba(0,0,0,0.5);
-            animation: peakTextBounce 2s ease-out forwards;
-            letter-spacing: 0.2em;
-            font-family: 'Arial', sans-serif;
-        }
-
-        @keyframes peakTextBounce {
-            0% { 
-                transform: scale(0) rotate(-10deg); 
-                opacity: 0; 
-            }
-            30% { 
-                transform: scale(1.3) rotate(2deg); 
-                opacity: 1; 
-            }
-            50% { 
-                transform: scale(1.1) rotate(-1deg); 
-                opacity: 1; 
-            }
-            70% { 
-                transform: scale(1.2) rotate(1deg); 
-                opacity: 1; 
-            }
-            90% { 
-                transform: scale(1.05) rotate(0deg); 
-                opacity: 0.8; 
-            }
-            100% { 
-                transform: scale(0) rotate(0deg); 
-                opacity: 0; 
-            }
-        }
-
-        /* Reverse Card Animation - Spinning effect */
-        .reverse-animation {
-            animation: reverseEffect 2s ease-out forwards;
-            background: radial-gradient(circle, rgba(162, 155, 254, 0.2) 0%, transparent 60%);
-        }
-
-        @keyframes reverseEffect {
-            0% { transform: rotate(0deg); opacity: 1; }
-            100% { transform: rotate(720deg); opacity: 0; }
-        }
-
-        .reverse-emoji {
-            font-size: 6em;
-            animation: reverseSpiral 2s ease-out forwards;
-            filter: drop-shadow(0 0 20px rgba(162, 155, 254, 0.8));
-        }
-
-        @keyframes reverseSpiral {
-            0% { 
-                transform: scale(0) rotate(0deg); 
-                opacity: 0; 
-            }
-            20% { 
-                transform: scale(1.5) rotate(180deg); 
-                opacity: 1; 
-            }
-            40% { 
-                transform: scale(1) rotate(360deg); 
-                opacity: 1; 
-            }
-            60% { 
-                transform: scale(1.2) rotate(540deg); 
-                opacity: 1; 
-            }
-            80% { 
-                transform: scale(0.8) rotate(720deg); 
-                opacity: 0.8; 
-            }
-            100% { 
-                transform: scale(0) rotate(900deg); 
-                opacity: 0; 
-            }
-        }
-
-        /* Star Card Animation - Sparkle explosion */
-        .star-animation {
-            animation: starEffect 2.5s ease-out forwards;
-        }
-
-        .star-emoji {
-            font-size: 7em;
-            animation: starExplode 2.5s ease-out forwards;
-            filter: drop-shadow(0 0 30px rgba(85, 239, 196, 0.9));
-        }
-
-        @keyframes starExplode {
-            0% { 
-                transform: scale(0) rotate(0deg); 
-                opacity: 0; 
-            }
-            30% { 
-                transform: scale(1.8) rotate(180deg); 
-                opacity: 1; 
-            }
-            70% { 
-                transform: scale(1.2) rotate(360deg); 
-                opacity: 1; 
-            }
-            100% { 
-                transform: scale(0) rotate(540deg); 
-                opacity: 0; 
-            }
-        }
-
-        .sparkle-particle {
-            position: absolute;
-            font-size: 2em;
-            animation: sparkleParticle 2s ease-out forwards;
-        }
-
-        @keyframes sparkleParticle {
-            0% { 
-                transform: scale(0); 
-                opacity: 1; 
-            }
-            50% { 
-                transform: scale(1); 
-                opacity: 1; 
-            }
-            100% { 
-                transform: scale(0.5); 
-                opacity: 0; 
-            }
-        }
-
-        /* Goblin Card Animation - Chaotic bounce */
-        .goblin-animation {
-            animation: goblinEffect 2s ease-out forwards;
-            background: radial-gradient(circle, rgba(253, 121, 168, 0.2) 0%, transparent 60%);
-        }
-
-        .goblin-emoji {
-            font-size: 8em;
-            animation: goblinChaos 2s ease-out forwards;
-            filter: drop-shadow(0 0 25px rgba(253, 121, 168, 0.8));
-        }
-
-        @keyframes goblinChaos {
-            0% { 
-                transform: scale(0) rotate(0deg); 
-                opacity: 0; 
-            }
-            15% { 
-                transform: scale(1.3) rotate(45deg) translateX(20px); 
-                opacity: 1; 
-            }
-            30% { 
-                transform: scale(0.9) rotate(-30deg) translateX(-15px); 
-                opacity: 1; 
-            }
-            45% { 
-                transform: scale(1.2) rotate(60deg) translateY(-10px); 
-                opacity: 1; 
-            }
-            60% { 
-                transform: scale(1) rotate(-45deg) translateY(10px); 
-                opacity: 1; 
-            }
-            80% { 
-                transform: scale(1.1) rotate(0deg); 
-                opacity: 0.8; 
-            }
-            100% { 
-                transform: scale(0) rotate(0deg); 
-                opacity: 0; 
-            }
-        }
-
-        /* Pause Card Animation - Clock effect */
-        .pause-animation {
-            animation: pauseEffect 2s ease-out forwards;
-            background: radial-gradient(circle, rgba(253, 203, 110, 0.2) 0%, transparent 60%);
-        }
-
-        .pause-emoji {
-            font-size: 7em;
-            animation: pauseClock 2s ease-out forwards;
-            filter: drop-shadow(0 0 20px rgba(253, 203, 110, 0.8));
-        }
-
-        @keyframes pauseClock {
-            0% { 
-                transform: scale(0) rotate(0deg); 
-                opacity: 0; 
-            }
-            25% { 
-                transform: scale(1.5) rotate(90deg); 
-                opacity: 1; 
-            }
-            50% { 
-                transform: scale(1.2) rotate(180deg); 
-                opacity: 1; 
-            }
-            75% { 
-                transform: scale(1.3) rotate(270deg); 
-                opacity: 0.8; 
-            }
-            90% { 
-                transform: scale(1.1) rotate(360deg); 
-                opacity: 0.5; 
-            }
-            100% { 
-                transform: scale(0) rotate(360deg); 
-                opacity: 0; 
-            }
-        }
-
-        /* Screen shake effect for Peak cards */
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            10%, 30%, 50%, 70%, 90% { transform: translateX(-2px); }
-            20%, 40%, 60%, 80% { transform: translateX(2px); }
-        }
-
-        /* Spin animation for clock */
-        @keyframes spin {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
-        }
     </style>
 </head>
 <body>
@@ -1571,14 +696,15 @@
 
     <div class="game-container">
         <div class="game-header">
+            <div class="sparkle"></div>
+            <div class="sparkle"></div>
+            <div class="sparkle"></div>
+            <div class="sparkle"></div>
             <div class="title-container">
-                <div class="peak-cards">
-                    <div class="peak-card">P</div>
-                    <div class="peak-card">E</div>
-                    <div class="peak-card">A</div>
-                    <div class="peak-card">K</div>
-                </div>
-                <div class="subtitle">Card Game</div>
+                <div class="title-card">Peak</div>
+                <div class="title-card">🔄</div>
+                <div class="title-card">10</div>
+                <h1 class="game-title">PEAK</h1>
             </div>
         </div>
 
@@ -1622,9 +748,9 @@
         </div>
 
         <div class="controls">
-            <button class="btn draw" id="drawBtn" onclick="drawCard()" disabled>🃏 DRAW CARD</button>
-            <button class="btn quit" id="gameActionBtn" onclick="handleGameAction()">🔄 NEW GAME</button>
-            <button class="btn" onclick="showGameState()">📊 GAME STATE</button>
+            <button class="btn" id="drawBtn" onclick="console.log('🖱️ Draw button clicked'); drawCard()" disabled>🃏 Draw Card</button>
+            <button class="btn quit" onclick="showSetup()">🔄 New Game</button>
+            <button class="btn" onclick="showGameState()">📊 Game State</button>
         </div>
     </div>
 
@@ -1635,43 +761,17 @@
             <div id="startScreen" class="setup-form">
                 <p>Enter your name:</p>
                 <input type="text" class="player-input" id="playerName" placeholder="Your Name" maxlength="20">
-                
-                <div id="playerCountSection" style="margin: 20px 0; display: none;">
-                    <p>Choose number of players:</p>
-                    <div class="player-count-options" style="display: flex; gap: 10px; justify-content: center; margin: 10px 0;">
-                        <button class="player-count-btn" data-count="2" onclick="selectPlayerCount(2)">
-                            <span class="count-emoji">👥</span>
-                            <span class="count-text">2 Players</span>
-                            <span class="count-desc">(You + 1 friend)</span>
-                        </button>
-                        <button class="player-count-btn" data-count="3" onclick="selectPlayerCount(3)">
-                            <span class="count-emoji">👨‍👩‍👧</span>
-                            <span class="count-text">3 Players</span>
-                            <span class="count-desc">(You + 2 friends)</span>
-                        </button>
-                        <button class="player-count-btn" data-count="4" onclick="selectPlayerCount(4)">
-                            <span class="count-emoji">👨‍👩‍👧‍👦</span>
-                            <span class="count-text">4 Players</span>
-                            <span class="count-desc">(You + 3 friends)</span>
-                        </button>
-                    </div>
-                </div>
-                
                 <p style="margin-top: 20px;">Game PIN:</p>
                 <input type="text" class="player-input" id="gamePin" placeholder="Enter 4-digit PIN" maxlength="4" pattern="[0-9]{4}">
                 <div style="display: flex; gap: 10px; margin-top: 20px;">
-                    <button class="btn" onclick="createGame()" id="createGameBtn" style="flex: 1;">🎮 Create Game</button>
+                    <button class="btn" onclick="createGame()" style="flex: 1;">🎮 Create Game</button>
                     <button class="btn" onclick="joinGame()" id="joinBtn" disabled style="flex: 1;">🚪 Join Game</button>
-                </div>
-                <div id="gameCreationControls" style="display: none; margin-top: 15px;">
-                    <button class="btn" onclick="resetGameCreation()" style="background: linear-gradient(145deg, #95a5a6, #7f8c8d);">↩️ Back</button>
                 </div>
             </div>
             
             <div id="lobbyScreen" class="setup-form" style="display: none;">
                 <h3 id="lobbyTitle">Game Lobby</h3>
                 <div id="gamePinDisplay" style="font-size: 2em; font-weight: bold; color: #4CAF50; margin: 10px 0;"></div>
-                <div id="playerCountDisplay" style="font-size: 1.2em; font-weight: bold; color: #666; margin: 5px 0;"></div>
                 <p>🌍 Share this PIN with friends anywhere in the world!</p>
                 <div id="shareableLink" style="margin: 10px 0; padding: 10px; background: #f0f0f0; border-radius: 5px; font-size: 0.9em;">
                     <strong>🔗 Quick Share Link:</strong><br>
@@ -1876,9 +976,6 @@
                             updateLobbyDisplay();
                         }
                         
-                        // Process animation broadcasts
-                        processAnimationBroadcasts(updatedSession);
-                        
                         // Check if game has started
                         if (updatedSession.gameStarted && !gameSession.gameStarted) {
                             gameSession.gameStarted = true;
@@ -1927,9 +1024,6 @@
                 try {
                     const gameState = await loadGameStateFromCloud(pin);
                     if (gameState && gameState.timestamp && gameState.timestamp > lastTimestamp) {
-                        // Process animation broadcasts
-                        processAnimationBroadcasts(gameState);
-                        
                         // Don't update if this player just made the move
                         if (gameState.lastMoveBy !== gameSession.playerName) {
                             // Reconstruct Player objects properly from Firebase data
@@ -2309,9 +1403,6 @@
         }
 
         function handlePeakCard() {
-            // Broadcast Peak card animation to all players
-            broadcastSpecialCardAnimation('peak', game.players[game.currentPlayerIndex].name);
-            
             const nextPlayer = getNextActivePlayer();
             if (nextPlayer && game.deck.length >= 5) {
                 const cards = [];
@@ -2328,9 +1419,6 @@
         }
 
         function handleReverseCard() {
-            // Broadcast Reverse card animation to all players
-            broadcastSpecialCardAnimation('reverse', game.players[game.currentPlayerIndex].name);
-            
             game.direction *= -1;  // Flip the direction
             const directionText = game.direction === 1 ? 'clockwise' : 'counter-clockwise';
             showMessage(`🔄 Direction reversed! Now playing ${directionText}`, 'info');
@@ -2338,9 +1426,6 @@
         }
 
         function handleStarCard() {
-            // Broadcast Star card animation to all players
-            broadcastSpecialCardAnimation('star', game.players[game.currentPlayerIndex].name);
-            
             console.log('✨ Star card played - removing Peak cards from other players');
             let totalPeakCardsRemoved = 0;
             
@@ -2374,9 +1459,6 @@
         }
 
         function handleGoblinCard() {
-            // Broadcast Goblin card animation to all players
-            broadcastSpecialCardAnimation('goblin', game.players[game.currentPlayerIndex].name);
-            
             console.log('👹 Goblin card played - giving bad cards to other players');
             const badCards = [1, 2, 3, 4]; // Bad cards that can't be finished with
             
@@ -2400,9 +1482,6 @@
         }
 
         function handlePauseCard(currentPlayerIndex) {
-            // Broadcast Pause card animation to all players
-            broadcastSpecialCardAnimation('pause', game.players[game.currentPlayerIndex].name);
-            
             console.log('⏸️ Pause card played - choosing target player');
             
             // Find all other active players
@@ -2483,15 +1562,9 @@
             }
         }
 
-        async function drawCard() {
+        function drawCard() {
             console.log('🃏 Draw card function called');
-            
-            // Check if it's this player's turn
             const currentPlayer = game.players[game.currentPlayerIndex];
-            if (currentPlayer.name !== gameSession.playerName) {
-                showMessage("It's not your turn! Wait for your turn to draw.", 'error');
-                return false;
-            }
             
             console.log('👤 Current player:', currentPlayer.name);
             console.log('📦 Cards in deck before draw:', game.deck.length);
@@ -2520,29 +1593,6 @@
 
             // Move to next player
             nextPlayer();
-            
-            // Save game state to Firebase
-            await saveGameStateToCloud(gameSession.pin, {
-                players: game.players.map(p => ({
-                    name: p.name,
-                    hand: p.hand,
-                    active: p.active,
-                    isDisqualified: p.isDisqualified,
-                    hasFinished: p.hasFinished,
-                    isPaused: p.isPaused,
-                    pausedUntil: p.pausedUntil
-                })),
-                deck: game.deck,
-                discardPile: game.discardPile,
-                currentPlayerIndex: game.currentPlayerIndex,
-                roundNumber: game.roundNumber,
-                highCardPlayedThisRound: game.highCardPlayedThisRound,
-                gameOver: game.gameOver,
-                winner: game.winner,
-                direction: game.direction,
-                timestamp: Date.now(),
-                lastMoveBy: gameSession.playerName
-            });
             
             // Update display immediately
             console.log('🔄 Updating display after draw...');
@@ -2673,27 +1723,11 @@
             // Update players
             updatePlayersDisplay();
 
-            // Update draw button - only enable for current player's turn
+            // Update draw button
             const drawBtn = document.getElementById('drawBtn');
-            const isMyTurn = game.players[game.currentPlayerIndex]?.name === gameSession.playerName;
-            const shouldDisableDrawBtn = game.deck.length === 0 || game.gameOver || !isMyTurn;
-            drawBtn.disabled = shouldDisableDrawBtn;
-            console.log('🃏 Draw button status:', shouldDisableDrawBtn ? 'disabled' : 'enabled', '(deck:', game.deck.length, 'cards, gameOver:', game.gameOver, 'myTurn:', isMyTurn, ')');
-
-            // Update game action button (New Game for host, Leave Game for non-host)
-            const gameActionBtn = document.getElementById('gameActionBtn');
-            if (gameSession.isHost) {
-                if (game.gameOver) {
-                    gameActionBtn.textContent = '🎮 NEW GAME';
-                    gameActionBtn.className = 'btn draw'; // Green button
-                } else {
-                    gameActionBtn.textContent = '🛑 END GAME';
-                    gameActionBtn.className = 'btn quit'; // Red button
-                }
-            } else {
-                gameActionBtn.textContent = '🚪 LEAVE GAME';
-                gameActionBtn.className = 'btn quit'; // Red button
-            }
+            const shouldDisable = game.deck.length === 0 || game.gameOver;
+            drawBtn.disabled = shouldDisable;
+            console.log('🃏 Draw button status:', shouldDisable ? 'disabled' : 'enabled', '(deck:', game.deck.length, 'cards, gameOver:', game.gameOver, ')');
 
             // Check for game over
             if (!game.gameOver) {
@@ -2864,23 +1898,6 @@
                 return;
             }
 
-            // Show player count selection
-            const playerCountSection = document.getElementById('playerCountSection');
-            const gameCreationControls = document.getElementById('gameCreationControls');
-            if (playerCountSection.style.display === 'none' || !playerCountSection.style.display) {
-                playerCountSection.style.display = 'block';
-                gameCreationControls.style.display = 'block';
-                // Auto-select 4 players by default if nothing selected yet
-                if (!document.querySelector('.player-count-btn.selected')) {
-                    selectPlayerCount(4);
-                }
-                // Change button text to indicate next step
-                const createBtn = document.getElementById('createGameBtn');
-                createBtn.textContent = '🚀 Create Game with Selected Players';
-                return; // Don't create game yet, wait for player count selection
-            }
-
-            // If we get here, player count has been selected, so create the actual game
             // Generate 4-digit PIN
             const pin = Math.floor(1000 + Math.random() * 9000).toString();
             
@@ -2896,8 +1913,7 @@
                 playerName: playerName,
                 playerId: hostPlayer.id,
                 lobbyPlayers: [hostPlayer],
-                gameStarted: false,
-                maxPlayers: selectedPlayerCount
+                gameStarted: false
             };
 
             // Save to cloud so others can join from different devices
@@ -2905,8 +1921,7 @@
             const saveSuccess = await saveGameToCloud(pin, {
                 pin: pin,
                 lobbyPlayers: gameSession.lobbyPlayers,
-                gameStarted: false,
-                maxPlayers: selectedPlayerCount
+                gameStarted: false
             });
             
             if (!saveSuccess) {
@@ -2945,9 +1960,8 @@
             console.log('✅ Found game session:', sessionData);
             
             // Check if game is full
-            const maxPlayers = sessionData.maxPlayers || 4;
-            if (sessionData.lobbyPlayers.length >= maxPlayers) {
-                alert(`Game is full! Maximum ${maxPlayers} players allowed.`);
+            if (sessionData.lobbyPlayers.length >= 4) {
+                alert('Game is full! Maximum 4 players allowed.');
                 return;
             }
 
@@ -2976,8 +1990,7 @@
                 playerName: playerName,
                 playerId: newPlayer.id,
                 lobbyPlayers: sessionData.lobbyPlayers,
-                gameStarted: false,
-                maxPlayers: sessionData.maxPlayers || 4
+                gameStarted: false
             };
 
             showLobby();
@@ -2995,11 +2008,6 @@
             document.getElementById('startScreen').style.display = 'none';
             document.getElementById('lobbyScreen').style.display = 'block';
             document.getElementById('gamePinDisplay').textContent = `PIN: ${gameSession.pin}`;
-            
-            // Show player count information
-            const maxPlayers = gameSession.maxPlayers || 4;
-            const playerEmojis = {2: '👥', 3: '👨‍👩‍👧', 4: '👨‍👩‍👧‍👦'};
-            document.getElementById('playerCountDisplay').innerHTML = `${playerEmojis[maxPlayers] || '👥'} ${maxPlayers} Player Game`;
             
             // Update shareable link
             const shareUrl = generateShareableLink(gameSession.pin);
@@ -3023,19 +2031,18 @@
                 playersUL.appendChild(li);
             });
 
-            // Update start button (only host can start, and need required players)
+            // Update start button (only host can start, and need 4 players)
             const startBtn = document.getElementById('startGameBtn');
-            const maxPlayers = gameSession.maxPlayers || 4;
-            const canStart = gameSession.isHost && gameSession.lobbyPlayers.length === maxPlayers;
+            const canStart = gameSession.isHost && gameSession.lobbyPlayers.length === 4;
             startBtn.disabled = !canStart;
             
             const waitingMsg = document.getElementById('waitingMessage');
-            if (gameSession.lobbyPlayers.length < maxPlayers) {
-                waitingMsg.textContent = `Waiting for ${maxPlayers - gameSession.lobbyPlayers.length} more players... (${gameSession.lobbyPlayers.length}/${maxPlayers})`;
+            if (gameSession.lobbyPlayers.length < 4) {
+                waitingMsg.textContent = `Waiting for ${4 - gameSession.lobbyPlayers.length} more players...`;
             } else if (!gameSession.isHost) {
                 waitingMsg.textContent = 'Waiting for host to start the game...';
             } else {
-                waitingMsg.textContent = `Ready to start! (${maxPlayers} players)`;
+                waitingMsg.textContent = 'Ready to start!';
             }
         }
 
@@ -3085,9 +2092,8 @@
         }
 
         async function startGameFromLobby() {
-            const requiredPlayers = gameSession.maxPlayers || 4;
-            if (!gameSession.isHost || gameSession.lobbyPlayers.length < requiredPlayers) {
-                alert(`Need exactly ${requiredPlayers} players to start the game!`);
+            if (!gameSession.isHost || gameSession.lobbyPlayers.length < 2) {
+                alert('Need at least 2 players to start game');
                 return;
             }
 
@@ -3198,392 +2204,6 @@
             startGameStateListener(gameSession.pin);
         }
 
-        // Player count selection variables
-        let selectedPlayerCount = 4; // Default to 4 players
-
-        function selectPlayerCount(count) {
-            selectedPlayerCount = count;
-            
-            // Update UI to show selected state
-            document.querySelectorAll('.player-count-btn').forEach(btn => {
-                btn.classList.remove('selected');
-            });
-            document.querySelector(`[data-count="${count}"]`).classList.add('selected');
-            
-            console.log(`Selected player count: ${count}`);
-        }
-
-        // Reset game creation back to initial state
-        function resetGameCreation() {
-            const playerCountSection = document.getElementById('playerCountSection');
-            const createBtn = document.getElementById('createGameBtn');
-            const gameCreationControls = document.getElementById('gameCreationControls');
-            
-            // Hide player count section
-            playerCountSection.style.display = 'none';
-            
-            // Reset button text
-            createBtn.textContent = '🎮 Create Game';
-            
-            // Hide back button
-            gameCreationControls.style.display = 'none';
-            
-            // Clear selection
-            document.querySelectorAll('.player-count-btn').forEach(btn => {
-                btn.classList.remove('selected');
-            });
-        }
-
-        // Special Card Animation Functions
-        function playSpecialCardAnimation(cardType) {
-            // Remove any existing animations first
-            const existingAnimation = document.querySelector('.special-card-animation');
-            if (existingAnimation) {
-                existingAnimation.remove();
-            }
-
-            const animationContainer = document.createElement('div');
-            animationContainer.className = 'special-card-animation';
-
-            switch (cardType) {
-                case 'peak':
-                    playPeakAnimation(animationContainer);
-                    break;
-                case 'reverse':
-                    playReverseAnimation(animationContainer);
-                    break;
-                case 'star':
-                    playStarAnimation(animationContainer);
-                    break;
-                case 'goblin':
-                    playGoblinAnimation(animationContainer);
-                    break;
-                case 'pause':
-                    playPauseAnimation(animationContainer);
-                    break;
-            }
-
-            document.body.appendChild(animationContainer);
-
-            // Remove animation after it completes
-            setTimeout(() => {
-                if (animationContainer.parentNode) {
-                    animationContainer.remove();
-                }
-            }, 3000);
-        }
-
-        function playPeakAnimation(container) {
-            container.classList.add('peak-animation');
-            
-            const peakText = document.createElement('div');
-            peakText.className = 'peak-text';
-            peakText.textContent = 'PEAAAKKK';
-            container.appendChild(peakText);
-
-            // Add screen shake effect
-            document.body.style.animation = 'none';
-            setTimeout(() => {
-                document.body.style.animation = 'shake 0.5s ease-in-out';
-            }, 10);
-        }
-
-        function playReverseAnimation(container) {
-            container.classList.add('reverse-animation');
-            
-            const emoji = document.createElement('div');
-            emoji.className = 'reverse-emoji';
-            emoji.textContent = '🔄';
-            container.appendChild(emoji);
-        }
-
-        function playStarAnimation(container) {
-            container.classList.add('star-animation');
-            
-            const emoji = document.createElement('div');
-            emoji.className = 'star-emoji';
-            emoji.textContent = '✨';
-            container.appendChild(emoji);
-
-            // Create sparkle particles
-            for (let i = 0; i < 8; i++) {
-                setTimeout(() => {
-                    const sparkle = document.createElement('div');
-                    sparkle.className = 'sparkle-particle';
-                    sparkle.textContent = '⭐';
-                    
-                    const angle = (i / 8) * 360;
-                    const distance = 200;
-                    const x = Math.cos(angle * Math.PI / 180) * distance;
-                    const y = Math.sin(angle * Math.PI / 180) * distance;
-                    
-                    sparkle.style.left = `calc(50% + ${x}px)`;
-                    sparkle.style.top = `calc(50% + ${y}px)`;
-                    sparkle.style.animationDelay = `${i * 0.1}s`;
-                    
-                    container.appendChild(sparkle);
-                }, i * 100);
-            }
-        }
-
-        function playGoblinAnimation(container) {
-            container.classList.add('goblin-animation');
-            
-            const emoji = document.createElement('div');
-            emoji.className = 'goblin-emoji';
-            emoji.textContent = '👹';
-            container.appendChild(emoji);
-        }
-
-        function playPauseAnimation(container) {
-            container.classList.add('pause-animation');
-            
-            const emoji = document.createElement('div');
-            emoji.className = 'pause-emoji';
-            emoji.textContent = '⏸️';
-            container.appendChild(emoji);
-
-            // Add a clock overlay effect
-            setTimeout(() => {
-                const clock = document.createElement('div');
-                clock.style.position = 'absolute';
-                clock.style.fontSize = '4em';
-                clock.style.opacity = '0.8';
-                clock.textContent = '🕐';
-                clock.style.animation = 'spin 1s linear infinite';
-                container.appendChild(clock);
-            }, 500);
-        }
-
-        // Add vibration for mobile devices when special cards are played
-        function triggerVibration(pattern = [100, 50, 100]) {
-            if (navigator.vibrate) {
-                navigator.vibrate(pattern);
-            }
-        }
-
-        // Enhanced special card animation with haptic feedback
-        function playSpecialCardAnimationEnhanced(cardType) {
-            playSpecialCardAnimation(cardType);
-            
-            // Different vibration patterns for different cards
-            switch (cardType) {
-                case 'peak':
-                    triggerVibration([200, 100, 200, 100, 200]); // Strong peak shake
-                    break;
-                case 'reverse':
-                    triggerVibration([50, 50, 50, 50]); // Quick alternating
-                    break;
-                case 'star':
-                    triggerVibration([100, 50, 100, 50, 100, 50]); // Sparkle pattern
-                    break;
-                case 'goblin':
-                    triggerVibration([150, 75, 150, 75]); // Chaotic pattern
-                    break;
-                case 'pause':
-                    triggerVibration([300]); // Long pause vibration
-                    break;
-            }
-        }
-
-        // Broadcast animation to all players via Firebase
-        async function broadcastSpecialCardAnimation(cardType, playerName) {
-            if (gameSession.pin) {
-                try {
-                    const animationData = {
-                        type: cardType,
-                        playerName: playerName,
-                        timestamp: Date.now(),
-                        id: Math.random().toString(36).substr(2, 9)
-                    };
-                    
-                    // Save animation to Firebase so all players can see it
-                    const gameData = await loadGameFromCloud(gameSession.pin);
-                    if (gameData) {
-                        if (!gameData.animations) {
-                            gameData.animations = [];
-                        }
-                        
-                        // Keep only recent animations (last 10)
-                        gameData.animations = gameData.animations.slice(-9);
-                        gameData.animations.push(animationData);
-                        
-                        await saveGameToCloud(gameSession.pin, gameData);
-                        console.log(`📡 Broadcasted ${cardType} animation from ${playerName}`);
-                    }
-                } catch (error) {
-                    console.log('❌ Failed to broadcast animation:', error);
-                }
-            }
-            
-            // Also play locally
-            playSpecialCardAnimationEnhanced(cardType);
-        }
-
-        // Listen for animation broadcasts from other players
-        let lastProcessedAnimationId = null;
-        
-        function processAnimationBroadcasts(gameData) {
-            if (gameData.animations && Array.isArray(gameData.animations)) {
-                gameData.animations.forEach(animation => {
-                    // Only process new animations that we haven't seen yet
-                    if (animation.id !== lastProcessedAnimationId) {
-                        // Don't show your own animations twice
-                        if (animation.playerName !== gameSession.playerName) {
-                            console.log(`🎬 Playing ${animation.type} animation from ${animation.playerName}`);
-                            playSpecialCardAnimationEnhanced(animation.type);
-                        }
-                        lastProcessedAnimationId = animation.id;
-                    }
-                });
-            }
-        }
-
-        // Handle game action button (New Game for host, Leave Game for non-host)
-        function handleGameAction() {
-            if (gameSession.isHost) {
-                // Host can start new game or end current game
-                if (game.gameOver) {
-                    startNewGame();
-                } else {
-                    endCurrentGame();
-                }
-            } else {
-                // Non-host can leave game
-                leaveGame();
-            }
-        }
-
-        // Start a new game (host only)
-        async function startNewGame() {
-            if (!gameSession.isHost) {
-                showMessage("Only the host can start a new game!", 'error');
-                return;
-            }
-
-            if (confirm("Start a new game? This will reset the current game.")) {
-                // Reset game state
-                game = {
-                    players: gameSession.lobbyPlayers.map(p => new Player(p.name)),
-                    deck: createDeck(),
-                    discardPile: [],
-                    currentPlayerIndex: 0,
-                    roundNumber: 1,
-                    highCardPlayedThisRound: false,
-                    gameOver: false,
-                    winner: null,
-                    direction: 1
-                };
-
-                dealCards();
-
-                // Save new game state to Firebase
-                await saveGameStateToCloud(gameSession.pin, {
-                    players: game.players.map(p => ({
-                        name: p.name,
-                        hand: p.hand,
-                        active: p.active,
-                        isDisqualified: p.isDisqualified,
-                        hasFinished: p.hasFinished,
-                        isPaused: p.isPaused,
-                        pausedUntil: p.pausedUntil
-                    })),
-                    deck: game.deck,
-                    discardPile: game.discardPile,
-                    currentPlayerIndex: game.currentPlayerIndex,
-                    roundNumber: game.roundNumber,
-                    highCardPlayedThisRound: game.highCardPlayedThisRound,
-                    gameOver: game.gameOver,
-                    winner: game.winner,
-                    direction: game.direction,
-                    timestamp: Date.now(),
-                    lastMoveBy: gameSession.playerName
-                });
-
-                showMessage('🎮 New game started!', 'success');
-                updateDisplay();
-            }
-        }
-
-        // End current game (host only)
-        async function endCurrentGame() {
-            if (!gameSession.isHost) {
-                showMessage("Only the host can end the game!", 'error');
-                return;
-            }
-
-            if (confirm("End the current game? All players will return to the lobby.")) {
-                // Mark game as ended
-                game.gameOver = true;
-                
-                // Save final game state
-                await saveGameStateToCloud(gameSession.pin, {
-                    players: game.players.map(p => ({
-                        name: p.name,
-                        hand: p.hand,
-                        active: p.active,
-                        isDisqualified: p.isDisqualified,
-                        hasFinished: p.hasFinished,
-                        isPaused: p.isPaused,
-                        pausedUntil: p.pausedUntil
-                    })),
-                    deck: game.deck,
-                    discardPile: game.discardPile,
-                    currentPlayerIndex: game.currentPlayerIndex,
-                    roundNumber: game.roundNumber,
-                    highCardPlayedThisRound: game.highCardPlayedThisRound,
-                    gameOver: true,
-                    winner: null,
-                    direction: game.direction,
-                    timestamp: Date.now(),
-                    lastMoveBy: gameSession.playerName,
-                    gameEnded: true
-                });
-
-                showMessage('🏁 Game ended by host', 'info');
-                
-                // Return to lobby after a delay
-                setTimeout(() => {
-                    showLobby();
-                }, 2000);
-            }
-        }
-
-        // Leave game (non-host only)
-        async function leaveGame() {
-            if (gameSession.isHost) {
-                showMessage("Hosts should use 'End Game' instead of leaving!", 'error');
-                return;
-            }
-
-            if (confirm("Leave the game? You will return to the start screen.")) {
-                // Remove player from lobby
-                const sessionData = await loadGameFromCloud(gameSession.pin);
-                if (sessionData) {
-                    sessionData.lobbyPlayers = sessionData.lobbyPlayers.filter(p => p.id !== gameSession.playerId);
-                    await saveGameToCloud(gameSession.pin, sessionData);
-                }
-
-                // Clear session data
-                gameSession = {
-                    pin: null,
-                    isHost: false,
-                    playerName: '',
-                    playerId: null,
-                    lobbyPlayers: [],
-                    gameStarted: false
-                };
-
-                // Stop listeners
-                stopRealTimeListener();
-                stopGameStateListener();
-
-                // Return to start screen
-                document.getElementById('setupModal').style.display = 'block';
-                showMessage('👋 You left the game', 'info');
-            }
-        }
-
         // Legacy function for compatibility
         function startGame() {
             startGameFromLobby();
@@ -3637,9 +2257,6 @@
             // Add PIN input validation
             const pinInput = document.getElementById('gamePin');
             const joinBtn = document.getElementById('joinBtn');
-            const playerNameInput = document.getElementById('playerName');
-            
-            // Player count selection will show when Create Game is clicked
             
             pinInput.addEventListener('input', function() {
                 const pin = this.value.trim();
