@@ -1291,6 +1291,18 @@
                 return false;
             }
 
+            // Check if it's this player's turn
+            if (game.currentPlayerIndex !== playerIndex) {
+                showMessage("It's not your turn! Wait for your turn to play.", 'error');
+                return false;
+            }
+
+            // Check if this is the current user trying to play
+            if (player.name !== gameSession.playerName) {
+                showMessage("You can only play your own cards!", 'error');
+                return false;
+            }
+
             // Remove card from player's hand and add to discard pile
             const cardToRemove = player.hand.splice(cardIndex, 1)[0];
             game.discardPile.push(cardToRemove);
@@ -1750,7 +1762,8 @@
                 const cardsToShow = isOwnHand ? player.hand : player.hand.slice(0, 3);
                 
                 cardsToShow.forEach((card, cardIndex) => {
-                    const isPlayable = isOwnHand && game.players && game.players[playerIndex];
+                    // Cards are only playable if it's your own hand AND it's your turn
+                    const isPlayable = isOwnHand && playerIndex === game.currentPlayerIndex && game.players && game.players[playerIndex];
                     const displayCard = isOwnHand ? card : createCardBack();
                     const cardElement = createCardElement(displayCard, playerIndex, cardIndex, false, isPlayable, !isOwnHand);
                     handDiv.appendChild(cardElement);
