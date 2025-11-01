@@ -5,6 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Peak Card Game</title>
     
+    <!-- Favicon Links -->
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#667eea">
+    
     <!-- Audio Elements with Multi-Format Support -->
     <audio id="bgMusic" loop preload="auto" volume="0.3">
         <source src="audio/music/background-music.mp3" type="audio/mpeg">
@@ -993,18 +1001,38 @@
         .card.peak {
             background: linear-gradient(145deg, #ff6b6b, #ee5a24, #fd79a8);
             color: white;
-            font-size: 0.8em;
+            font-size: 0.6em;
             border: 3px solid #d63031;
             animation: peakPulse 1.5s ease-in-out infinite;
             position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 3px;
+            padding: 4px;
         }
 
-        .card.peak::after {
-            content: '🏔️';
+        .card.peak::before {
+            content: '+5';
             position: absolute;
             top: 3px;
             right: 3px;
-            font-size: 0.8em;
+            font-size: 1.2em;
+            font-weight: bold;
+            background: rgba(0,0,0,0.5);
+            padding: 2px 6px;
+            border-radius: 4px;
+            color: #ffff00;
+            border: 1px solid #ffff00;
+        }
+
+        .card.peak::after {
+            content: '😂';
+            position: absolute;
+            bottom: 3px;
+            left: 3px;
+            font-size: 1.2em;
         }
 
         @keyframes peakPulse {
@@ -1015,26 +1043,51 @@
         .card.reverse {
             background: linear-gradient(145deg, #a29bfe, #6c5ce7, #fd79a8);
             color: white;
-            font-size: 0.7em;
+            font-size: 0.6em;
             position: relative;
             border: 3px solid #5f3dc4;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 3px;
+            padding: 4px;
+            animation: reverseRotate 2s linear infinite;
+        }
+
+        @keyframes reverseRotate {
+            0%, 100% { transform: rotate(0deg); }
+            50% { transform: rotate(180deg); }
         }
 
         .card.reverse:before {
-            content: '🔄';
+            content: '↩️REVERSE';
             position: absolute;
-            top: 5px;
-            left: 5px;
-            font-size: 0.8em;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 0.9em;
+            animation: inheritRotate 2s linear infinite;
+        }
+
+        @keyframes inheritRotate {
+            0%, 100% { transform: translate(-50%, -50%) rotate(0deg); }
+            50% { transform: translate(-50%, -50%) rotate(180deg); }
         }
 
         .card.star {
             background: linear-gradient(145deg, #55efc4, #00b894, #a8e6cf);
             color: white;
-            font-size: 0.7em;
+            font-size: 0.6em;
             position: relative;
             border: 3px solid #00a085;
             animation: starTwinkle 1s ease-in-out infinite alternate;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 3px;
+            padding: 4px;
         }
 
         @keyframes starTwinkle {
@@ -1043,26 +1096,41 @@
         }
 
         .card.star:before {
-            content: '✨';
+            content: '⭐⭐⭐';
             position: absolute;
-            top: 5px;
-            left: 5px;
-            font-size: 0.8em;
+            top: 2px;
+            font-size: 0.9em;
             animation: starSpin 3s ease-in-out infinite;
+            letter-spacing: 2px;
         }
 
-        @keyframes starSpin {
-            0%, 100% { transform: scale(1) rotate(0deg); }
-            50% { transform: scale(1.2) rotate(180deg); }
+        .card.star:after {
+            content: '-Peak';
+            position: absolute;
+            bottom: 3px;
+            right: 3px;
+            font-size: 1em;
+            font-weight: bold;
+            background: rgba(0,0,0,0.5);
+            padding: 2px 6px;
+            border-radius: 4px;
+            color: #ff0000;
+            border: 1px solid #ff0000;
         }
 
         .card.goblin {
             background: linear-gradient(145deg, #fd79a8, #e84393, #a29bfe);
             color: white;
-            font-size: 0.7em;
+            font-size: 0.6em;
             position: relative;
             border: 3px solid #e84393;
             animation: goblinBounce 0.8s ease-in-out infinite alternate;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 3px;
+            padding: 4px;
         }
 
         @keyframes goblinBounce {
@@ -1073,37 +1141,66 @@
         .card.goblin:before {
             content: '👹';
             position: absolute;
-            top: 5px;
-            left: 5px;
-            font-size: 0.8em;
+            top: 2px;
+            font-size: 1.3em;
             animation: goblinShake 0.5s ease-in-out infinite alternate;
         }
 
-        @keyframes goblinShake {
-            0% { transform: translateX(0px); }
-            100% { transform: translateX(2px); }
+        .card.goblin:after {
+            content: '+1';
+            position: absolute;
+            bottom: 3px;
+            right: 3px;
+            font-size: 1.2em;
+            font-weight: bold;
+            background: rgba(0,0,0,0.5);
+            padding: 2px 6px;
+            border-radius: 4px;
+            color: #ffff00;
+            border: 1px solid #ffff00;
+            animation: none;
         }
 
         .card.pause {
             background: linear-gradient(145deg, #fdcb6e, #e17055, #fab1a0);
             color: white;
-            font-size: 0.7em;
+            font-size: 0.6em;
             position: relative;
             border: 3px solid #e17055;
             animation: pausePulse 2s ease-in-out infinite;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 3px;
+            padding: 4px;
         }
 
         @keyframes pausePulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.7; }
+            0%, 100% { opacity: 1; box-shadow: 0 0 10px rgba(225, 112, 85, 0.5); }
+            50% { opacity: 0.7; box-shadow: 0 0 20px rgba(225, 112, 85, 0.8); }
         }
 
         .card.pause:before {
-            content: '⏸️';
+            content: '⏸️PAUSE';
             position: absolute;
-            top: 5px;
-            left: 5px;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 0.9em;
+        }
+
+        .card.pause:after {
+            content: 'RARE';
+            position: absolute;
+            bottom: 3px;
+            right: 3px;
             font-size: 0.8em;
+            font-weight: bold;
+            background: rgba(255,215,0,0.7);
+            color: #ff6b00;
+            padding: 2px 5px;
+            border-radius: 3px;
         }
 
         .card.card-back {
@@ -2486,6 +2583,91 @@
         // Firebase Realtime Database for true cross-device multiplayer
         const FIREBASE_URL = 'https://peakgame-19c4e-default-rtdb.europe-west1.firebasedatabase.app';
 
+        // ========== CACHE CLEARING FUNCTIONS ==========
+        const APP_VERSION = '1.0.0'; // Update this when making breaking changes
+        const CACHE_VERSION_KEY = 'peakgame_cache_version';
+        
+        // Clear all service worker caches
+        async function clearServiceWorkerCaches() {
+            if ('caches' in window) {
+                try {
+                    const cacheNames = await caches.keys();
+                    console.log(`🧹 Found ${cacheNames.length} caches to clear`);
+                    
+                    const deletePromises = cacheNames.map(cacheName => {
+                        console.log(`🧹 Clearing cache: ${cacheName}`);
+                        return caches.delete(cacheName);
+                    });
+                    
+                    await Promise.all(deletePromises);
+                    console.log('✅ All service worker caches cleared');
+                    return true;
+                } catch (error) {
+                    console.error('❌ Error clearing caches:', error);
+                    return false;
+                }
+            }
+            return false;
+        }
+        
+        // Clear localStorage game data
+        function clearGameData() {
+            try {
+                const keysToKeep = ['peakgame_player_name', 'peakgame_volume_settings'];
+                const allKeys = Object.keys(localStorage);
+                let clearedCount = 0;
+                
+                allKeys.forEach(key => {
+                    if (!keysToKeep.includes(key) && key.startsWith('peakgame_')) {
+                        localStorage.removeItem(key);
+                        clearedCount++;
+                        console.log(`🧹 Cleared: ${key}`);
+                    }
+                });
+                
+                console.log(`✅ Cleared ${clearedCount} game data items from localStorage`);
+                return clearedCount;
+            } catch (error) {
+                console.error('❌ Error clearing game data:', error);
+                return 0;
+            }
+        }
+        
+        // Full cache and data clear
+        async function fullCacheClear() {
+            console.log('🧹 Starting full cache clear...');
+            
+            // Clear service worker caches
+            await clearServiceWorkerCaches();
+            
+            // Clear game data
+            clearGameData();
+            
+            // Update cache version
+            localStorage.setItem(CACHE_VERSION_KEY, APP_VERSION);
+            
+            console.log('✅ Full cache clear complete! Please refresh the page.');
+            showMessage('🧹 Cache cleared! Refreshing the page...', 'success');
+            
+            // Refresh page after 2 seconds
+            setTimeout(() => {
+                location.reload(true); // Hard refresh
+            }, 2000);
+        }
+        
+        // Auto-clear caches on version change
+        async function checkAndClearCacheIfNeeded() {
+            const cachedVersion = localStorage.getItem(CACHE_VERSION_KEY);
+            
+            if (cachedVersion !== APP_VERSION) {
+                console.log(`📦 App version changed (${cachedVersion} -> ${APP_VERSION}). Clearing caches...`);
+                await clearServiceWorkerCaches();
+                clearGameData();
+                localStorage.setItem(CACHE_VERSION_KEY, APP_VERSION);
+                console.log('✅ Caches automatically cleared due to version update');
+            }
+        }
+
         async function saveGameToCloud(pin, gameData) {
             try {
                 const response = await fetch(`${FIREBASE_URL}/games/${pin}.json`, {
@@ -2760,7 +2942,7 @@
 
         // Alternative sharing method for GitHub Pages
         function generateShareableLink(pin) {
-            const baseUrl = 'https://enochaseks.github.io/peakgame/';
+            const baseUrl = 'https://peakgame-19c4e.web.app/';
             return `${baseUrl}?pin=${pin}`;
         }
 
@@ -2792,11 +2974,11 @@
             }
 
             toString() {
-                if (this.type === CardType.PEAK) return 'Peak';
-                if (this.type === CardType.REVERSE) return 'Reverse';
-                if (this.type === CardType.STAR) return 'Star';
-                if (this.type === CardType.GOBLIN) return 'Goblin';
-                if (this.type === CardType.PAUSE) return 'Pause';
+                if (this.type === CardType.PEAK) return 'PEAAAKKK';
+                if (this.type === CardType.REVERSE) return '↩️REVERSE';
+                if (this.type === CardType.STAR) return '✨STAR';
+                if (this.type === CardType.GOBLIN) return '👹GOBLIN';
+                if (this.type === CardType.PAUSE) return '⏸️PAUSE';
                 return this.value.toString();
             }
 
@@ -3063,50 +3245,51 @@
                 showMessage('Error handling special card effect', 'error');
             }
             
-            // GUARANTEED: Switch to next player after ANY card is played
-            console.log('Switching to next player after card play');
-            
-            // Use proper turn rotation logic that skips paused and eliminated players
+            // Calculate next player FIRST - before any saves
             let finalNextPlayerIndex = actualNextPlayerIndex;
             for (let i = 0; i < game.players.length; i++) {
                 const playerToCheck = game.players[finalNextPlayerIndex];
                 if (playerToCheck.canTakeTurn()) {
-                    // Found a player who can take a turn
                     break;
                 } else if (playerToCheck.isActive() && playerToCheck.isPaused) {
-                    // Skip paused player but show message
                     const remainingTime = Math.ceil((playerToCheck.pausedUntil - Date.now()) / 1000);
                     if (remainingTime > 0) {
                         console.log(`⏸️ ${playerToCheck.name} is paused for ${remainingTime} more seconds`);
                         showMessage(`⏸️ ${playerToCheck.name} is paused for ${remainingTime} more seconds`, 'info');
                     }
                 }
-                // Move to next player for next iteration
                 finalNextPlayerIndex = (finalNextPlayerIndex + game.direction + game.players.length) % game.players.length;
             }
             
+            // Update current player to next player
             game.currentPlayerIndex = finalNextPlayerIndex;
             showMessage(`🎮 It's ${game.players[game.currentPlayerIndex].name}'s turn!`, 'info');
             
-            // Save game state
-            await saveGameStateToCloud(gameSession.pin, {
-                players: game.players.map(p => ({
-                    name: p.name,
-                    hand: p.hand,
-                    active: p.active,
-                    isDisqualified: p.isDisqualified,
-                    hasFinished: p.hasFinished,
-                    isPaused: p.isPaused,
-                    pausedUntil: p.pausedUntil
-                })),
-                deck: game.deck,
-                discardPile: game.discardPile,
-                currentPlayerIndex: game.currentPlayerIndex,
-                roundNumber: game.roundNumber,
-                direction: game.direction,
-                lastMoveBy: gameSession.playerName,
-                timestamp: Date.now()
-            });
+            // NOW save EVERYTHING including the new currentPlayerIndex atomically
+            try {
+                await saveGameStateToCloud(gameSession.pin, {
+                    players: game.players.map(p => ({
+                        name: p.name,
+                        hand: p.hand,
+                        active: p.active,
+                        isDisqualified: p.isDisqualified,
+                        hasFinished: p.hasFinished,
+                        isPaused: p.isPaused,
+                        pausedUntil: p.pausedUntil
+                    })),
+                    deck: game.deck,
+                    discardPile: game.discardPile,
+                    currentPlayerIndex: finalNextPlayerIndex,
+                    roundNumber: game.roundNumber,
+                    direction: game.direction,
+                    highCardPlayedThisRound: game.highCardPlayedThisRound,
+                    lastMoveBy: gameSession.playerName,
+                    timestamp: Date.now()
+                });
+                console.log(`✅ Game state saved: Special effects + next player (${game.players[finalNextPlayerIndex].name})`);
+            } catch (error) {
+                console.error('❌ Failed to save game state:', error);
+            }
             
             // Update display to show new turn
             updateDisplay();
@@ -3184,56 +3367,45 @@
             broadcastSpecialCardAnimation('peak', game.players[game.currentPlayerIndex].name);
             
             // nextPlayer is passed as the player who should receive the 5 cards
-            if (nextPlayer && game.deck.length > 0) {
+            if (nextPlayer) {
+                // CRITICAL: Refill deck if needed before giving cards
+                if (game.deck.length === 0 && game.discardPile.length > 0) {
+                    const topCard = game.discardPile[game.discardPile.length - 1];
+                    game.deck = game.discardPile.slice(0, -1);
+                    game.discardPile = [topCard];
+                    game.deck = shuffleDeck(game.deck);
+                    showMessage(`🔄 Deck refilled with ${game.deck.length} cards for Peak card!`, 'info');
+                }
+                
                 const cards = [];
                 // Give 5 cards or as many as possible from the deck
                 for (let i = 0; i < 5 && game.deck.length > 0; i++) {
                     cards.push(game.deck.pop());
                 }
                 
-                // Update UI to show cards being drawn
-                showMessage(`🎴 Drawing ${cards.length} cards for ${nextPlayer.name}...`, 'info');
-                await new Promise(resolve => setTimeout(resolve, 500)); // Dramatic pause
-                
-                // Add cards to next player's hand
-                nextPlayer.addCards(cards);
-                audioManager?.playSound('cardFlip');
-                
-                showMessage(`⚡ ${nextPlayer.name} picked up ${cards.length} cards due to Peak card!`, 'warning');
-                
-                if (nextPlayer.isDisqualified) {
-                    showMessage(`❌ ${nextPlayer.name} is disqualified for having over 20 cards!`, 'error');
-                    audioManager?.playSound('loseSound');
-                }
-                
-                // Update the display to show new deck count
-                document.getElementById('deckCount').textContent = game.deck.length;
-                
-                // CRITICAL: Save the Peak card effect to Firebase so all players see the cards given
-                try {
-                    await saveGameStateToCloud(gameSession.pin, {
-                        players: game.players.map(p => ({
-                            name: p.name,
-                            hand: p.hand,
-                            isDisqualified: p.isDisqualified,
-                            hasFinished: p.hasFinished,
-                            isPaused: p.isPaused,
-                            pausedUntil: p.pausedUntil
-                        })),
-                        deck: game.deck,
-                        discardPile: game.discardPile,
-                        currentPlayerIndex: game.currentPlayerIndex,
-                        roundNumber: game.roundNumber,
-                        direction: game.direction,
-                        lastMoveBy: gameSession.playerName,
-                        timestamp: Date.now()
-                    });
-                    console.log('✅ Peak card effect saved to Firebase - next player received 5 cards');
-                } catch (error) {
-                    console.error('❌ Failed to save Peak card effect to Firebase:', error);
+                if (cards.length > 0) {
+                    // Update UI to show cards being drawn
+                    showMessage(`🎴 Drawing ${cards.length} cards for ${nextPlayer.name}...`, 'info');
+                    await new Promise(resolve => setTimeout(resolve, 500)); // Dramatic pause
+                    
+                    // Add cards to next player's hand
+                    nextPlayer.addCards(cards);
+                    audioManager?.playSound('cardFlip');
+                    
+                    showMessage(`⚡ ${nextPlayer.name} picked up ${cards.length} cards due to Peak card!`, 'warning');
+                    
+                    if (nextPlayer.isDisqualified) {
+                        showMessage(`❌ ${nextPlayer.name} is disqualified for having over 20 cards!`, 'error');
+                        audioManager?.playSound('loseSound');
+                    }
+                    
+                    // Update the display to show new deck count
+                    document.getElementById('deckCount').textContent = game.deck.length;
+                } else {
+                    showMessage(`No cards left in deck to give!`, 'warning');
                 }
             } else {
-                showMessage(`No cards left in deck or no next player available!`, 'warning');
+                showMessage(`No next player available!`, 'warning');
             }
         }
 
@@ -3349,30 +3521,6 @@
                 showMessage(`👹 Goblin card cursed ${affectedPlayers} other player${affectedPlayers !== 1 ? 's' : ''} with bad cards!`, 'warning');
             } else {
                 showMessage(`👹 Goblin card played, but no other players were affected!`, 'info');
-            }
-            
-            // CRITICAL: Save the Goblin card effect to Firebase so all players see the cards given
-            try {
-                await saveGameStateToCloud(gameSession.pin, {
-                    players: game.players.map(p => ({
-                        name: p.name,
-                        hand: p.hand,
-                        isDisqualified: p.isDisqualified,
-                        hasFinished: p.hasFinished,
-                        isPaused: p.isPaused,
-                        pausedUntil: p.pausedUntil
-                    })),
-                    deck: game.deck,
-                    discardPile: game.discardPile,
-                    currentPlayerIndex: game.currentPlayerIndex,
-                    roundNumber: game.roundNumber,
-                    direction: game.direction,
-                    lastMoveBy: gameSession.playerName,
-                    timestamp: Date.now()
-                });
-                console.log('✅ Goblin card effect saved to Firebase - other players received bad cards');
-            } catch (error) {
-                console.error('❌ Failed to save Goblin card effect to Firebase:', error);
             }
         }
 
@@ -3609,11 +3757,23 @@
             console.log('📦 Cards in deck before draw:', game.deck.length);
             console.log('🎴 Player hand size before draw:', currentPlayer.hand.length);
             
+            // CRITICAL: Refill deck from discard pile if deck is empty
             if (game.deck.length === 0) {
-                showMessage("No more cards in the deck!", 'error');
-                audioManager?.playSound('loseSound', 0.3);
-                console.log('❌ No cards left in deck');
-                return false;
+                if (game.discardPile.length > 0) {
+                    // Take all but the top card from discard pile and make it the new deck
+                    const topCard = game.discardPile[game.discardPile.length - 1];
+                    game.deck = game.discardPile.slice(0, -1); // All cards except the last one
+                    game.discardPile = [topCard]; // Keep only the top card
+                    game.deck = shuffleDeck(game.deck);
+                    showMessage(`🔄 Deck refilled with ${game.deck.length} cards from discard pile!`, 'info');
+                    console.log(`🔄 Deck refilled: ${game.deck.length} cards from discard pile`);
+                } else {
+                    // No cards anywhere - game cannot continue
+                    showMessage("No cards left in deck or discard pile! Game cannot continue.", 'error');
+                    audioManager?.playSound('loseSound', 0.3);
+                    console.log('❌ No cards left anywhere');
+                    return false;
+                }
             }
 
             const card = game.deck.pop();
@@ -3777,7 +3937,10 @@
                 // Update game info
             document.getElementById('roundNumber').textContent = game.roundNumber;
             document.getElementById('deckCount').textContent = game.deck.length;
-            document.getElementById('highCardPlayed').textContent = game.highCardPlayedThisRound ? '✅' : '❌';
+            
+            // Ensure highCardPlayedThisRound is always boolean
+            const hasHighCard = game.highCardPlayedThisRound === true;
+            document.getElementById('highCardPlayed').textContent = hasHighCard ? '✅' : '❌';
             
             // Update current player with highlight effect
             const currentPlayerElement = document.getElementById('currentPlayer');
@@ -5658,6 +5821,9 @@
 
         // Initialize audio system when DOM is loaded
         document.addEventListener('DOMContentLoaded', function() {
+            // Check and clear caches if needed
+            checkAndClearCacheIfNeeded();
+            
             audioManager = new AudioManager();
             
             // Test all audio files after a brief delay to allow loading
@@ -5677,6 +5843,17 @@
                 }
             }, 1000);
         });
+
+        // Register Service Worker for PWA
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js').then((registration) => {
+                    console.log('✅ Service Worker registered successfully');
+                }).catch((error) => {
+                    console.log('⚠️ Service Worker registration failed:', error);
+                });
+            });
+        }
     </script>
 </body>
 </html>
