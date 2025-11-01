@@ -1,111 +1,53 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Peak Card Game</title>
     
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-database.js"></script>
-    <script>
-        // Initialize Firebase
-        const firebaseConfig = {
-            apiKey: "AIzaSyD-ljapIUtza5mrB-apKov6JkX69lKh_wk",
-            authDomain: "peakgame-19c4e.firebaseapp.com",
-            databaseURL: "https://peakgame-19c4e-default-rtdb.europe-west1.firebasedatabase.app",
-            projectId: "peakgame-19c4e",
-            storageBucket: "peakgame-19c4e.firebasestorage.app",
-            messagingSenderId: "654257657143",
-            appId: "1:654257657143:web:8e114c0a3df1569bb6f6b2",
-            measurementId: "G-TZNJTK79MT"
-        };
-        
-        // Initialize Firebase
-        if (!firebase.apps.length) {
-            firebase.initializeApp(firebaseConfig);
-            
-            // Test database connection
-            const connectedRef = firebase.database().ref('.info/connected');
-            connectedRef.on('value', (snap) => {
-                const isConnected = snap.val() === true;
-                console.log(isConnected ? '✅ Connected to Firebase Database' : '❌ Not connected to Firebase Database');
-                
-                if (isConnected) {
-                    // Test write permission
-                    firebase.database().ref('.info/test').set({
-                        timestamp: firebase.database.ServerValue.TIMESTAMP
-                    }).then(() => {
-                        console.log('✅ Database write permission confirmed');
-                    }).catch(error => {
-                        console.error('❌ Database write permission denied:', error);
-                        if (error.code === 'PERMISSION_DENIED') {
-                            console.log('⚠️ Please wait while we update database permissions...');
-                        }
-                    });
-                }
-            });
-        }
-        
-        // Test Firebase connection
-        const database = firebase.database();
-        database.ref('.info/connected').on('value', (snap) => {
-            if (snap.val() === true) {
-                console.log('✅ Connected to Firebase successfully');
-            } else {
-                console.log('⚠️ Not connected to Firebase');
-            }
-        });
-    </script>
-    
     <!-- Audio Elements with Multi-Format Support -->
     <audio id="bgMusic" loop preload="auto" volume="0.3">
-        <source src="/assets/audio/background-music.mp3" type="audio/mpeg">
-        <source src="assets/audio/music/background-music.ogg" type="audio/ogg">
-        <source src="assets/audio/music/background-music.wav" type="audio/wav">
+        <source src="audio/music/background-music.mp3" type="audio/mpeg">
+        <source src="audio/music/background-music.ogg" type="audio/ogg">
+        <source src="audio/music/background-music.wav" type="audio/wav">
     </audio>
-
+    
     <audio id="cardFlip" preload="auto" volume="0.7">
-        <source src="/assets/audio/card-flip.wav" type="audio/wav">
-        <source src="assets/audio/sfx/card-flip.mp3" type="audio/mpeg">
-        <source src="assets/audio/sfx/card-flip.ogg" type="audio/ogg">
+        <source src="audio/sfx/card-flip.wav" type="audio/wav">
+        <source src="audio/sfx/card-flip.mp3" type="audio/mpeg">
+        <source src="audio/sfx/card-flip.ogg" type="audio/ogg">
     </audio>
     
     <audio id="cardPlace" preload="auto" volume="0.6">
-        <source src="/assets/audio/card-place.wav" type="audio/wav">
-        <source src="assets/audio/sfx/card-place.mp3" type="audio/mpeg">
-        <source src="assets/audio/sfx/card-place.ogg" type="audio/ogg">
+        <source src="audio/sfx/card-place.wav" type="audio/wav">
+        <source src="audio/sfx/card-place.mp3" type="audio/mpeg">
+        <source src="audio/sfx/card-place.ogg" type="audio/ogg">
     </audio>
     
     <audio id="peakCard" preload="auto" volume="0.8">
-        <source src="/assets/audio/peak-card.m4a" type="audio/mp4">
-        <source src="assets/audio/sfx/peak-card.mp3" type="audio/mpeg">
-        <source src="assets/audio/sfx/peak-card.wav" type="audio/wav">
-        <source src="assets/audio/sfx/peak-card.ogg" type="audio/ogg">
+        <source src="audio/sfx/peak-card.m4a" type="audio/mp4">
+        <source src="audio/sfx/peak-card.mp3" type="audio/mpeg">
+        <source src="audio/sfx/peak-card.wav" type="audio/wav">
+        <source src="audio/sfx/peak-card.ogg" type="audio/ogg">
     </audio>
 
     <audio id="goblinSound" preload="auto" volume="0.8">
-        <source src="/assets/audio/goblin-sound.wav" type="audio/wav">
+        <source src="audio/sfx/goblin-sound.wav" type="audio/wav">
     </audio>
 
     <audio id="starSound" preload="auto" volume="0.8">
-        <source src="/assets/audio/star-sound.wav" type="audio/wav">
+        <source src="audio/sfx/star-sound.wav" type="audio/wav">
     </audio>
     
     <audio id="winSound" preload="auto" volume="0.9">
-        <source src="/assets/audio/win-sound.wav" type="audio/wav">
-        <source src="assets/audio/sfx/win-sound.mp3" type="audio/mpeg">
-        <source src="assets/audio/sfx/win-sound.ogg" type="audio/ogg">
+        <source src="audio/sfx/win-sound.wav" type="audio/wav">
+        <source src="audio/sfx/win-sound.mp3" type="audio/mpeg">
+        <source src="audio/sfx/win-sound.ogg" type="audio/ogg">
     </audio>
     
     <audio id="loseSound" preload="auto" volume="0.5">
-        <source src="/assets/audio/lose-sound.mp3" type="audio/mpeg">
-        <source src="assets/audio/sfx/lose-sound.wav" type="audio/wav">
-    </audio>
-
-    <audio id="buttonClick" preload="auto" volume="0.4">
-        <source src="/assets/audio/button-click.wav" type="audio/wav">
-    </audio>
+        <source src="audio/sfx/lose-sound.mp3" type="audio/mpeg">
+        <source src="audio/sfx/lose-sound.wav" type="audio/wav">
         <source src="audio/sfx/lose-sound.ogg" type="audio/ogg">
     </audio>
     
@@ -960,14 +902,14 @@
         }
 
         .card {
-            width: 55px;
-            height: 75px;
+            width: 45px;
+            height: 65px;
             border-radius: 8px;
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: bold;
-            font-size: 0.85em;
+            font-size: 0.8em;
             cursor: pointer;
             transition: all 0.3s ease;
             border: 2px solid transparent;
@@ -981,17 +923,17 @@
         
         @media (min-width: 480px) {
             .card {
-                width: 65px;
-                height: 90px;
+                width: 50px;
+                height: 75px;
                 border-radius: 10px;
-                font-size: 1em;
+                font-size: 0.9em;
             }
         }
         
         @media (min-width: 768px) {
             .card {
-                width: 75px;
-                height: 105px;
+                width: 60px;
+                height: 90px;
                 border-radius: 12px;
                 font-size: 1.1em;
                 border: 3px solid transparent;
@@ -999,15 +941,6 @@
                     0 4px 8px rgba(0,0,0,0.2),
                     0 0 0 1px rgba(255,255,255,0.3) inset,
                     0 0 20px rgba(255,255,255,0.1) inset;
-            }
-        }
-
-        @media (min-width: 1024px) {
-            .card {
-                width: 85px;
-                height: 120px;
-                border-radius: 14px;
-                font-size: 1.2em;
             }
         }
 
@@ -1743,11 +1676,6 @@
             padding: 15px;
             max-width: 400px;
             margin: 0 auto;
-            position: relative;
-            z-index: 1;
-            background-color: #fff;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
         
         @media (min-width: 768px) {
@@ -2409,7 +2337,7 @@
                 <input type="text" class="player-input" id="gamePin" placeholder="Enter 4-digit PIN" maxlength="4" pattern="[0-9]{4}" style="margin-bottom: 10px;">
                 <div style="display: flex; gap: 10px; margin-top: 20px;">
                     <button class="btn" onclick="createGame()" id="createGameBtn" style="flex: 1;">🎮 Create Game</button>
-                    <button class="btn" onclick="event.preventDefault(); joinGame();" id="joinBtn" disabled style="flex: 1;">🚪 Join Game</button>
+                    <button class="btn" onclick="joinGame()" id="joinBtn" disabled style="flex: 1;">🚪 Join Game</button>
                 </div>
                 
                 <!-- Audio Controls -->
@@ -2469,11 +2397,7 @@
         <div class="modal-content">
             <h2 id="gameOverTitle">🎉 Game Over!</h2>
             <p id="gameOverMessage"></p>
-            <div id="gameOverButtons" style="display: flex; gap: 10px; justify-content: center; margin-top: 20px;">
-                <button class="btn" id="playAgainBtn" onclick="handlePlayAgain()" style="flex: 1;">🔄 Play Again</button>
-                <button class="btn" id="leaveGameBtn" onclick="handleLeaveGame()" style="flex: 1; background-color: #ff6b6b;">❌ Leave Game</button>
-                <button class="btn" id="endGameBtn" onclick="handleEndGame()" style="flex: 1; background-color: #ff6b6b; display: none;">⏹️ End Game</button>
-            </div>
+            <button class="btn" onclick="showSetup()">🔄 Play Again</button>
         </div>
     </div>
 
@@ -2555,61 +2479,32 @@
             isHost: false,
             playerName: '',
             playerId: null,
-            lobbyPlayers: {}, // Changed to object to match Firebase structure
+            lobbyPlayers: [],
             gameStarted: false
         };
 
-        // Firebase URL constant
+        // Firebase Realtime Database for true cross-device multiplayer
         const FIREBASE_URL = 'https://peakgame-19c4e-default-rtdb.europe-west1.firebasedatabase.app';
-        
-        let isConnectedToFirebase = false;
-
-        // Monitor Firebase connection state
-        function initializeFirebaseConnection() {
-            const connectedRef = firebase.database().ref('.info/connected');
-            connectedRef.on('value', (snap) => {
-                isConnectedToFirebase = snap.val() === true;
-                console.log(isConnectedToFirebase ? 
-                    '✅ Connected to Firebase' : 
-                    '❌ Disconnected from Firebase');
-            });
-        }
-
-        // Call this when the page loads
-        initializeFirebaseConnection();
 
         async function saveGameToCloud(pin, gameData) {
             try {
-                if (!isConnectedToFirebase) {
-                    console.error('❌ Cannot save game: Not connected to Firebase');
-                    throw new Error('Not connected to game server');
-                }
-
-                console.log('🔄 Attempting to save game to Firebase using SDK...');
-                const database = firebase.database();
-                const gameRef = database.ref('games/' + pin);
+                const response = await fetch(`${FIREBASE_URL}/games/${pin}.json`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(gameData)
+                });
                 
-                // First check if a game with this PIN already exists
-                const snapshot = await gameRef.once('value');
-                if (snapshot.exists()) {
-                    console.error('❌ Game with PIN ' + pin + ' already exists');
-                    throw new Error('Game with this PIN already exists');
+                if (response.ok) {
+                    console.log('✅ Game saved to Firebase:', pin);
+                    return true;
+                } else {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
                 }
-
-                // Save the game data
-                await gameRef.set(gameData);
-                console.log('✅ Game saved to Firebase:', pin);
-                
-                // Verify the save was successful
-                const verifySnapshot = await gameRef.once('value');
-                if (!verifySnapshot.exists()) {
-                    throw new Error('Game data was not saved properly');
-                }
-                
-                return true;
             } catch (error) {
                 console.error('❌ Error saving to Firebase:', error);
-                alert('Error: ' + error.message + '. Please try again.');
+                alert('Error connecting to game server. Please check your internet connection.');
                 return false;
             }
         }
@@ -2682,7 +2577,7 @@
 
         async function loadGameFromCloud(pin) {
             try {
-                // Use REST API instead of Firebase SDK to avoid excessive logging and connection issues
+                // Use REST API instead of Firebase SDK to avoid excessive logging
                 const response = await fetch(`${FIREBASE_URL}/games/${pin}.json`);
                 
                 if (response.ok) {
@@ -2696,124 +2591,6 @@
                 return null;
             } catch (error) {
                 // Silently handle errors
-                return null;
-            }
-        }
-
-        function startRealTimeListener(pin) {
-            console.log('🔄 Starting real-time listener for PIN:', pin);
-            const gameRef = firebase.database().ref(`games/${pin}`);
-            
-            // Remove any existing listeners first
-            gameRef.off();
-            
-            // Listen for changes to the game data
-            gameRef.on('value', (snapshot) => {
-                const data = snapshot.val();
-                if (!data) {
-                    console.error('❌ Game data not found in real-time update');
-                    return;
-                }
-                
-                console.log('📥 Received real-time update:', data);
-                
-                // Update local game session with new data
-                if (data.lobbyPlayers) {
-                    // Store previous player count for comparison
-                    const previousCount = gameSession.lobbyPlayers ? Object.keys(gameSession.lobbyPlayers).length : 0;
-                    
-                    console.log('Previous lobby state:', gameSession.lobbyPlayers);
-                    console.log('New lobby data:', data.lobbyPlayers);
-                    
-                    // Update local game session
-                    gameSession.lobbyPlayers = data.lobbyPlayers;
-                    
-                    // Get current player count from the object
-                    const playerCount = Object.keys(data.lobbyPlayers).length;
-                    console.log(`👥 Current player count: ${playerCount}/${data.maxPlayers || 4}`);
-                    
-                    // Update waiting message
-                    const waitingMessage = document.getElementById('waitingMessage');
-                    if (waitingMessage) {
-                        const maxPlayers = data.maxPlayers || 4;
-                        if (playerCount < maxPlayers) {
-                            waitingMessage.textContent = `Waiting for ${maxPlayers - playerCount} more players... (${playerCount}/${maxPlayers})`;
-                        } else if (!gameSession.isHost) {
-                            waitingMessage.textContent = 'Waiting for host to start the game...';
-                        } else {
-                            waitingMessage.textContent = 'Ready to start!';
-                        }
-                    }
-                    
-                    // Always update the lobby display when we get new player data
-                    updateLobbyDisplay();
-                    
-                    // Enable/disable start button for host
-                    const startBtn = document.getElementById('startGameBtn');
-                    if (startBtn && gameSession.isHost) {
-                        const canStart = playerCount >= (data.maxPlayers || 4);
-                        startBtn.disabled = !canStart;
-                        startBtn.style.opacity = canStart ? '1' : '0.5';
-                    }
-                    
-                    // Play sound and show notification when new player joins
-                    if (gameSession.isHost && playerCount > previousCount) {
-                        console.log('🎮 New player joined!');
-                        audioManager?.playSound('buttonClick');
-                        
-                        // Show a temporary notification
-                        const notification = document.createElement('div');
-                        notification.textContent = 'New player joined!';
-                        notification.style.cssText = `
-                            position: fixed;
-                            top: 20px;
-                            right: 20px;
-                            background: #4CAF50;
-                            color: white;
-                            padding: 10px 20px;
-                            border-radius: 5px;
-                            animation: fadeInOut 2s forwards;
-                        `;
-                        document.body.appendChild(notification);
-                        setTimeout(() => notification.remove(), 2000);
-                    }
-                }
-                
-                gameSession.gameStarted = data.gameStarted;
-                
-                // Always update the display when we get new data
-                updateLobbyDisplay();
-                
-                // Play a sound when a new player joins (if we're the host)
-                if (gameSession.isHost && Object.keys(data.lobbyPlayers).length > Object.keys(gameSession.lobbyPlayers || {}).length) {
-                    audioManager?.playSound('buttonClick');
-                }
-                
-                // If game has started, handle that
-                if (data.gameStarted && !gameSession.gameStarted) {
-                    handleGameStart();
-                }
-            });
-        }
-
-        async function loadGameFromCloudOld(pin) {
-            try {
-                const response = await fetch(`${FIREBASE_URL}/games/${pin}.json`);
-                
-                if (response.ok) {
-                    const data = await response.json();
-                    if (data && data.pin) {
-                        console.log('✅ Game loaded from Firebase:', pin);
-                        return data;
-                    } else {
-                        console.log('❌ Game not found in Firebase:', pin);
-                        return null;
-                    }
-                } else {
-                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-                }
-            } catch (error) {
-                console.error('❌ Error loading from Firebase:', error);
                 return null;
             }
         }
@@ -2845,29 +2622,17 @@
 
             console.log('🔄 Starting real-time listener for PIN:', pin);
             
-            // Use Firebase's real-time database reference
-            const gameRef = firebase.database().ref(`games/${pin}`);
-            
-            // Listen for value changes
-            gameUpdateListener = gameRef.on('value', (snapshot) => {
+            // Poll Firebase for lobby changes every 2 seconds
+            gameUpdateListener = setInterval(async () => {
                 try {
-                    const updatedSession = snapshot.val();
+                    const updatedSession = await loadGameFromCloud(pin);
                     if (updatedSession && updatedSession.lobbyPlayers) {
-                        // Store previous player count for comparison
-                        const previousCount = gameSession.lobbyPlayers ? Object.keys(gameSession.lobbyPlayers).length : 0;
-
-                        console.log('� Previous lobby state:', gameSession.lobbyPlayers);
-                        console.log('📥 New lobby data:', updatedSession.lobbyPlayers);
-                        
-                        // Update local game session
-                        gameSession.lobbyPlayers = updatedSession.lobbyPlayers;
-                        
-                        // Get current player count
-                        const currentCount = Object.keys(updatedSession.lobbyPlayers).length;
-                        console.log(`👥 Lobby updated! Player count: ${previousCount} -> ${currentCount}`);
-                        
-                        // IMPORTANT: Update the lobby display whenever we get new player data
-                        updateLobbyDisplay();
+                        // Check if player count has changed
+                        if (updatedSession.lobbyPlayers.length !== gameSession.lobbyPlayers.length) {
+                            console.log('🔄 Lobby updated! New player count:', updatedSession.lobbyPlayers.length);
+                            gameSession.lobbyPlayers = updatedSession.lobbyPlayers;
+                            updateLobbyDisplay();
+                        }
                         
                         // Process animation broadcasts
                         processAnimationBroadcasts(updatedSession);
@@ -2875,23 +2640,19 @@
                         // Check if game has started
                         if (updatedSession.gameStarted && !gameSession.gameStarted) {
                             gameSession.gameStarted = true;
-                            
-                            // Convert lobbyPlayers object to array for non-host players
-                            const lobbyPlayersArray = Array.isArray(updatedSession.lobbyPlayers) 
-                                ? updatedSession.lobbyPlayers 
-                                : Object.values(updatedSession.lobbyPlayers);
+                            stopRealTimeListener();
                             
                             // Initialize basic game state for non-host players using proper Player objects
                             game = {
-                                players: lobbyPlayersArray.map(p => new Player(p.name)),
-                                deck: updatedSession.deck || [],
-                                discardPile: updatedSession.discardPile || [],
-                                currentPlayerIndex: updatedSession.currentPlayerIndex || 0,
-                                roundNumber: updatedSession.roundNumber || 1,
-                                highCardPlayedThisRound: updatedSession.highCardPlayedThisRound || false,
-                                gameOver: updatedSession.gameOver || false,
-                                winner: updatedSession.winner || null,
-                                direction: updatedSession.direction || 1
+                                players: updatedSession.lobbyPlayers.map(p => new Player(p.name)),
+                                deck: [],
+                                discardPile: [],
+                                currentPlayerIndex: 0,
+                                roundNumber: 1,
+                                highCardPlayedThisRound: false,
+                                gameOver: false,
+                                winner: null,
+                                direction: 1
                             };
                             
                             // Hide lobby and show game
@@ -2899,7 +2660,7 @@
                             showMessage('Game started!', 'success');
                             updateDisplay();
                             
-                            // Start listening for real game state
+                            // Start listening for real game state from host
                             startGameStateListener(pin);
                         }
                     } else if (!updatedSession) {
@@ -2908,7 +2669,7 @@
                 } catch (error) {
                     console.error('❌ Error in real-time listener:', error);
                 }
-            });
+            }, 2000); // Check every 2 seconds
         }
 
         // Separate listener for game state during gameplay
@@ -2923,20 +2684,6 @@
             gameStateListener = setInterval(async () => {
                 try {
                     const gameState = await loadGameStateFromCloud(pin);
-                    
-                    // Load animations from REST API (don't use Firebase SDK to avoid spam)
-                    try {
-                        const animResponse = await fetch(`${FIREBASE_URL}/games/${pin}/animations.json`);
-                        if (animResponse.ok) {
-                            const animations = await animResponse.json();
-                            if (animations) {
-                                gameState.animations = animations;
-                            }
-                        }
-                    } catch (error) {
-                        // Silently skip animation loading if it fails
-                    }
-                    
                     if (gameState && gameState.timestamp && gameState.timestamp > lastTimestamp) {
                         // Process animation broadcasts
                         processAnimationBroadcasts(gameState);
@@ -2980,6 +2727,10 @@
                             }
                             
                             // Update display for all players
+                            updateDisplay();
+                        } else {
+                            // Even if this player made the move, we still need to update display
+                            // because currentPlayerIndex and other critical state were updated above
                             updateDisplay();
                         }
                         lastTimestamp = gameState.timestamp;
@@ -3264,31 +3015,12 @@
                 return false;
             }
 
-            // First save the game state to prevent race conditions
-            const cardGameRef = firebase.database().ref(`games/${gameSession.pin}`);
-            await cardGameRef.update({
-                'lastAction': {
-                    type: 'cardPlayed',
-                    playerIndex: playerIndex,
-                    cardIndex: cardIndex,
-                    timestamp: firebase.database.ServerValue.TIMESTAMP
-                }
-            });
-
             // Remove card from player's hand and add to discard pile
             const cardToRemove = player.hand.splice(cardIndex, 1)[0];
             game.discardPile.push(cardToRemove);
             
             // Play base card sound and show card played animation
             audioManager?.playSound(cardToRemove.isPeakCard() ? 'peakCard' : 'cardPlace');
-            
-            // Update Firebase immediately with the new game state
-            await saveGameStateToCloud(gameSession.pin, {
-                players: game.players,
-                discardPile: game.discardPile,
-                currentPlayerIndex: game.currentPlayerIndex,
-                timestamp: firebase.database.ServerValue.TIMESTAMP
-            });
             
             // Update the display immediately to show the played card
             updateDisplay();
@@ -3297,11 +3029,6 @@
             if (isHighValueCard(cardToRemove)) {
                 game.highCardPlayedThisRound = true;
                 showMessage(`🎯 High card ${cardToRemove.value} played by ${player.name}! Others can now finish on cards 8-10.`, 'info');
-                
-                // Update high card status in Firebase
-                await cardGameRef.update({
-                    'highCardPlayedThisRound': true
-                });
             }
 
             // Show initial play message
@@ -3316,11 +3043,12 @@
             while (game.players[actualNextPlayerIndex].isEliminated) {
                 actualNextPlayerIndex = (actualNextPlayerIndex + game.direction + game.players.length) % game.players.length;
             }
+            const nextPlayerObj = game.players[actualNextPlayerIndex];
 
             // Handle special cards first
             try {
                 if (cardToRemove.isPeakCard()) {
-                    await handlePeakCard(game.players[actualNextPlayerIndex]);
+                    await handlePeakCard(nextPlayerObj);
                 } else if (cardToRemove.isReverseCard()) {
                     await handleReverseCard();
                 } else if (cardToRemove.isStarCard()) {
@@ -3358,17 +3086,9 @@
             }
             
             game.currentPlayerIndex = finalNextPlayerIndex;
-            
-            // Save the new turn state to Firebase immediately
-            const turnGameRef = firebase.database().ref(`games/${gameSession.pin}`);
-            await turnGameRef.update({
-                currentPlayerIndex: finalNextPlayerIndex,
-                timestamp: firebase.database.ServerValue.TIMESTAMP
-            });
-            
             showMessage(`🎮 It's ${game.players[game.currentPlayerIndex].name}'s turn!`, 'info');
             
-            // Save complete game state
+            // Save game state
             await saveGameStateToCloud(gameSession.pin, {
                 players: game.players.map(p => ({
                     name: p.name,
@@ -4029,24 +3749,6 @@
         function showGameOver(message) {
             document.getElementById('gameOverTitle').textContent = 'Game Over!';
             document.getElementById('gameOverMessage').textContent = message;
-            
-            // Show/hide buttons based on host status
-            const playAgainBtn = document.getElementById('playAgainBtn');
-            const leaveGameBtn = document.getElementById('leaveGameBtn');
-            const endGameBtn = document.getElementById('endGameBtn');
-            
-            if (gameSession.isHost) {
-                // Host sees: Play Again and End Game buttons
-                playAgainBtn.style.display = 'block';
-                leaveGameBtn.style.display = 'none';
-                endGameBtn.style.display = 'block';
-            } else {
-                // Players see: Play Again and Leave Game buttons
-                playAgainBtn.style.display = 'block';
-                leaveGameBtn.style.display = 'block';
-                endGameBtn.style.display = 'none';
-            }
-            
             document.getElementById('gameOverModal').style.display = 'block';
         }
 
@@ -4346,9 +4048,8 @@
             }
 
             // If we get here, player count has been selected, so create the actual game
-            // Generate 4-digit PIN and store it in a variable to ensure consistency
+            // Generate 4-digit PIN
             const pin = Math.floor(1000 + Math.random() * 9000).toString();
-            console.log('🎲 Generated new game PIN:', pin);
             
             const hostPlayer = {
                 id: generatePlayerId(),
@@ -4356,48 +4057,24 @@
                 isHost: true
             };
             
-            // Initialize lobbyPlayers as an object with player ID as key
-            const lobbyPlayersObj = {};
-            lobbyPlayersObj[hostPlayer.id] = hostPlayer;
-            
             gameSession = {
                 pin: pin,
                 isHost: true,
                 playerName: playerName,
                 playerId: hostPlayer.id,
-                lobbyPlayers: lobbyPlayersObj,  // Use object from the start!
+                lobbyPlayers: [hostPlayer],
                 gameStarted: false,
                 maxPlayers: selectedPlayerCount
             };
 
-            // Try to save to Firebase with retry logic
+            // Save to cloud so others can join from different devices
             console.log('💾 Saving game to Firebase with PIN:', pin);
-            let saveSuccess = false;
-            let attempts = 0;
-            const maxAttempts = 3;
-
-            while (!saveSuccess && attempts < maxAttempts) {
-                attempts++;
-                if (attempts > 1) {
-                    console.log(`Retry attempt ${attempts}/${maxAttempts}...`);
-                }
-
-                // lobbyPlayers is already an object, so use it directly
-                const gameDataToSave = {
-                    pin: pin,  // Ensure we use the same PIN
-                    lobbyPlayers: gameSession.lobbyPlayers,  // Already an object!
-                    gameStarted: false,
-                    maxPlayers: selectedPlayerCount,
-                    createdAt: firebase.database.ServerValue.TIMESTAMP
-                };
-                console.log('📦 Game data being saved:', gameDataToSave);
-                saveSuccess = await saveGameToCloud(pin, gameDataToSave);
-                
-                if (!saveSuccess && attempts < maxAttempts) {
-                    // Wait before retrying
-                    await new Promise(resolve => setTimeout(resolve, 1000));
-                }
-            }
+            const saveSuccess = await saveGameToCloud(pin, {
+                pin: pin,
+                lobbyPlayers: gameSession.lobbyPlayers,
+                gameStarted: false,
+                maxPlayers: selectedPlayerCount
+            });
             
             if (!saveSuccess) {
                 alert('Failed to create game. Please check your internet connection and try again.');
@@ -4411,158 +4088,69 @@
         }
 
         async function joinGame() {
-            try {
-                console.log('Join game function called');
-                const joinBtn = document.getElementById('joinBtn');
-                joinBtn.disabled = true; // Disable to prevent double-clicks
-                
-                const playerName = document.getElementById('playerName').value.trim();
-                const pin = document.getElementById('gamePin').value.trim();
-                
-                console.log('Attempting to join with name:', playerName, 'and PIN:', pin);
-                
-                if (!playerName) {
-                    alert('Please enter your name');
-                    joinBtn.disabled = false;
-                    return;
-                }
-                
-                if (!pin || pin.length !== 4 || !/^\d{4}$/.test(pin)) {
-                    alert('Please enter a valid 4-digit PIN');
-                    joinBtn.disabled = false;
-                    return;
-                }
-
-                // Check if game session exists in cloud
-                console.log('🔍 Looking for game with PIN:', pin);
-                const sessionData = await loadGameFromCloud(pin);
-                if (!sessionData) {
-                    alert('Game not found! Please check the PIN and make sure the host has created the game.');
-                    console.log('❌ No game found for PIN:', pin);
-                    joinBtn.disabled = false;
-                    return;
-                }
-                console.log('✅ Found game session:', sessionData);
+            audioManager?.playSound('buttonClick');
+            const playerName = document.getElementById('playerName').value.trim();
+            const pin = document.getElementById('gamePin').value.trim();
             
-            // Always treat lobbyPlayers as an object
-            const currentPlayers = sessionData.lobbyPlayers || {};
-            const playerCount = Object.keys(currentPlayers).length;
-            console.log('👥 Current players:', currentPlayers);
+            if (!playerName) {
+                alert('Please enter your name');
+                return;
+            }
+            
+            if (!pin || pin.length !== 4 || !/^\d{4}$/.test(pin)) {
+                alert('Please enter a valid 4-digit PIN');
+                return;
+            }
 
+            // Check if game session exists in cloud
+            console.log('🔍 Looking for game with PIN:', pin);
+            const sessionData = await loadGameFromCloud(pin);
+            if (!sessionData) {
+                alert('Game not found! Please check the PIN and make sure the host has created the game.');
+                console.log('❌ No game found for PIN:', pin);
+                return;
+            }
+            console.log('✅ Found game session:', sessionData);
+            
             // Check if game is full
             const maxPlayers = sessionData.maxPlayers || 4;
-            if (playerCount >= maxPlayers) {
+            if (sessionData.lobbyPlayers.length >= maxPlayers) {
                 alert(`Game is full! Maximum ${maxPlayers} players allowed.`);
-                joinBtn.disabled = false;
                 return;
             }
 
-            // Check if player name already exists in the object
-            if (Object.values(currentPlayers).some(p => p && p.name === playerName)) {
+            // Check if player name already exists
+            if (sessionData.lobbyPlayers.some(p => p.name === playerName)) {
                 alert('Player name already taken! Please choose a different name.');
-                joinBtn.disabled = false;
                 return;
             }
 
-            // Create new player
-            const newPlayerId = generatePlayerId();
+            // Add new player to existing session
             const newPlayer = {
-                id: newPlayerId,
+                id: generatePlayerId(),
                 name: playerName,
                 isHost: false
             };
             
-            // Initialize lobbyPlayers as object if it doesn't exist
-            if (!sessionData.lobbyPlayers || Array.isArray(sessionData.lobbyPlayers)) {
-                sessionData.lobbyPlayers = {};
-            }
+            sessionData.lobbyPlayers.push(newPlayer);
             
-            // Add new player using their ID as the key
-            sessionData.lobbyPlayers[newPlayerId] = newPlayer;
-            
-            try {
-                // Update cloud using Firebase's real-time database directly
-                const gameRef = firebase.database().ref(`games/${pin}`);
-                await gameRef.update({
-                    [`lobbyPlayers/${newPlayerId}`]: newPlayer,
-                    lastUpdate: firebase.database.ServerValue.TIMESTAMP
-                });
+            // Update cloud
+            await saveGameToCloud(pin, sessionData);
 
-                // Set up local game session
-                gameSession = {
-                    pin: pin,
-                    isHost: false,
-                    playerName: playerName,
-                    playerId: newPlayer.id,
-                    lobbyPlayers: sessionData.lobbyPlayers,
-                    gameStarted: false,
-                    maxPlayers: sessionData.maxPlayers || 4
-                };
+            // Set up local game session
+            gameSession = {
+                pin: pin,
+                isHost: false,
+                playerName: playerName,
+                playerId: newPlayer.id,
+                lobbyPlayers: sessionData.lobbyPlayers,
+                gameStarted: false,
+                maxPlayers: sessionData.maxPlayers || 4
+            };
 
-                // Hide setup screens
-                document.getElementById('startScreen').style.display = 'none';
-                
-                // Update game PIN in lobby
-                document.getElementById('gamePinDisplay').textContent = `Game PIN: ${pin}`;
-                
-                // Show lobby screen
-                document.getElementById('lobbyScreen').style.display = 'block';
-                
-                // Start real-time updates and show lobby
-                const lobbyRef = firebase.database().ref(`games/${pin}`);
-                lobbyRef.on('value', (snapshot) => {
-                    const data = snapshot.val();
-                    if (data && data.lobbyPlayers) {
-                        gameSession.lobbyPlayers = data.lobbyPlayers;
-                        const playersUL = document.getElementById('playersUL');
-                        if (playersUL) {
-                            playersUL.innerHTML = '';
-                            Object.values(data.lobbyPlayers).forEach(player => {
-                                const li = document.createElement('li');
-                                li.style.padding = '10px';
-                                li.style.marginBottom = '5px';
-                                li.style.backgroundColor = 'rgba(255,255,255,0.9)';
-                                li.style.borderRadius = '5px';
-                                li.innerHTML = `${player.name} ${player.isHost ? '(Host)' : '(Player)'}`;
-                                playersUL.appendChild(li);
-                            });
-                        }
-                    }
-                });
-                
-                console.log('Successfully joined lobby for game:', pin);
-                audioManager?.playSound('buttonClick');
-                joinBtn.disabled = false;
-            } catch (error) {
-                console.error('Error joining lobby:', error);
-                joinBtn.disabled = false;
-                alert('Error joining game. Please try again.');
-            }
-
-            console.log('Transitioning to lobby screen...');
-            
-            // First, set up the game session and start listener
-            await startRealTimeListener(pin);
-            
-            // Show the lobby screen (don't hide setupModal since lobby is inside it)
-            document.getElementById('startScreen').style.display = 'none';
-            document.getElementById('lobbyScreen').style.display = 'block';
-            
-            // Update game PIN display
-            document.getElementById('gamePinDisplay').textContent = `Game PIN: ${pin}`;
-            
-            // Update the lobby display
             showLobby();
-            
-            console.log('Successfully joined game lobby');
-            audioManager?.playSound('buttonClick');
-            
-            joinBtn.disabled = false; // Re-enable the button
-        } catch (error) {
-            console.error('Error joining game:', error);
-            alert('Failed to join game. Please try again.');
-            document.getElementById('joinBtn').disabled = false;
-        }
+            startRealTimeListener(pin); // Start real-time updates
+            console.log('Joined game with PIN:', pin);
         }
 
         function generatePlayerId() {
@@ -4589,147 +4177,16 @@
         }
 
         function updateLobbyDisplay() {
-            if (!gameSession) {
-                console.error('❌ No game session found');
-                return;
-            }
-
-            const playersList = document.getElementById('playersUL');
-            if (!playersList) {
-                console.error('❌ Could not find players list element');
-                return;
-            }
-
-            console.log('🔄 Updating lobby display...');
-            console.log('Current game session:', gameSession);
-            console.log('Lobby players data:', gameSession.lobbyPlayers);
-
-            // Clear existing player list
-            playersList.innerHTML = '';
-
-            // Get all players from Firebase data and ensure we're using the latest data
-            const players = gameSession.lobbyPlayers || {};
-            // Filter out any null/undefined entries and convert to array
-            const playersArray = Object.entries(players)
-                .filter(([_, player]) => player) // Remove any null/undefined entries
-                .map(([id, player]) => ({...player, id})); // Convert to array with IDs
-
-            // Sort players so host is always first
-            playersArray.sort((a, b) => {
-                if (a.isHost) return -1;
-                if (b.isHost) return 1;
-                return 0;
-            });
-
-            // Add each player to the list with consistent formatting
-            playersArray.forEach(player => {
-                console.log('Adding player to display:', player);
-                
-                const li = document.createElement('li');
-                li.style.padding = '10px';
-                li.style.marginBottom = '5px';
-                li.style.backgroundColor = 'rgba(255,255,255,0.9)';
-                li.style.borderRadius = '5px';
-                li.style.display = 'flex';
-                li.style.alignItems = 'center';
-                li.style.justifyContent = 'space-between';
-                
-                // Show crown for host, player icon for others
-                const icon = player.isHost ? '👑' : '👤';
-                
-                // Show (You) for current player
-                const isCurrentPlayer = player.id === gameSession.playerId;
-                const displayName = `${icon} ${player.name} ${isCurrentPlayer ? '(You)' : ''}`;
-                
-                // Create the player entry with name and ready status
-                li.innerHTML = `
-                    <span style="font-size: 1.1em; font-weight: ${player.isHost ? 'bold' : 'normal'}">
-                        ${displayName}
-                    </span>
-                `;
-                
-                // Add to the list
-                playersList.appendChild(li);
-                console.log('Added player to display:', displayName);
-                
-                li.textContent = displayName;
-                playersList.appendChild(li);
-            });
-
-            // Update the ready/waiting message
-            const readyMessage = document.getElementById('readyMessage');
-            if (readyMessage) {
-                const totalPlayers = playersArray.length;
-                readyMessage.textContent = `Ready to start! (${totalPlayers} players)`;
-            }
-
-            // Set up real-time listener for lobby updates if not already set
-            if (gameSession.pin && !gameUpdateListener) {
-                const gameRef = firebase.database().ref(`games/${gameSession.pin}`);
-                gameUpdateListener = gameRef.on('value', (snapshot) => {
-                    const gameData = snapshot.val();
-                    if (gameData && gameData.players) {
-                        gameSession.players = gameData.players;
-                        // Force a UI refresh, but prevent infinite recursion
-                        if (document.getElementById('playersUL')) {
-                            renderLobbyPlayers();
-                        }
-                    }
-                });
-            }
-
             const playersUL = document.getElementById('playersUL');
-            if (!playersUL) {
-                return;
-            }
-            
-            renderLobbyPlayers();
-        }
-        
-        function renderLobbyPlayers() {
-            const playersUL = document.getElementById('playersUL');
-            if (!playersUL) {
-                console.error('❌ Players list element not found');
-                return;
-            }
-
             playersUL.innerHTML = '';
             
-            // Convert players object to array if necessary
-            let playersArray = [];
-            if (gameSession.lobbyPlayers) {
-                if (Array.isArray(gameSession.lobbyPlayers)) {
-                    playersArray = gameSession.lobbyPlayers;
-                } else if (typeof gameSession.lobbyPlayers === 'object') {
-                    playersArray = Object.values(gameSession.lobbyPlayers).filter(Boolean);
-                }
-            }
-            
-            console.log('🔄 Updating lobby display with players:', playersArray);
-            
-            if (playersArray.length === 0) {
+            gameSession.lobbyPlayers.forEach(player => {
                 const li = document.createElement('li');
                 li.style.padding = '5px 0';
-                li.innerHTML = '<em>Waiting for players to join...</em>';
-                playersUL.appendChild(li);
-                return;
-            }
-
-            playersArray.forEach(player => {
-                if (!player || !player.name) {
-                    console.log('⚠️ Skipping invalid player:', player);
-                    return;
-                }
-                const li = document.createElement('li');
-                li.style.padding = '5px 0';
-                li.style.marginBottom = '5px';
-                li.style.backgroundColor = 'rgba(255, 255, 255, 0.1)';
-                li.style.borderRadius = '4px';
-                li.style.padding = '8px';
                 li.innerHTML = `
                     <span style="display: inline-block; width: 20px;">${player.isHost ? '👑' : '👤'}</span>
-                    <strong>${player.name}</strong>
-                    ${player.id === gameSession.playerId ? ' <span style="color: #4CAF50">(You)</span>' : ''}
+                    ${player.name}
+                    ${player.id === gameSession.playerId ? ' (You)' : ''}
                 `;
                 playersUL.appendChild(li);
             });
@@ -4737,7 +4194,7 @@
             // Update start button (only host can start, and need required players)
             const startBtn = document.getElementById('startGameBtn');
             const maxPlayers = gameSession.maxPlayers || 4;
-            const canStart = gameSession.isHost && playersArray.length === maxPlayers;
+            const canStart = gameSession.isHost && gameSession.lobbyPlayers.length === maxPlayers;
             startBtn.disabled = !canStart;
             
             const waitingMsg = document.getElementById('waitingMessage');
@@ -4798,24 +4255,16 @@
         async function startGameFromLobby() {
             audioManager?.playSound('buttonClick');
             const requiredPlayers = gameSession.maxPlayers || 4;
-            const currentPlayerCount = Object.keys(gameSession.lobbyPlayers).length;
-            
-            if (!gameSession.isHost || currentPlayerCount < requiredPlayers) {
-                alert(`Need exactly ${requiredPlayers} players to start the game! Currently have ${currentPlayerCount}.`);
+            if (!gameSession.isHost || gameSession.lobbyPlayers.length < requiredPlayers) {
+                alert(`Need exactly ${requiredPlayers} players to start the game!`);
                 return;
             }
 
             // Update cloud to notify all players game is starting
-            try {
-                const sessionData = await loadGameFromCloud(gameSession.pin);
-                if (sessionData) {
-                    sessionData.gameStarted = true;
-                    // Use update instead of save to avoid "already exists" error
-                    const gameRef = firebase.database().ref(`games/${gameSession.pin}`);
-                    await gameRef.update({ gameStarted: true });
-                }
-            } catch (error) {
-                console.error('Error updating game start status:', error);
+            const sessionData = await loadGameFromCloud(gameSession.pin);
+            if (sessionData) {
+                sessionData.gameStarted = true;
+                await saveGameToCloud(gameSession.pin, sessionData);
             }
 
             // Stop real-time updates and start the actual game
@@ -4828,9 +4277,8 @@
             if (gameSession.isHost) {
                 console.log('🎮 Host initializing game state...');
                 
-                // Convert lobbyPlayers object to array of player names
-                const lobbyPlayersArray = Object.values(gameSession.lobbyPlayers);
-                const playerNames = lobbyPlayersArray.map(p => p.name);
+                // Initialize game with lobby players
+                const playerNames = gameSession.lobbyPlayers.map(p => p.name);
                 
                 game = {
                     players: playerNames.map(name => new Player(name)),
@@ -5200,6 +4648,7 @@
         }
 
         // Broadcast animation to all players via Firebase
+        // Broadcast animation to all players via Firebase
         async function broadcastSpecialCardAnimation(cardType, playerName) {
             if (gameSession.pin) {
                 try {
@@ -5264,24 +4713,18 @@
         // Listen for animation broadcasts and special effects from other players
         let lastProcessedAnimationId = null;
         let processedEffects = new Set();
-        let currentlyPlayingAnimation = false;  // Prevent simultaneous animations
         
         function processAnimationBroadcasts(gameData) {
             if (!gameData) return;
             
             // Process animations
             if (gameData.animations && Array.isArray(gameData.animations)) {
-                const animationsToRemove = [];
-                
                 gameData.animations.forEach(animation => {
                     // Check if we haven't processed this animation yet
                     if (!processedEffects.has(animation.id)) {
                         // Don't show your own animations twice
-                        if (animation.playerName !== gameSession.playerName && !currentlyPlayingAnimation) {
+                        if (animation.playerName !== gameSession.playerName) {
                             console.log(`🎬 Playing ${animation.type} animation from ${animation.playerName}`);
-                            
-                            // Set flag to prevent duplicate plays
-                            currentlyPlayingAnimation = true;
                             
                             // Play both animation and sound
                             playSpecialCardAnimationEnhanced(animation.type);
@@ -5296,27 +4739,21 @@
                                 'pause': `⏸️ ${animation.playerName} played the Legendary Pause card!`
                             };
                             showMessage(messages[animation.type] || `${animation.playerName} played a special card!`, 'special');
-                            
-                            // Reset flag after animation completes
-                            setTimeout(() => {
-                                currentlyPlayingAnimation = false;
-                            }, 1000);
                         }
                         // Mark this animation as processed
                         processedEffects.add(animation.id);
-                        // Mark for removal from Firebase
-                        animationsToRemove.push(animation.id);
+                        lastProcessedAnimationId = animation.id;
                     }
                 });
                 
-                // Clean up processed animations from Firebase
-                if (animationsToRemove.length > 0 && gameSession.isHost) {
-                    const gameRef = firebase.database().ref(`games/${gameSession.pin}`);
-                    const remainingAnimations = gameData.animations.filter(a => !animationsToRemove.includes(a.id));
-                    gameRef.update({ animations: remainingAnimations }).catch(err => {
-                        console.log('Could not clean up animations:', err);
-                    });
-                }
+                // Clean up old processed effects
+                const oldTime = Date.now() - 10000; // Clear effects older than 10 seconds
+                processedEffects.forEach(effectId => {
+                    const effect = gameData.effectStatus[effectId];
+                    if (effect && effect.timestamp < oldTime) {
+                        processedEffects.delete(effectId);
+                    }
+                });
             }
             
             // Process special effects
@@ -5621,132 +5058,6 @@
             document.getElementById('gameOverModal').style.display = 'none';
         }
 
-        // Handle play again - return to lobby
-        async function handlePlayAgain() {
-            console.log('🔄 Player wants to play again');
-            
-            // Stop listening to game updates
-            stopRealTimeListener();
-            
-            // Redirect to setup screen for them to rejoin
-            document.getElementById('gameOverModal').style.display = 'none';
-            document.getElementById('setupModal').style.display = 'block';
-            
-            // Reset game state
-            gameSession.gameStarted = false;
-            game = {
-                players: [],
-                deck: [],
-                discardPile: [],
-                currentPlayerIndex: 0,
-                roundNumber: 1,
-                highCardPlayedThisRound: false,
-                gameOver: false,
-                winner: null,
-                direction: 1
-            };
-            
-            showMessage('Ready to play again! The lobby is waiting for you.', 'success');
-        }
-
-        // Handle leave game - return to start screen
-        async function handleLeaveGame() {
-            console.log('❌ Player leaving game');
-            
-            // Stop listening to game updates
-            stopRealTimeListener();
-            
-            // Reset everything
-            gameSession = {
-                pin: null,
-                isHost: false,
-                playerName: '',
-                playerId: null,
-                lobbyPlayers: {},
-                gameStarted: false
-            };
-            
-            game = {
-                players: [],
-                deck: [],
-                discardPile: [],
-                currentPlayerIndex: 0,
-                roundNumber: 1,
-                highCardPlayedThisRound: false,
-                gameOver: false,
-                winner: null,
-                direction: 1
-            };
-            
-            // Hide all modals and go back to start
-            document.getElementById('gameOverModal').style.display = 'none';
-            document.getElementById('setupModal').style.display = 'block';
-            document.getElementById('gameContainer').style.display = 'none';
-            
-            // Reset the setup form
-            document.getElementById('playerName').value = '';
-            document.getElementById('gamePin').value = '';
-            
-            showMessage('You have left the game. Welcome back to Peak!', 'info');
-        }
-
-        // Handle end game (host only) - ends for everyone
-        async function handleEndGame() {
-            console.log('⏹️ Host ending game for everyone');
-            
-            try {
-                // Update Firebase to mark game as ended
-                const gameRef = firebase.database().ref(`games/${gameSession.pin}`);
-                await gameRef.update({
-                    gameEnded: true,
-                    endedAt: firebase.database.ServerValue.TIMESTAMP
-                });
-                
-                // Notify all players
-                showMessage('Host has ended the game. Everyone will return to start screen.', 'info');
-                
-                // Give players time to see the message
-                setTimeout(() => {
-                    // Stop listening
-                    stopRealTimeListener();
-                    
-                    // Reset everything
-                    gameSession = {
-                        pin: null,
-                        isHost: false,
-                        playerName: '',
-                        playerId: null,
-                        lobbyPlayers: {},
-                        gameStarted: false
-                    };
-                    
-                    game = {
-                        players: [],
-                        deck: [],
-                        discardPile: [],
-                        currentPlayerIndex: 0,
-                        roundNumber: 1,
-                        highCardPlayedThisRound: false,
-                        gameOver: false,
-                        winner: null,
-                        direction: 1
-                    };
-                    
-                    // Hide all modals and go back to start
-                    document.getElementById('gameOverModal').style.display = 'none';
-                    document.getElementById('setupModal').style.display = 'block';
-                    document.getElementById('gameContainer').style.display = 'none';
-                    
-                    // Reset the setup form
-                    document.getElementById('playerName').value = '';
-                    document.getElementById('gamePin').value = '';
-                }, 1000);
-            } catch (error) {
-                console.error('Error ending game:', error);
-                showMessage('Error ending game', 'error');
-            }
-        }
-
         function showGameState() {
             const activePlayers = game.players.filter(p => p.isActive()).length;
             const message = `Round: ${game.roundNumber}\nActive Players: ${activePlayers}\nCards in Deck: ${game.deck.length}\nHigh Card Played: ${game.highCardPlayedThisRound ? 'Yes' : 'No'}`;
@@ -5873,83 +5184,37 @@
                     webm: !!audio.canPlayType('audio/webm').replace(/no/, '')
                 };
             }
-
-            handleAudioError(soundName, sound) {
-                console.error(`🔍 Debugging ${soundName} audio error:`);
-                const sources = sound.getElementsByTagName('source');
-                Array.from(sources).forEach(source => {
-                    console.log(`- Trying to load: ${source.src}`);
-                    // Try to fetch the file to check if it exists
-                    fetch(source.src)
-                        .then(response => {
-                            if (!response.ok) throw new Error(`HTTP ${response.status}`);
-                            console.log(`✅ ${source.src} is accessible`);
-                        })
-                        .catch(error => console.error(`❌ ${source.src} is not accessible:`, error));
-                });
-            }
             
             testAudioElements() {
-                console.log('🔍 Testing audio elements...');
-                // Preload all audio files
-                const preloadPromises = [];
-                
-                Object.entries(this.sounds).forEach(([soundName, sound]) => {
-                    if (!sound) {
-                        console.error(`❌ Audio element not found: ${soundName}`);
-                        return;
-                    }
-
-                    // Create a promise for this sound's loading
-                    const loadPromise = new Promise((resolve) => {
-                        const loadHandler = () => {
-                            sound.removeEventListener('canplaythrough', loadHandler);
-                            sound.removeEventListener('error', errorHandler);
-                            console.log(`✅ ${soundName}: Ready`);
-                            resolve();
-                        };
-                        const errorHandler = () => {
-                            sound.removeEventListener('canplaythrough', loadHandler);
-                            sound.removeEventListener('error', errorHandler);
-                            console.warn(`⚠️ ${soundName}: Failed to load`);
-                            resolve(); // Resolve anyway to not block other sounds
-                        };
+                // Test each audio element to ensure they can load properly
+                Object.keys(this.sounds).forEach(soundName => {
+                    const sound = this.sounds[soundName];
+                    if (sound) {
+                        sound.addEventListener('loadstart', () => {
+                            console.log(`🎵 ${soundName}: Loading started`);
+                        });
                         
-                        sound.addEventListener('canplaythrough', loadHandler);
-                        sound.addEventListener('error', errorHandler);
-                        sound.load();
+                        sound.addEventListener('canplay', () => {
+                            console.log(`✅ ${soundName}: Ready to play`);
+                        });
+                        
+                        sound.addEventListener('error', (e) => {
+                            console.error(`❌ ${soundName}: Audio error`, e);
+                            this.handleAudioError(soundName, sound);
+                        });
+                    }
+                });
+                
+                // Test background music
+                if (this.bgMusic) {
+                    this.bgMusic.addEventListener('canplay', () => {
+                        console.log('✅ Background music: Ready to play');
                     });
                     
-                    preloadPromises.push(loadPromise);
-                });
-
-                // Also preload background music
-                if (this.bgMusic) {
-                    const bgMusicPromise = new Promise((resolve) => {
-                        const loadHandler = () => {
-                            this.bgMusic.removeEventListener('canplaythrough', loadHandler);
-                            this.bgMusic.removeEventListener('error', errorHandler);
-                            console.log('✅ Background music: Ready');
-                            resolve();
-                        };
-                        const errorHandler = () => {
-                            this.bgMusic.removeEventListener('canplaythrough', loadHandler);
-                            this.bgMusic.removeEventListener('error', errorHandler);
-                            console.warn('⚠️ Background music: Failed to load');
-                            resolve();
-                        };
-                        
-                        this.bgMusic.addEventListener('canplaythrough', loadHandler);
-                        this.bgMusic.addEventListener('error', errorHandler);
-                        this.bgMusic.load();
+                    this.bgMusic.addEventListener('error', (e) => {
+                        console.error('❌ Background music: Audio error', e);
                     });
-                    preloadPromises.push(bgMusicPromise);
                 }
-
-                // Wait for all sounds to either load or fail
-                Promise.all(preloadPromises).then(() => {
-                    console.log('🎵 Audio system initialization complete');
-                });
             }
             
             handleAudioError(soundName, audioElement) {
@@ -5988,49 +5253,41 @@
                 console.log('🎵 Audio system ready - music will start on first user interaction');
             }
             
-            async playSound(soundName, volume = 1) {
+            playSound(soundName, volume = 1) {
                 if (!this.sfxEnabled) return;
                 
                 const sound = this.sounds[soundName];
-                if (!sound) {
-                    console.warn(`⚠️ Sound '${soundName}' not found`);
-                    return;
-                }
-
-                // If sound is already playing, stop it first
-                if (!sound.paused) {
-                    sound.pause();
-                    sound.currentTime = 0;
-                }
-
-                // Set the volume before playing
-                sound.volume = Math.min(Math.max(this.volume * volume, 0), 1);
-
-                try {
-                    // If the audio isn't loaded yet, wait for it
-                    if (sound.readyState < 2) { // HAVE_CURRENT_DATA
-                        await new Promise((resolve, reject) => {
-                            const loadHandler = () => {
-                                sound.removeEventListener('canplaythrough', loadHandler);
-                                sound.removeEventListener('error', errorHandler);
-                                resolve();
-                            };
-                            const errorHandler = (error) => {
-                                sound.removeEventListener('canplaythrough', loadHandler);
-                                sound.removeEventListener('error', errorHandler);
-                                reject(error);
-                            };
-                            sound.addEventListener('canplaythrough', loadHandler);
-                            sound.addEventListener('error', errorHandler);
-                            sound.load();
-                        });
+                if (sound) {
+                    try {
+                        // Check if audio element is ready
+                        if (sound.readyState >= 2) { // HAVE_CURRENT_DATA or higher
+                            sound.currentTime = 0;
+                            sound.volume = Math.min(Math.max(this.volume * volume, 0), 1); // Clamp between 0-1
+                            
+                            const playPromise = sound.play();
+                            if (playPromise !== undefined) {
+                                playPromise
+                                    .then(() => {
+                                        console.log(`🎵 ${soundName} played successfully`);
+                                    })
+                                    .catch(error => {
+                                        console.log(`⚠️ ${soundName} play failed:`, error.message);
+                                        this.handlePlaybackError(soundName, sound);
+                                    });
+                            }
+                        } else {
+                            // Audio not ready, wait for it to load
+                            console.log(`⏳ ${soundName} not ready, waiting...`);
+                            sound.addEventListener('canplay', () => {
+                                this.playSound(soundName, volume);
+                            }, { once: true });
+                        }
+                    } catch (error) {
+                        console.error(`❌ ${soundName} error:`, error);
+                        this.handlePlaybackError(soundName, sound);
                     }
-
-                    // Play the sound
-                    await sound.play();
-                } catch (error) {
-                    console.warn(`🔇 Could not play ${soundName}:`, error);
-                    // Don't retry - just let it fail silently
+                } else {
+                    console.warn(`⚠️ Sound '${soundName}' not found`);
                 }
             }
             

@@ -1,0 +1,20 @@
+{
+  "rules": {
+    ".read": true,
+    ".write": true,
+    "games": {
+      "$gameId": {
+        ".read": true,
+        ".write": true,
+        "lobbyPlayers": {
+          ".read": true,
+          ".write": true
+        },
+        "gameState": {
+          ".read": true,
+          ".write": true
+        }
+      }
+    }
+  }
+}
