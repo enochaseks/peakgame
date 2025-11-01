@@ -68,59 +68,41 @@
     
     <!-- Audio Elements with Multi-Format Support -->
     <audio id="bgMusic" loop preload="auto" volume="0.3">
-        <source src="/assets/audio/background-music.mp3" type="audio/mpeg">
-        <source src="assets/audio/music/background-music.ogg" type="audio/ogg">
-        <source src="assets/audio/music/background-music.wav" type="audio/wav">
+        <source src="assets/audio/background-music.mp3" type="audio/mpeg">
     </audio>
 
     <audio id="cardFlip" preload="auto" volume="0.7">
-        <source src="/assets/audio/card-flip.wav" type="audio/wav">
-        <source src="assets/audio/sfx/card-flip.mp3" type="audio/mpeg">
-        <source src="assets/audio/sfx/card-flip.ogg" type="audio/ogg">
+        <source src="assets/audio/card-flip.wav" type="audio/wav">
     </audio>
     
     <audio id="cardPlace" preload="auto" volume="0.6">
-        <source src="/assets/audio/card-place.wav" type="audio/wav">
-        <source src="assets/audio/sfx/card-place.mp3" type="audio/mpeg">
-        <source src="assets/audio/sfx/card-place.ogg" type="audio/ogg">
+        <source src="assets/audio/card-place.wav" type="audio/wav">
     </audio>
     
     <audio id="peakCard" preload="auto" volume="0.8">
-        <source src="/assets/audio/peak-card.m4a" type="audio/mp4">
-        <source src="assets/audio/sfx/peak-card.mp3" type="audio/mpeg">
-        <source src="assets/audio/sfx/peak-card.wav" type="audio/wav">
-        <source src="assets/audio/sfx/peak-card.ogg" type="audio/ogg">
+        <source src="assets/audio/peak-card.m4a" type="audio/mp4">
     </audio>
 
     <audio id="goblinSound" preload="auto" volume="0.8">
-        <source src="/assets/audio/goblin-sound.wav" type="audio/wav">
+        <source src="assets/audio/goblin-sound.wav" type="audio/wav">
     </audio>
 
     <audio id="starSound" preload="auto" volume="0.8">
-        <source src="/assets/audio/star-sound.wav" type="audio/wav">
+        <source src="assets/audio/star-sound.wav" type="audio/wav">
     </audio>
     
     <audio id="winSound" preload="auto" volume="0.9">
-        <source src="/assets/audio/win-sound.wav" type="audio/wav">
-        <source src="assets/audio/sfx/win-sound.mp3" type="audio/mpeg">
-        <source src="assets/audio/sfx/win-sound.ogg" type="audio/ogg">
+        <source src="assets/audio/win-sound.wav" type="audio/wav">
     </audio>
     
     <audio id="loseSound" preload="auto" volume="0.5">
-        <source src="/assets/audio/lose-sound.mp3" type="audio/mpeg">
-        <source src="assets/audio/sfx/lose-sound.wav" type="audio/wav">
+        <source src="assets/audio/lose-sound.mp3" type="audio/mpeg">
     </audio>
 
     <audio id="buttonClick" preload="auto" volume="0.4">
         <source src="/assets/audio/button-click.wav" type="audio/wav">
-    </audio>
-        <source src="audio/sfx/lose-sound.ogg" type="audio/ogg">
-    </audio>
-    
-    <audio id="buttonClick" preload="auto" volume="0.4">
-        <source src="audio/sfx/button-click.wav" type="audio/wav">
-        <source src="audio/sfx/button-click.mp3" type="audio/mpeg">
-        <source src="audio/sfx/button-click.ogg" type="audio/ogg">
+        <source src="assets/audio/sfx/button-click.mp3" type="audio/mpeg">
+        <source src="assets/audio/sfx/button-click.ogg" type="audio/ogg">
     </audio>
     
     <!-- Turn notification removed - file not available -->
@@ -2543,13 +2525,12 @@
                 </div>
                 <div id="gamePinDisplay" style="font-size: 2em; font-weight: bold; color: #4CAF50; margin: 10px 0;"></div>
                 <div id="playerCountDisplay" style="font-size: 1.2em; font-weight: bold; color: #666; margin: 5px 0;"></div>
-                <p>🌍 Share this PIN with friends anywhere in the world!</p>
                 <div id="shareableLink" style="margin: 10px 0; padding: 10px; background: #f0f0f0; border-radius: 5px; font-size: 0.9em;">
                     <strong>🔗 Quick Share Link:</strong><br>
                     <span id="shareUrl" style="color: #2196F3; word-break: break-all;"></span><br>
                     <button onclick="copyShareLink()" style="margin-top: 5px; padding: 5px 10px; background: #2196F3; color: white; border: none; border-radius: 3px; cursor: pointer;">📋 Copy Link</button>
                 </div>
-                <p style="font-size: 0.9em; color: #666;">✅ <strong>Now powered by Firebase</strong> - Friends can join from any device worldwide!</p>
+                <p style="font-size: 0.9em; color: #666;">✅ <strong>Share this pin with a friend</strong></p>
                 <div id="playersList" style="margin: 20px 0; text-align: left;">
                     <h4>Players Joined:</h4>
                     <ul id="playersUL" style="list-style: none; padding: 0;"></ul>
