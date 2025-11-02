@@ -1,4 +1,5 @@
 {
+  "id": "/peakgame",
   "name": "Peak Card Game",
   "short_name": "PEAK",
   "description": "A competitive 4-player card game with special cards and strategic gameplay",
@@ -59,7 +60,7 @@
       "url": "/?action=create",
       "icons": [
         {
-          "src": "pwa-icon-192x192.png",
+          "src": "/pwa-icon-192x192.png",
           "sizes": "192x192"
         }
       ]
@@ -71,7 +72,7 @@
       "url": "/?action=join",
       "icons": [
         {
-          "src": "pwa-icon-192x192.png",
+          "src": "/pwa-icon-192x192.png",
           "sizes": "192x192"
         }
       ]

@@ -100,7 +100,7 @@
     </audio>
 
     <audio id="buttonClick" preload="auto" volume="0.4">
-        <source src="assets/audio/button-click.wav" type="audio/wav">
+        <source src="assets/audio/sfx/button-click.wav" type="audio/wav">
     </audio>
     
     <!-- Turn notification removed - file not available -->
@@ -125,6 +125,7 @@
             min-height: 100vh;
             color: #333;
             font-size: 14px;
+            padding-bottom: 50px;
         }
         
         @media (min-width: 480px) {
@@ -2357,6 +2358,47 @@
         @keyframes spin {
             from { transform: rotate(0deg); }
             to { transform: rotate(360deg); }
+        }
+
+        /* Footer Styles */
+        footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background-color: rgba(0, 0, 0, 0.9);
+            color: #999;
+            font-size: 12px;
+            padding: 8px 12px;
+            text-align: center;
+            border-top: 1px solid #444;
+            z-index: 100;
+            backdrop-filter: blur(5px);
+        }
+
+        footer a {
+            color: #667eea;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        footer a:hover {
+            color: #88a7ff;
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            footer {
+                font-size: 11px;
+                padding: 6px 10px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            footer {
+                font-size: 10px;
+                padding: 5px 8px;
+            }
         }
     </style>
 </head>
@@ -6598,5 +6640,12 @@
             });
         }
     </script>
+
+    <!-- Footer with Privacy Policy -->
+    <footer>
+        Peak Card Game - A multiplayer card game | 
+        <a href="/privacy-policy.html" target="_blank">Privacy Policy</a> | 
+        <a href="https://github.com/enochaseks/peakgame" target="_blank">GitHub</a>
+    </footer>
 </body>
 </html>
