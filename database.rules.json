@@ -1,7 +1,7 @@
 {
   "rules": {
-    ".read": true,
-    ".write": true,
+    ".read": false,
+    ".write": false,
     "games": {
       "$gameId": {
         ".read": true,
@@ -13,6 +13,66 @@
         "gameState": {
           ".read": true,
           ".write": true
+        }
+      }
+    },
+    "matchmaking": {
+      "queues": {
+        "$playerCount": {
+          "$playerId": {
+            ".read": true,
+            ".write": "auth != null || root.child('matchmaking').child('queues').child($playerCount).child($playerId).child('playerId').val() === auth.uid",
+            ".validate": "newData.hasChildren(['playerId', 'playerCount', 'timestamp'])",
+            "playerId": {
+              ".validate": "newData.isString()"
+            },
+            "playerCount": {
+              ".validate": "newData.isNumber() && (newData.val() === 2 || newData.val() === 3 || newData.val() === 4)"
+            },
+            "timestamp": {
+              ".validate": "newData.val() <= now"
+            },
+            "status": {
+              ".validate": "newData.isString()"
+            },
+            "joinedAt": {
+              ".validate": "newData.isNumber()"
+            }
+          }
+        }
+      },
+      "rooms": {
+        "$roomId": {
+          ".read": "root.child('matchmaking').child('rooms').child($roomId).child('players').child(auth.uid).exists() || auth == null",
+          ".write": "root.child('matchmaking').child('rooms').child($roomId).child('players').child(auth.uid).exists() || auth == null || (!data.exists() && newData.hasChildren(['roomId', 'playerCount', 'players']))",
+          ".validate": "newData.hasChildren(['roomId', 'playerCount', 'players', 'createdAt'])",
+          "players": {
+            "$playerId": {
+              ".read": true,
+              ".write": "$playerId === auth.uid || auth == null",
+              "playerId": { ".validate": "newData.isString()" },
+              "status": { ".validate": "newData.isString()" },
+              "ready": { ".validate": "newData.isBoolean()" },
+              "joinedAt": { ".validate": "newData.val() <= now" }
+            }
+          },
+          "playerStats": {
+            "$playerId": {
+              ".read": true,
+              ".write": "$playerId === auth.uid || auth == null",
+              "hand": { ".validate": "newData.isArray()" },
+              "cardsInHand": { ".validate": "newData.isNumber()" },
+              "isActive": { ".validate": "newData.isBoolean()" }
+            }
+          },
+          "gameState": {
+            ".read": true,
+            ".write": "root.child('matchmaking').child('rooms').child($roomId).child('players').child(auth.uid).exists() || auth == null"
+          },
+          "messages": {
+            ".read": true,
+            ".write": "root.child('matchmaking').child('rooms').child($roomId).child('players').child(auth.uid).exists() || auth == null"
+          }
         }
       }
     }

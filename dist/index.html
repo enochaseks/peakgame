@@ -3,6 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <title>Peak Card Game</title>
     
     <!-- Favicon Links -->
@@ -33,25 +36,11 @@
         if (!firebase.apps.length) {
             firebase.initializeApp(firebaseConfig);
             
-            // Test database connection
+            // Test database connection (read-only, don't try to write to .info/)
             const connectedRef = firebase.database().ref('.info/connected');
             connectedRef.on('value', (snap) => {
                 const isConnected = snap.val() === true;
                 console.log(isConnected ? '✅ Connected to Firebase Database' : '❌ Not connected to Firebase Database');
-                
-                if (isConnected) {
-                    // Test write permission
-                    firebase.database().ref('.info/test').set({
-                        timestamp: firebase.database.ServerValue.TIMESTAMP
-                    }).then(() => {
-                        console.log('✅ Database write permission confirmed');
-                    }).catch(error => {
-                        console.error('❌ Database write permission denied:', error);
-                        if (error.code === 'PERMISSION_DENIED') {
-                            console.log('⚠️ Please wait while we update database permissions...');
-                        }
-                    });
-                }
             });
         }
         
@@ -187,6 +176,22 @@
         .direction-change {
             animation: directionChange 1s ease-in-out;
             display: inline-block;
+        }
+
+        /* Loading Spinner for Matchmaking */
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .loading-spinner {
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            animation: spin 1s linear infinite;
+            margin: 30px auto;
         }
 
         .game-container {
@@ -2503,6 +2508,18 @@
                 <p style="margin-top: 5px; margin-bottom: 5px;">Enter your name:</p>
                 <input type="text" class="player-input" id="playerName" placeholder="Your Name" maxlength="20" style="margin-bottom: 10px;">
                 
+                <div id="gameTypeSection" style="margin: 20px 0;">
+                    <p>Choose game mode:</p>
+                    <div style="display: flex; gap: 10px; justify-content: center; margin: 10px 0; flex-wrap: wrap;">
+                        <button class="btn" onclick="startLocalGame()" style="flex: 1; min-width: 120px; background: linear-gradient(145deg, #667eea, #764ba2);">
+                            🏠 Local Game
+                        </button>
+                        <button class="btn" onclick="startOnlineMode()" style="flex: 1; min-width: 120px; background: linear-gradient(145deg, #f093fb, #f5576c);">
+                            🌐 Online Game
+                        </button>
+                    </div>
+                </div>
+
                 <div id="playerCountSection" style="margin: 20px 0; display: none;">
                     <p>Choose number of players:</p>
                     <div class="player-count-options" style="display: flex; gap: 10px; justify-content: center; margin: 10px 0;">
@@ -2520,6 +2537,27 @@
                             <span class="count-emoji">👨‍👩‍👧‍👦</span>
                             <span class="count-text">4 Players</span>
                             <span class="count-desc">(You + 3 friends)</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div id="onlinePlayerCountSection" style="margin: 20px 0; display: none;">
+                    <p>Find opponents:</p>
+                    <div class="player-count-options" style="display: flex; gap: 10px; justify-content: center; margin: 10px 0;">
+                        <button class="player-count-btn online-mode" data-count="2">
+                            <span class="count-emoji">👥</span>
+                            <span class="count-text">1v1</span>
+                            <span class="count-desc">(2 Players)</span>
+                        </button>
+                        <button class="player-count-btn online-mode" data-count="3">
+                            <span class="count-emoji">👨‍👩‍👧</span>
+                            <span class="count-text">1v1v1</span>
+                            <span class="count-desc">(3 Players)</span>
+                        </button>
+                        <button class="player-count-btn online-mode" data-count="4">
+                            <span class="count-emoji">👨‍👩‍👧‍👦</span>
+                            <span class="count-text">Free For All</span>
+                            <span class="count-desc">(4 Players)</span>
                         </button>
                     </div>
                 </div>
@@ -2681,6 +2719,7 @@
         const FIREBASE_URL = 'https://peakgame-19c4e-default-rtdb.europe-west1.firebasedatabase.app';
         
         let isConnectedToFirebase = false;
+        let gameInitializationComplete = false;  // Flag to skip checkGameOver on first display after init
 
         // Monitor Firebase connection state
         function initializeFirebaseConnection() {
@@ -4144,10 +4183,19 @@
         }
 
         async function checkGameOver() {
+            // Don't check if game is already over
+            if (game.gameOver) {
+                console.log('🔍 checkGameOver called but game.gameOver is already true');
+                return;
+            }
+
             const activePlayers = game.players.filter(p => p.isActive());
             const finishedPlayers = game.players.filter(p => p.hasFinished);
 
+            console.log('🔍 checkGameOver - Active:', activePlayers.length, 'Finished:', finishedPlayers.length, 'Total:', game.players.length);
+
             if (finishedPlayers.length > 0) {
+                console.log('🏆 Game Over - Finished players found:', finishedPlayers.map(p => p.name));
                 game.gameOver = true;
                 game.winner = finishedPlayers[0];
                 
@@ -4166,7 +4214,6 @@
                         players: game.players.map(p => ({
                             name: p.name,
                             hand: p.hand,
-                            active: p.active,
                             isDisqualified: p.isDisqualified,
                             hasFinished: p.hasFinished,
                             isPaused: p.isPaused,
@@ -4185,12 +4232,16 @@
                     });
                 }
             } else if (activePlayers.length <= 1) {
+                console.log('⚠️  Game Over - activePlayers.length <= 1:', activePlayers.length);
+                console.log('   Active players:', activePlayers.map(p => p.name));
+                console.log('   All players:', game.players.map(p => `${p.name}(disq=${p.isDisqualified},fin=${p.hasFinished})`));
                 game.gameOver = true;
                 if (activePlayers.length === 1) {
                     game.winner = activePlayers[0];
                     showGameOver(`🎉 ${game.winner.name} wins!`);
                 } else {
                     game.winner = null;
+                    console.log('❌ Showing "no winner" message - this is the bug!');
                     showGameOver("😞 Game ended with no winner.");
                 }
                 
@@ -4200,7 +4251,6 @@
                         players: game.players.map(p => ({
                             name: p.name,
                             hand: p.hand,
-                            active: p.active,
                             isDisqualified: p.isDisqualified,
                             hasFinished: p.hasFinished,
                             isPaused: p.isPaused,
@@ -4346,8 +4396,8 @@
                 gameActionBtn.className = 'btn quit'; // Red button
             }
 
-            // Check for game over
-            if (!game.gameOver) {
+            // Check for game over (but skip on first call during initialization)
+            if (!game.gameOver && gameInitializationComplete) {
                 await checkGameOver();
             }
         }
@@ -4993,6 +5043,96 @@
             };
         }
 
+        // Handle game start for non-host players receiving the gameStarted flag
+        async function handleGameStart() {
+            console.log('🎮 handleGameStart() called for non-host player');
+            console.log('Player name:', gameSession.playerName);
+            console.log('PIN:', gameSession.pin);
+            
+            // CRITICAL: Stop the lobby listener to avoid conflicts
+            stopRealTimeListener();
+            
+            // Hide the lobby screen
+            document.getElementById('lobbyScreen').style.display = 'none';
+            document.getElementById('startScreen').style.display = 'none';
+            
+            // Wait for game state to be available in Firebase
+            let attempts = 0;
+            const maxAttempts = 20; // 20 seconds max wait
+            
+            while (attempts < maxAttempts) {
+                try {
+                    const gameState = await loadGameStateFromCloud(gameSession.pin);
+                    
+                    if (gameState && gameState.players && gameState.players.length > 0) {
+                        console.log('✅ Got game state from Firebase');
+                        console.log('Players in game state:', gameState.players.map(p => p.name));
+                        
+                        // Reconstruct Player objects properly
+                        game.players = gameState.players.map(p => {
+                            const player = new Player(p.name);
+                            // Reconstruct Card objects in player's hand
+                            player.hand = (p.hand || []).map(cardData => new Card(cardData.value, cardData.type));
+                            player.isDisqualified = p.isDisqualified || false;
+                            player.hasFinished = p.hasFinished || false;
+                            player.isPaused = p.isPaused || false;
+                            player.pausedUntil = p.pausedUntil || 0;
+                            return player;
+                        });
+                        
+                        // Reconstruct Card objects in deck and discard pile
+                        game.deck = (gameState.deck || []).map(cardData => new Card(cardData.value, cardData.type));
+                        game.discardPile = (gameState.discardPile || []).map(cardData => new Card(cardData.value, cardData.type));
+                        game.currentPlayerIndex = gameState.currentPlayerIndex || 0;
+                        game.roundNumber = gameState.roundNumber || 1;
+                        game.highCardPlayedThisRound = gameState.highCardPlayedThisRound || false;
+                        game.gameOver = gameState.gameOver || false;
+                        game.winner = gameState.winner || null;
+                        game.direction = gameState.direction || 1;
+                        
+                        // Set current player index for this client
+                        const myPlayerIndex = game.players.findIndex(p => p.name === gameSession.playerName);
+                        if (myPlayerIndex !== -1) {
+                            gameSession.currentPlayerIndex = myPlayerIndex;
+                        }
+                        
+                        console.log(`✅ Game initialized! Your player index: ${myPlayerIndex}`);
+                        console.log('Game players:', game.players.map(p => `${p.name}: ${p.hand.length} cards, active=${p.isActive()}, disq=${p.isDisqualified}, finished=${p.hasFinished}`));
+                        console.log('Game state - gameOver:', game.gameOver, 'winner:', game.winner);
+                        
+                        const activePlayers = game.players.filter(p => p.isActive());
+                        console.log('Active players count:', activePlayers.length, 'Total players:', game.players.length);
+                        
+                        // Hide setup modal and show game
+                        document.getElementById('setupModal').style.display = 'none';
+                        const gameContainer = document.querySelector('.game-container');
+                        if (gameContainer) {
+                            gameContainer.style.display = 'block';
+                        }
+                        showMessage('🎮 Game started! Ready to play!', 'success');
+                        updateDisplay();
+                        // Mark initialization as complete so checkGameOver can run normally now
+                        gameInitializationComplete = true;
+                        
+                        // Start listening for real-time game state updates
+                        startGameStateListener(gameSession.pin);
+                        return true;
+                    }
+                    
+                } catch (error) {
+                    console.error('Error loading game state:', error);
+                }
+                
+                attempts++;
+                console.log(`Waiting for game state... attempt ${attempts}/${maxAttempts}`);
+                await new Promise(resolve => setTimeout(resolve, 1000));
+            }
+            
+            console.error('❌ Failed to load game state after', maxAttempts, 'attempts');
+            showError('Failed to load game. Please try again.');
+            return false;
+        }
+
         async function startGameFromLobby() {
             audioManager?.playSound('buttonClick');
             const requiredPlayers = gameSession.maxPlayers || 4;
@@ -5044,12 +5184,16 @@
 
                 dealCards();
                 
-                // Save initial game state to Firebase
+                // Save initial game state to Firebase - include ALL player properties
                 await saveGameStateToCloud(gameSession.pin, {
                     players: game.players.map(p => ({
                         name: p.name,
                         hand: p.hand,
-                        active: p.active
+                        active: p.active !== undefined ? p.active : true,
+                        isDisqualified: p.isDisqualified || false,
+                        hasFinished: p.hasFinished || false,
+                        isPaused: p.isPaused || false,
+                        pausedUntil: p.pausedUntil || 0
                     })),
                     deck: game.deck,
                     discardPile: game.discardPile,
@@ -5110,8 +5254,14 @@
             console.log('Current player for this client:', gameSession.playerName);
             
             document.getElementById('setupModal').style.display = 'none';
+            const gameContainer = document.querySelector('.game-container');
+            if (gameContainer) {
+                gameContainer.style.display = 'block';
+            }
             showMessage('Game started! Each player has 7 cards.', 'success');
             updateDisplay();
+            // Mark initialization as complete so checkGameOver can run normally now
+            gameInitializationComplete = true;
             
             // Start listening for game state changes
             startGameStateListener(gameSession.pin);
@@ -5124,11 +5274,11 @@
             audioManager?.playSound('buttonClick');
             selectedPlayerCount = count;
             
-            // Update UI to show selected state
-            document.querySelectorAll('.player-count-btn').forEach(btn => {
+            // Update UI to show selected state - only for local game buttons
+            document.querySelectorAll('.player-count-btn:not(.online-mode)').forEach(btn => {
                 btn.classList.remove('selected');
             });
-            const targetBtn = document.querySelector(`[data-count="${count}"]`);
+            const targetBtn = document.querySelector(`.player-count-btn:not(.online-mode)[data-count="${count}"]`);
             if (targetBtn) {
                 targetBtn.classList.add('selected');
             }
@@ -5136,9 +5286,25 @@
             console.log(`Selected player count: ${count}`);
         }
 
+        function selectOnlinePlayerCount(count) {
+            audioManager?.playSound('buttonClick');
+            
+            // Update UI to show selected state - only for online game buttons
+            document.querySelectorAll('.player-count-btn.online-mode').forEach(btn => {
+                btn.classList.remove('selected');
+            });
+            const targetBtn = document.querySelector(`.player-count-btn.online-mode[data-count="${count}"]`);
+            if (targetBtn) {
+                targetBtn.classList.add('selected');
+            }
+            
+            console.log(`Selected online player count: ${count}`);
+            joinOnlineQueue(count);
+        }
+
         // Enhanced click event handling for player count buttons
         function initPlayerCountButtons() {
-            // Use event delegation instead of direct listeners
+            // Handle local game player count section
             const playerCountSection = document.getElementById('playerCountSection');
             
             // Remove existing delegated listeners
@@ -5149,6 +5315,7 @@
             }
             
             // Create new handler
+
             const handlePlayerCountClick = (e) => {
                 const btn = e.target.closest('.player-count-btn');
                 if (btn) {
@@ -5199,6 +5366,68 @@
             });
             
             console.log('🎮 Player count buttons initialized with enhanced event handling');
+
+            // Initialize online game player count buttons
+            const onlinePlayerCountSection = document.getElementById('onlinePlayerCountSection');
+            if (onlinePlayerCountSection) {
+                // Remove existing delegated listeners
+                const existingOnlineHandler = onlinePlayerCountSection._clickHandler;
+                if (existingOnlineHandler) {
+                    onlinePlayerCountSection.removeEventListener('click', existingOnlineHandler);
+                    onlinePlayerCountSection.removeEventListener('touchend', existingOnlineHandler);
+                }
+                
+                // Create handler for online buttons
+                const handleOnlinePlayerCountClick = (e) => {
+                    const btn = e.target.closest('.player-count-btn.online-mode');
+                    if (btn) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        
+                        const count = parseInt(btn.getAttribute('data-count'));
+                        console.log('🎯 Online player count button clicked:', count);
+                        audioManager?.playSound('buttonClick');
+                        selectOnlinePlayerCount(count);
+                    }
+                };
+                
+                // Store handler reference and add listeners
+                onlinePlayerCountSection._clickHandler = handleOnlinePlayerCountClick;
+                onlinePlayerCountSection.addEventListener('click', handleOnlinePlayerCountClick);
+                onlinePlayerCountSection.addEventListener('touchend', handleOnlinePlayerCountClick);
+                
+                // Direct listeners on each button for backup
+                document.querySelectorAll('.player-count-btn.online-mode').forEach(btn => {
+                    const count = parseInt(btn.getAttribute('data-count'));
+                    
+                    btn.onclick = (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        console.log('🎯 Direct click on online player count:', count);
+                        audioManager?.playSound('buttonClick');
+                        selectOnlinePlayerCount(count);
+                    };
+                    
+                    // Ensure proper attributes
+                    btn.style.pointerEvents = 'auto';
+                    btn.style.cursor = 'pointer';
+                    
+                    // Add visual feedback
+                    btn.addEventListener('mousedown', (e) => {
+                        btn.style.transform = 'scale(0.95)';
+                    });
+                    
+                    btn.addEventListener('mouseup', (e) => {
+                        btn.style.transform = '';
+                    });
+                    
+                    btn.addEventListener('mouseleave', (e) => {
+                        btn.style.transform = '';
+                    });
+                });
+                
+                console.log('🎮 Online player count buttons initialized');
+            }
         }
 
         // Debug function to test button interactions
@@ -6638,6 +6867,129 @@
                     console.log('⚠️ Service Worker registration failed:', error);
                 });
             });
+        }
+
+        // Export game functions and classes to window for external scripts
+        console.log('[Game Engine] Exporting game functions to window object...');
+        window.Player = Player;
+        window.Card = Card;
+        window.CardType = CardType;
+        console.log('[Game Engine] Game functions exported. Available on window:');
+        console.log('  - Player:', typeof window.Player);
+        console.log('  - Card:', typeof window.Card);
+        console.log('  - CardType:', typeof window.CardType);
+        console.log('  - createDeck:', typeof window.createDeck);
+        console.log('  - dealCards:', typeof window.dealCards);
+    </script>
+
+    <!-- Online Multiplayer Scripts -->
+    <script src="js/matchmaking.js"></script>
+    <script src="js/multiplayerGame.js"></script>
+    <script src="js/onlineController.js"></script>
+
+    <!-- Online Game Functions -->
+    <script>
+        /**
+         * Start local game mode
+         */
+        function startLocalGame() {
+            document.getElementById('playerCountSection').style.display = 'block';
+            document.getElementById('onlinePlayerCountSection').style.display = 'none';
+            document.getElementById('gameTypeSection').style.display = 'none';
+        }
+
+        /**
+         * Start online game mode
+         */
+        async function startOnlineMode() {
+            // Check if player has entered a name
+            const playerNameInput = document.getElementById('playerName');
+            const playerName = playerNameInput.value.trim();
+            
+            if (!playerName) {
+                alert('Please enter your name before playing online!');
+                playerNameInput.focus();
+                return;
+            }
+
+            if (!onlineController) {
+                alert('Online mode is loading. Please wait and try again.');
+                return;
+            }
+
+            try {
+                // Store the player name in game session
+                gameSession.playerName = playerName;
+                
+                const result = await onlineController.initializeOnlineMode();
+                if (result.success) {
+                    console.log('Online mode initialized with player ID:', result.playerId);
+                    console.log('Player name:', playerName);
+                    document.getElementById('gameTypeSection').style.display = 'none';
+                    document.getElementById('playerCountSection').style.display = 'none';
+                    document.getElementById('onlinePlayerCountSection').style.display = 'block';
+                    
+                    // Re-initialize button handlers for online buttons
+                    initPlayerCountButtons();
+                } else {
+                    alert('Failed to initialize online mode: ' + result.error);
+                }
+            } catch (error) {
+                console.error('Error starting online mode:', error);
+                alert('Error starting online mode: ' + error.message);
+            }
+        }
+
+        /**
+         * Join online queue for specified player count
+         */
+        async function joinOnlineQueue(playerCount) {
+            try {
+                if (!onlineController) {
+                    alert('Online mode is not available');
+                    return;
+                }
+
+                // Hide all selection sections
+                document.getElementById('gameTypeSection').style.display = 'none';
+                document.getElementById('playerCountSection').style.display = 'none';
+                document.getElementById('onlinePlayerCountSection').style.display = 'none';
+                document.getElementById('startScreen').style.display = 'none';
+
+                console.log('Joining queue for', playerCount, 'players');
+                await onlineController.findMatch(playerCount);
+            } catch (error) {
+                console.error('Error joining queue:', error);
+                alert('Error joining queue: ' + error.message);
+                // Show sections again on error
+                document.getElementById('startScreen').style.display = 'block';
+                document.getElementById('gameTypeSection').style.display = 'block';
+                document.getElementById('onlinePlayerCountSection').style.display = 'block';
+            }
+        }
+
+        /**
+         * Update online game UI when game state changes
+         */
+        function updateOnlineGameUI(gameState) {
+            console.log('Updating online game UI:', gameState);
+            // This function will be called by the online controller when game state updates
+            // You can update player positions, cards, turn indicator, etc.
+        }
+
+        /**
+         * Handle remote card plays
+         */
+        function onRemoteCardPlayed(playData) {
+            console.log('Remote card played:', playData);
+            // Handle displaying cards played by other players
+        }
+
+        // Back button handler
+        function backToGameMode() {
+            document.getElementById('gameTypeSection').style.display = 'block';
+            document.getElementById('playerCountSection').style.display = 'none';
+            document.getElementById('onlinePlayerCountSection').style.display = 'none';
         }
     </script>
 
