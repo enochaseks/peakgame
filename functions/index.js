@@ -8,9 +8,8 @@
  */
 
 const {setGlobalOptions} = require("firebase-functions");
-
-// Import matchmaking functions
-const matchmakingFunctions = require("./matchmaking");
+const {onRequest} = require("firebase-functions/https");
+const logger = require("firebase-functions/logger");
 
 // For cost control, you can set the maximum number of containers that can be
 // running at the same time. This helps mitigate the impact of unexpected
@@ -22,7 +21,7 @@ const matchmakingFunctions = require("./matchmaking");
 // functions should each use functions.runWith({ maxInstances: 10 }) instead.
 // In the v1 API, each function can only serve one request per container, so
 // this will be the maximum concurrent request count.
-setGlobalOptions({maxInstances: 10});
+setGlobalOptions({ maxInstances: 10 });
 
 // Create and deploy your first functions
 // https://firebase.google.com/docs/functions/get-started
@@ -31,8 +30,3 @@ setGlobalOptions({maxInstances: 10});
 //   logger.info("Hello logs!", {structuredData: true});
 //   response.send("Hello from Firebase!");
 // });
-
-// Export matchmaking functions
-module.exports = {
-  ...matchmakingFunctions,
-};
