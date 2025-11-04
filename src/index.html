@@ -16,6 +16,8 @@
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-database.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-firestore.js"></script>
     <script>
         // Initialize Firebase
         const firebaseConfig = {
@@ -32,42 +34,21 @@
         // Initialize Firebase
         if (!firebase.apps.length) {
             firebase.initializeApp(firebaseConfig);
-            
-            // Test database connection
-            const connectedRef = firebase.database().ref('.info/connected');
-            connectedRef.on('value', (snap) => {
-                const isConnected = snap.val() === true;
-                console.log(isConnected ? '✅ Connected to Firebase Database' : '❌ Not connected to Firebase Database');
-                
-                if (isConnected) {
-                    // Test write permission
-                    firebase.database().ref('.info/test').set({
-                        timestamp: firebase.database.ServerValue.TIMESTAMP
-                    }).then(() => {
-                        console.log('✅ Database write permission confirmed');
-                    }).catch(error => {
-                        console.error('❌ Database write permission denied:', error);
-                        if (error.code === 'PERMISSION_DENIED') {
-                            console.log('⚠️ Please wait while we update database permissions...');
-                        }
-                    });
-                }
-            });
+            console.log('✅ Firebase initialized');
         }
         
-        // Test Firebase connection
-        const database = firebase.database();
-        database.ref('.info/connected').on('value', (snap) => {
+        // Simple connection check - don't try to write to protected paths
+        firebase.database().ref('.info/connected').on('value', (snap) => {
             if (snap.val() === true) {
-                console.log('✅ Connected to Firebase successfully');
+                console.log('✅ Connected to Firebase Database');
             } else {
-                console.log('⚠️ Not connected to Firebase');
+                console.log('⚠️ Not connected to Firebase Database');
             }
         });
     </script>
     
     <!-- Audio Elements with Multi-Format Support -->
-    <audio id="bgMusic" loop preload="auto" volume="0.3">
+    <audio id="bgMusic" loop preload="auto" volume="0.3" muted>
         <source src="assets/audio/music/background-music.mp3" type="audio/mpeg">
     </audio>
 
@@ -109,6 +90,9 @@
         <source src="audio/sfx/turn-notification.wav" type="audio/wav">
         <source src="audio/sfx/turn-notification.ogg" type="audio/ogg">
     </audio>-->
+    
+    <!-- Auth & Online Styles -->
+    <link rel="stylesheet" href="css/auth-online-styles.css">
     
     <style>
         * {
@@ -1748,6 +1732,43 @@
             border-top: 2px solid #f0f0f0;
         }
 
+        /* Game Format Selection Buttons */
+        .game-format-btn {
+            background: linear-gradient(145deg, rgba(255, 255, 255, 0.95), rgba(220, 237, 200, 0.9));
+            border: 3px solid #ddd;
+            border-radius: 15px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1em;
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .game-format-btn:hover {
+            transform: translateY(-5px);
+            border-color: #55efc4;
+            box-shadow: 0 8px 20px rgba(85, 239, 196, 0.3);
+            background: linear-gradient(145deg, #55efc4, #00b894);
+            color: white;
+        }
+
+        .game-format-btn:active {
+            transform: translateY(-2px);
+        }
+
+        /* Matchmaking Animation */
+        @keyframes matchmakingPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        #matchmakingAnimation {
+            animation: matchmakingPulse 1.5s ease-in-out infinite;
+        }
+
         /* Desktop Settings Enhancement */
         @media (min-width: 768px) {
             .settings-section {
@@ -2400,6 +2421,389 @@
                 padding: 5px 8px;
             }
         }
+
+        /* Email Verification Modal */
+        #emailVerificationContainer {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            z-index: 999;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .verification-modal {
+            background: white;
+            border-radius: 20px;
+            padding: 50px 40px;
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.3);
+            animation: slideUp 0.5s ease-out;
+        }
+
+        .verification-content h2 {
+            color: #333;
+            margin: 20px 0;
+            font-size: 1.8em;
+        }
+
+        .verification-icon {
+            font-size: 3em;
+            margin-bottom: 10px;
+        }
+
+        .verification-email {
+            background: #f0f0f0;
+            padding: 12px;
+            border-radius: 8px;
+            font-weight: bold;
+            color: #667eea;
+            margin: 15px 0;
+        }
+
+        .verification-instructions {
+            color: #666;
+            line-height: 1.6;
+            margin: 20px 0;
+        }
+
+        .verification-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin: 30px 0;
+        }
+
+        .verification-buttons .auth-btn {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .verification-note {
+            color: #999;
+            font-size: 0.9em;
+            margin-top: 20px;
+            line-height: 1.5;
+        }
+
+        @media (max-width: 768px) {
+            .verification-modal {
+                padding: 30px 20px;
+            }
+
+            .verification-modal h2 {
+                font-size: 1.4em;
+            }
+
+            .verification-icon {
+                font-size: 2em;
+            }
+        }
+
+        /* Mode Selector Buttons */
+        .mode-selector-btn {
+            padding: 15px 20px;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 0.95em;
+            transition: all 0.3s ease;
+            min-width: 140px;
+            text-align: center;
+            color: white;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .mode-local-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .mode-local-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .mode-local-btn:active {
+            transform: translateY(-1px);
+        }
+
+        .mode-online-btn {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+
+        .mode-online-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(245, 87, 108, 0.4);
+        }
+
+        .mode-online-btn:active {
+            transform: translateY(-1px);
+        }
+
+        @media (max-width: 600px) {
+            .mode-selector-btn {
+                min-width: 120px;
+                padding: 12px 15px;
+                font-size: 0.85em;
+            }
+
+            .mode-selector-btn small {
+                display: none !important;
+            }
+        }
+
+        /* Game Lobby Styles */
+        #onlineContainer {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .online-header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        .lobby-title-section {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .lobby-title {
+            font-size: 2.5em;
+            font-weight: bold;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .lobby-subtitle {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .lobby-main-content {
+            display: grid;
+            grid-template-columns: 1fr 1.5fr 1fr;
+            gap: 20px;
+            flex: 1;
+            margin-bottom: 20px;
+        }
+
+        .lobby-actions-panel,
+        .lobby-online-players-panel,
+        .lobby-activity-panel {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .actions-header,
+        .players-header,
+        .activity-header {
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #667eea;
+        }
+
+        .actions-header h3,
+        .players-header h3,
+        .activity-header h3 {
+            margin: 0;
+            color: #333;
+            font-size: 1.2em;
+        }
+
+        .online-count {
+            background: #667eea;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            float: right;
+        }
+
+        .lobby-action-btn {
+            width: 100%;
+            padding: 15px;
+            margin-bottom: 10px;
+            border: none;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            font-size: 1em;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .lobby-action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .lobby-action-btn:active {
+            transform: translateY(0);
+        }
+
+        .btn-icon {
+            font-size: 1.8em;
+            min-width: 50px;
+            text-align: center;
+        }
+
+        .btn-text {
+            text-align: left;
+        }
+
+        .btn-title {
+            font-weight: bold;
+            font-size: 1em;
+        }
+
+        .btn-desc {
+            font-size: 0.85em;
+            opacity: 0.9;
+        }
+
+        .players-list,
+        .activity-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .player-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px;
+            margin-bottom: 8px;
+            background: #f5f5f5;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+
+        .player-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex: 1;
+        }
+
+        .player-name {
+            font-weight: bold;
+            color: #333;
+        }
+
+        .player-status {
+            font-size: 0.85em;
+            color: #666;
+        }
+
+        .player-action-btn {
+            padding: 6px 12px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.85em;
+        }
+
+        .player-action-btn:hover {
+            background: #764ba2;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #999;
+        }
+
+        .lobby-footer {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .btn-logout {
+            padding: 12px 24px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 2px solid white;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .btn-logout:hover {
+            background: white;
+            color: #667eea;
+        }
+
+        /* Format Selection Modal */
+        .format-options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .format-btn {
+            padding: 15px;
+            border: 2px solid #667eea;
+            border-radius: 10px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .format-btn:hover {
+            background: #f0f0f0;
+            border-color: #764ba2;
+        }
+
+        .format-title {
+            font-weight: bold;
+            font-size: 1.1em;
+            color: #333;
+        }
+
+        .format-desc {
+            font-size: 0.9em;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        @media (max-width: 1200px) {
+            .lobby-main-content {
+                grid-template-columns: 1fr;
+            }
+        }
     </style>
 </head>
 <body>
@@ -2423,14 +2827,332 @@
         </ul>
     </div>
 
-    <div class="game-container">
-        <div class="game-header">
-            <div class="title-container">
-                <div class="peak-cards">
-                    <div class="peak-card">P</div>
-                    <div class="peak-card">E</div>
-                    <div class="peak-card">A</div>
-                    <div class="peak-card">K</div>
+    <!-- Authentication Container -->
+    <div id="authContainer">
+        <div class="auth-container">
+            <!-- Login Form -->
+            <div id="loginForm" class="auth-form">
+                <h2>Welcome Back! 👋</h2>
+                <p>Sign in to your Peak Card Game account</p>
+                <form onsubmit="handleLogin(event)">
+                    <div class="form-group">
+                        <label for="loginEmail">Email Address</label>
+                        <input type="email" id="loginEmail" placeholder="your@email.com" required>
+                        <div class="form-error" id="loginEmailError"></div>
+                    </div>
+                    <div class="form-group">
+                        <label for="loginPassword">Password</label>
+                        <input type="password" id="loginPassword" placeholder="••••••••" required>
+                        <div class="form-error" id="loginPasswordError"></div>
+                    </div>
+                    <button type="submit" class="auth-btn auth-btn-primary">Sign In</button>
+                </form>
+                <div class="auth-links">
+                    <span class="auth-link" onclick="uiManager?.showRegisterForm()">Create new account</span>
+                    <span class="auth-link" onclick="uiManager?.showPasswordResetForm()">Forgot password?</span>
+                    <span class="auth-link" onclick="switchBackToLocal()">⬅️ Back to local play</span>
+                </div>
+            </div>
+
+            <!-- Register Form -->
+            <div id="registerForm" class="auth-form" style="display: none;">
+                <h2>Join Peak! 🎮</h2>
+                <p>Create your account to play online</p>
+                <form onsubmit="handleRegister(event)">
+                    <div class="form-group">
+                        <label for="registerUsername">Username</label>
+                        <input type="text" id="registerUsername" placeholder="Choose your username" minlength="3" maxlength="20" required>
+                        <div class="form-error" id="registerUsernameError"></div>
+                    </div>
+                    <div class="form-group">
+                        <label for="registerEmail">Email Address</label>
+                        <input type="email" id="registerEmail" placeholder="your@email.com" required>
+                        <div class="form-error" id="registerEmailError"></div>
+                    </div>
+                    <div class="form-group">
+                        <label for="registerPassword">Password</label>
+                        <input type="password" id="registerPassword" placeholder="••••••••" minlength="6" required>
+                        <div class="form-error" id="registerPasswordError"></div>
+                    </div>
+                    <div class="form-group">
+                        <label for="registerConfirmPassword">Confirm Password</label>
+                        <input type="password" id="registerConfirmPassword" placeholder="••••••••" required>
+                        <div class="form-error" id="registerConfirmError"></div>
+                    </div>
+                    <button type="submit" class="auth-btn auth-btn-primary">Create Account</button>
+                </form>
+                <div class="auth-links">
+                    <span class="auth-link" onclick="uiManager?.showLoginForm()">Already have an account?</span>
+                    <span class="auth-link" onclick="switchBackToLocal()">⬅️ Back to local play</span>
+                </div>
+            </div>
+
+            <!-- Password Reset Form -->
+            <div id="passwordResetForm" class="auth-form" style="display: none;">
+                <h2>Reset Password 🔑</h2>
+                <p>We'll send you instructions to reset your password</p>
+                <form onsubmit="handlePasswordReset(event)">
+                    <div class="form-group">
+                        <label for="resetEmail">Email Address</label>
+                        <input type="email" id="resetEmail" placeholder="your@email.com" required>
+                        <div class="form-error" id="resetEmailError"></div>
+                    </div>
+                    <button type="submit" class="auth-btn auth-btn-primary">Send Reset Link</button>
+                </form>
+                <div class="auth-links">
+                    <span class="auth-link" onclick="uiManager?.showLoginForm()">Back to login</span>
+                    <span class="auth-link" onclick="uiManager?.showRegisterForm()">Create new account</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Email Verification Container -->
+    <div id="emailVerificationContainer" style="display: none;">
+        <div class="verification-modal">
+            <div class="verification-content">
+                <div class="verification-icon">✉️</div>
+                <h2>Verify Your Email</h2>
+                <p>We've sent a verification link to:</p>
+                <p class="verification-email" id="verificationEmail">your@email.com</p>
+                <p class="verification-instructions">
+                    Please click the link in your email to verify your account and access all online features.
+                </p>
+                <div class="verification-buttons">
+                    <button class="auth-btn auth-btn-primary" onclick="checkEmailVerificationStatus()">
+                        ✓ I've Verified My Email
+                    </button>
+                    <button class="auth-btn auth-btn-secondary" onclick="resendVerificationEmail()">
+                        📧 Resend Verification Email
+                    </button>
+                    <button class="auth-btn auth-btn-secondary" onclick="handleLogout()">
+                        ← Back to Login
+                    </button>
+                </div>
+                <p class="verification-note">Haven't received the email? Check your spam folder or request a new verification email.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Online Container -->
+    <div id="onlineContainer">
+        <!-- Online Header/Lobby -->
+        <div class="online-header">
+            <div class="lobby-title-section">
+                <div class="lobby-title">
+                    🌐 <span>Game Lobby</span>
+                </div>
+                <div class="lobby-subtitle">Welcome, <strong id="lobbyUsername">Player</strong></div>
+            </div>
+        </div>
+
+        <!-- Main Lobby Content -->
+        <div class="lobby-main-content">
+            <!-- Left Section: Actions -->
+            <div class="lobby-actions-panel">
+                <div class="actions-header">
+                    <h3>🎮 Game Actions</h3>
+                </div>
+                
+                <!-- Find Match Button -->
+                <button class="lobby-action-btn find-match-btn" onclick="showGameFormatModal()">
+                    <div class="btn-icon">🎯</div>
+                    <div class="btn-text">
+                        <div class="btn-title">Find Match</div>
+                        <div class="btn-desc">Play with online players</div>
+                    </div>
+                </button>
+
+                <!-- Create Private Game Button -->
+                <button class="lobby-action-btn create-game-btn" onclick="showCreateGameModal()">
+                    <div class="btn-icon">➕</div>
+                    <div class="btn-text">
+                        <div class="btn-title">Create Game</div>
+                        <div class="btn-desc">Invite friends</div>
+                    </div>
+                </button>
+
+                <!-- Statistics Button -->
+                <button class="lobby-action-btn stats-btn" onclick="showPlayerStats()">
+                    <div class="btn-icon">📊</div>
+                    <div class="btn-text">
+                        <div class="btn-title">My Stats</div>
+                        <div class="btn-desc">View your profile</div>
+                    </div>
+                </button>
+
+                <!-- Leaderboard Button -->
+                <button class="lobby-action-btn leaderboard-btn" onclick="showLeaderboard()">
+                    <div class="btn-icon">🏆</div>
+                    <div class="btn-text">
+                        <div class="btn-title">Leaderboard</div>
+                        <div class="btn-desc">Global rankings</div>
+                    </div>
+                </button>
+            </div>
+
+            <!-- Middle Section: Online Players -->
+            <div class="lobby-online-players-panel">
+                <div class="players-header">
+                    <h3>👥 Online Players</h3>
+                    <span class="online-count" id="onlinePlayerCount">0</span>
+                </div>
+                <div class="players-list" id="onlinePlayersList">
+                    <div class="empty-state">
+                        <p>🔄 Loading online players...</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Section: Recent Activity -->
+            <div class="lobby-activity-panel">
+                <div class="activity-header">
+                    <h3>⚡ Recent Matches</h3>
+                </div>
+                <div class="activity-list" id="recentActivityList">
+                    <div class="empty-state">
+                        <p>No recent matches</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Exit Button -->
+        <div class="lobby-footer">
+            <button class="btn-logout" onclick="switchBackToLocal()">⬅️ Back to Local Play</button>
+            <button class="btn-logout" onclick="handleLogout()">🚪 Logout</button>
+        </div>
+
+        <!-- Game Format Modal (Existing) -->
+        <div id="gameFormatModal" class="modal" style="display: none;">
+            <div class="modal-content" style="max-width: 500px;">
+                <div class="modal-header">
+                    <h2>🎯 Select Game Format</h2>
+                    <button class="close-btn" onclick="closeGameFormatModal()">✕</button>
+                </div>
+                <div class="modal-body">
+                    <div class="format-options">
+                        <button class="format-btn" onclick="selectGameFormat('1v1')">
+                            <div class="format-title">⚔️ 1v1</div>
+                            <div class="format-desc">1 vs 1 - Head to Head</div>
+                        </button>
+                        <button class="format-btn" onclick="selectGameFormat('1v2')">
+                            <div class="format-title">👥 1v2</div>
+                            <div class="format-desc">1 vs 2 - Two Opponents</div>
+                        </button>
+                        <button class="format-btn" onclick="selectGameFormat('1v3')">
+                            <div class="format-title">🎯 1v3</div>
+                            <div class="format-desc">1 vs 3 - Three Opponents</div>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Matchmaking Modal (Existing) -->
+        <div id="matchmakingModal" class="modal" style="display: none;">
+            <div class="modal-content" style="max-width: 400px;">
+                <div class="modal-header">
+                    <h2 id="matchmakingTitle">🔍 Searching for Match...</h2>
+                    <button class="close-btn" onclick="cancelMatchmaking()">✕</button>
+                </div>
+                <div class="modal-body">
+                    <div id="matchmakingPlayerList">
+                        <div style="text-align: center; padding: 20px;">
+                            <p>⏳ Waiting for players...</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-cancel" onclick="cancelMatchmaking()">Cancel Search</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Online Game Room Container -->
+    <div id="onlineGameContainer" style="display: none;">
+        <div class="game-container">
+            <div class="game-header">
+                <div class="title-container">
+                    <div class="peak-cards">
+                        <div class="peak-card">P</div>
+                        <div class="peak-card">E</div>
+                        <div class="peak-card">A</div>
+                        <div class="peak-card">K</div>
+                    </div>
+                    <div class="subtitle">Online Game</div>
+                </div>
+            </div>
+
+            <div class="game-info">
+                <button class="settings-gear" onclick="handleOnlineGameAction()" title="Back to Lobbies">
+                    ⬅️
+                </button>
+                <div class="info-item">
+                    <div class="info-label">Round</div>
+                    <div class="info-value" id="onlineRoundNumber">1</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Cards in Deck</div>
+                    <div class="info-value" id="onlineDeckCount">58</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">High Card Played</div>
+                    <div class="info-value" id="onlineHighCardPlayed">❌</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Current Player</div>
+                    <div class="info-value" id="onlineCurrentPlayer">-</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Direction</div>
+                    <div class="info-value" id="onlineGameDirection">🔄</div>
+                </div>
+            </div>
+
+            <div id="onlineGameMessages"></div>
+
+            <div class="game-table">
+                <div class="players-container" id="onlinePlayersContainer">
+                    <!-- Online players will be generated here -->
+                </div>
+                <div class="table-center">
+                    <div class="discard-pile-center">
+                        <div class="discard-label">Last Played</div>
+                        <div id="onlineLastPlayedCard">
+                            <div class="card regular" style="margin: 0 auto; background: #ddd; color: #666;">No Card Yet</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Player's Hand Section -->
+            <div style="margin-top: 20px; padding: 15px; background: rgba(255,255,255,0.1); border-radius: 8px;">
+                <div style="font-size: 1.1em; font-weight: bold; margin-bottom: 10px; color: #fff;">Your Hand:</div>
+                <div id="onlinePlayerHand" style="display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; min-height: 80px;">
+                    <!-- Player cards will be generated here -->
+                </div>
+            </div>
+
+            <div class="controls">
+                <button class="btn draw" id="onlineDrawBtn" onclick="drawOnlineCard().catch(console.error)" disabled>🃏 DRAW CARD</button>
+                <button class="btn quit" id="onlineGameActionBtn" onclick="handleOnlineGameAction()">🚪 LEAVE GAME</button>
+                <button class="btn" onclick="showOnlineGameState()">📊 GAME STATE</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Game Container (keep existing game) -->
+    <div id="gameContainer">
+        <div class="game-container">
+            <div class="game-header">
+                <div class="title-container">
+                    <div class="peak-cards">
+                        <div class="peak-card">P</div>
+                        <div class="peak-card">E</div>
+                        <div class="peak-card">A</div>
+                        <div class="peak-card">K</div>
                 </div>
                 <div class="subtitle">Card Game</div>
             </div>
@@ -2500,6 +3222,27 @@
                 <div class="subtitle">Card Game</div>
             </div>
             <div id="startScreen" class="setup-form" style="margin-top: -10px;">
+                <!-- Login Button at Top -->
+                <div style="display: flex; justify-content: flex-end; margin-bottom: 15px;">
+                    <button class="btn" id="startLoginBtn" onclick="goToLoginScreen()" style="font-size: 0.9em; padding: 8px 16px;" disabled title="Coming soon">
+                        🔐 Login (Coming Soon)
+                    </button>
+                </div>
+
+                <!-- Mode Selector Buttons -->
+                <div style="display: flex; gap: 15px; margin-bottom: 25px; justify-content: center;">
+                    <button class="mode-selector-btn mode-local-btn" id="localModeBtn" onclick="startLocalMode()" title="Play with friends on this device">
+                        <span style="font-size: 1.8em; display: block; margin-bottom: 5px;">🏠</span>
+                        <span style="font-weight: bold;">Local Play</span>
+                        <small style="display: block; font-size: 0.8em; margin-top: 3px;">This Device</small>
+                    </button>
+                    <button class="mode-selector-btn mode-online-btn" id="onlineModeBtn" onclick="startOnlineMode()" title="Coming soon" disabled style="opacity: 0.5; cursor: not-allowed;">
+                        <span style="font-size: 1.8em; display: block; margin-bottom: 5px;">🌍</span>
+                        <span style="font-weight: bold;">Online Play</span>
+                        <small style="display: block; font-size: 0.8em; margin-top: 3px;">Coming Soon</small>
+                    </button>
+                </div>
+
                 <p style="margin-top: 5px; margin-bottom: 5px;">Enter your name:</p>
                 <input type="text" class="player-input" id="playerName" placeholder="Your Name" maxlength="20" style="margin-bottom: 10px;">
                 
@@ -2537,7 +3280,7 @@
                         🎵 START MUSIC
                     </button>
                     <button class="audio-btn" id="musicToggle" onclick="toggleMusic()" title="Toggle Background Music">
-                        🎵 <span id="musicStatus">ON</span>
+                        🎵 <span id="musicStatus">OFF</span>
                     </button>
                     <button class="audio-btn" id="sfxToggle" onclick="toggleSFX()" title="Toggle Sound Effects">
                         🔊 <span id="sfxStatus">ON</span>
@@ -2581,6 +3324,8 @@
             </div>
         </div>
     </div>
+    </div>
+    </div>
 
     <!-- Game Over Modal -->
     <div class="modal" id="gameOverModal">
@@ -2591,6 +3336,64 @@
                 <button class="btn" id="playAgainBtn" onclick="handlePlayAgain()" style="flex: 1;">🔄 Play Again</button>
                 <button class="btn" id="leaveGameBtn" onclick="handleLeaveGame()" style="flex: 1; background-color: #ff6b6b;">❌ Leave Game</button>
                 <button class="btn" id="endGameBtn" onclick="handleEndGame()" style="flex: 1; background-color: #ff6b6b; display: none;">⏹️ End Game</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Game Format Selection Modal (for online matchmaking) -->
+    <div class="modal" id="gameFormatModal">
+        <div class="modal-content" style="max-width: 500px;">
+            <h2 style="text-align: center; margin-bottom: 30px;">🎮 Choose Game Format</h2>
+            <p style="text-align: center; color: #666; margin-bottom: 20px;">Select how many opponents you want to play against</p>
+            
+            <div style="display: flex; flex-direction: column; gap: 15px;">
+                <!-- 1v1 Option -->
+                <button class="game-format-btn" onclick="selectGameFormat('1v1')">
+                    <div style="font-size: 2.5em; margin-bottom: 10px;">⚔️</div>
+                    <div style="font-size: 1.3em; font-weight: bold;">1 vs 1</div>
+                    <div style="font-size: 0.9em; color: #666; margin-top: 5px;">Head-to-head duel</div>
+                    <div style="font-size: 0.8em; color: #999; margin-top: 8px;">🕐 Faster matches</div>
+                </button>
+                
+                <!-- 1v2 Option -->
+                <button class="game-format-btn" onclick="selectGameFormat('1v2')">
+                    <div style="font-size: 2.5em; margin-bottom: 10px;">👥</div>
+                    <div style="font-size: 1.3em; font-weight: bold;">1 vs 2</div>
+                    <div style="font-size: 0.9em; color: #666; margin-top: 5px;">You vs two opponents</div>
+                    <div style="font-size: 0.8em; color: #999; margin-top: 8px;">⚖️ Balanced gameplay</div>
+                </button>
+                
+                <!-- 1v3 Option -->
+                <button class="game-format-btn" onclick="selectGameFormat('1v3')">
+                    <div style="font-size: 2.5em; margin-bottom: 10px;">🎯</div>
+                    <div style="font-size: 1.3em; font-weight: bold;">1 vs 3</div>
+                    <div style="font-size: 0.9em; color: #666; margin-top: 5px;">You vs three opponents</div>
+                    <div style="font-size: 0.8em; color: #999; margin-top: 8px;">🔥 Ultimate challenge</div>
+                </button>
+            </div>
+            
+            <button class="btn quit" onclick="closeGameFormatModal()" style="margin-top: 20px; width: 100%;">❌ Cancel</button>
+        </div>
+    </div>
+
+    <!-- Matchmaking Waiting Room Modal -->
+    <div class="modal" id="matchmakingModal">
+        <div class="modal-content" style="max-width: 600px;">
+            <h2 style="text-align: center; margin-bottom: 20px;">🔍 Finding Opponents...</h2>
+            
+            <div style="text-align: center; margin: 30px 0;">
+                <div style="font-size: 3em; margin-bottom: 15px; animation: matchmakingPulse 1.5s infinite;" id="matchmakingAnimation">🎮</div>
+                <p id="matchmakingStatus" style="font-size: 1.1em; color: #666;">Searching for 1v1 players...</p>
+                <p class="matchmaking-players" style="font-size: 0.9em; color: #999; margin-top: 10px;">Players found: 0/2</p>
+            </div>
+            
+            <div class="player-list" style="background: #f5f5f5; border-radius: 10px; padding: 15px; margin-bottom: 20px; min-height: 100px;">
+                <p style="text-align: center; color: #999;">Waiting for players to join...</p>
+            </div>
+            
+            <div style="display: flex; gap: 10px;">
+                <button class="btn" onclick="cancelMatchmaking()" style="flex: 1;">❌ Cancel Search</button>
+                <button class="btn draw start-game-btn" onclick="startMatchmadeGame()" style="flex: 1; display: none;">🚀 Start Game</button>
             </div>
         </div>
     </div>
@@ -5982,7 +6785,8 @@
 
         // Initialize game
         window.onload = function() {
-            showSetup();
+            // Don't show setup modal - let users see the actual page
+            // showSetup();
             checkUrlForPin(); // Check if PIN is in URL
             
             // Add PIN input validation
@@ -5992,17 +6796,19 @@
             
             // Player count selection will show when Create Game is clicked
             
-            pinInput.addEventListener('input', function() {
-                const pin = this.value.trim();
-                joinBtn.disabled = !(pin.length === 4 && /^\d{4}$/.test(pin));
-            });
-            
-            // Allow only numbers in PIN input
-            pinInput.addEventListener('keypress', function(e) {
-                if (!/\d/.test(e.key) && !['Backspace', 'Delete', 'Tab', 'Enter'].includes(e.key)) {
-                    e.preventDefault();
-                }
-            });
+            if (pinInput) {
+                pinInput.addEventListener('input', function() {
+                    const pin = this.value.trim();
+                    joinBtn.disabled = !(pin.length === 4 && /^\d{4}$/.test(pin));
+                });
+                
+                // Allow only numbers in PIN input
+                pinInput.addEventListener('keypress', function(e) {
+                    if (!/\d/.test(e.key) && !['Backspace', 'Delete', 'Tab', 'Enter'].includes(e.key)) {
+                        e.preventDefault();
+                    }
+                });
+            }
         };
 
         // Close modals when clicking outside
@@ -6042,7 +6848,7 @@
                     // turnNotification removed - file not available
                 };
                 
-                this.musicEnabled = true;
+                this.musicEnabled = false;
                 this.sfxEnabled = true;
                 this.volume = 0.5;
                 this.musicStarted = false;
@@ -6641,6 +7447,1687 @@
         }
     </script>
 
+    <!-- Game Management Scripts -->
+    <script src="js/auth-manager.js"></script>
+    <script src="js/online-game-manager.js"></script>
+    <script src="js/online-game-room.js"></script>
+    <script src="js/ui-manager.js"></script>
+
+    <!-- Game Handler Functions -->
+    <script>
+        // Mode Selection Handler
+        function selectMode(mode) {
+            if (mode === 'local') {
+                console.log('🏠 Local mode selected');
+                uiManager?.showLocalGame();
+            } else if (mode === 'online') {
+                console.log('🌍 Online mode selected');
+                if (authManager?.isAuthenticated) {
+                    uiManager?.showOnlineLobbies();
+                } else {
+                    uiManager?.showAuthUI();
+                    uiManager?.showLoginForm();
+                }
+            }
+        }
+
+        // ========== NOTIFICATION SYSTEM ==========
+        function showNotification(message, type = 'info', duration = 4000) {
+            // Remove existing notifications of same type
+            const existing = document.querySelector(`.notification.notification-${type}`);
+            if (existing) existing.remove();
+
+            const notification = document.createElement('div');
+            notification.className = `notification notification-${type}`;
+            
+            // Color scheme based on type
+            let bgColor, borderColor, textColor;
+            switch(type) {
+                case 'success':
+                    bgColor = 'linear-gradient(135deg, #55efc4 0%, #00b894 100%)';
+                    borderColor = '#00a085';
+                    textColor = 'white';
+                    break;
+                case 'error':
+                    bgColor = 'linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%)';
+                    borderColor = '#d63031';
+                    textColor = 'white';
+                    break;
+                case 'warning':
+                    bgColor = 'linear-gradient(135deg, #fdcb6e 0%, #e17055 100%)';
+                    borderColor = '#d46838';
+                    textColor = 'white';
+                    break;
+                default: // info
+                    bgColor = 'linear-gradient(135deg, #74b9ff 0%, #0984e3 100%)';
+                    borderColor = '#0670c4';
+                    textColor = 'white';
+            }
+            
+            notification.style.cssText = `
+                position: fixed;
+                top: 30px;
+                right: 30px;
+                background: ${bgColor};
+                color: ${textColor};
+                padding: 16px 24px;
+                border-radius: 12px;
+                border-left: 4px solid ${borderColor};
+                box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+                z-index: 10001;
+                animation: slideInRight 0.3s ease-out;
+                font-weight: 500;
+                font-size: 14px;
+                max-width: 400px;
+                word-wrap: break-word;
+                backdrop-filter: blur(10px);
+            `;
+            
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            
+            // Auto-remove after duration
+            setTimeout(() => {
+                notification.style.animation = 'slideOutRight 0.3s ease-in';
+                setTimeout(() => notification.remove(), 300);
+            }, duration);
+        }
+
+        // Add slide animations
+        const styleSheet = document.createElement('style');
+        styleSheet.textContent = `
+            @keyframes slideInRight {
+                from {
+                    transform: translateX(400px);
+                    opacity: 0;
+                }
+                to {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+            }
+            
+            @keyframes slideOutRight {
+                from {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+                to {
+                    transform: translateX(400px);
+                    opacity: 0;
+                }
+            }
+        `;
+        if (!document.querySelector('style[data-notifications]')) {
+            styleSheet.setAttribute('data-notifications', 'true');
+            document.head.appendChild(styleSheet);
+        }
+
+        // ========== AUTH HANDLERS ==========
+        async function handleLogin(event) {
+            event.preventDefault();
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+
+            showNotification('🔐 Signing in...', 'info', 10000);
+
+            try {
+                const result = await authManager?.login(email, password);
+
+                if (result?.success) {
+                    console.log('✅ Login successful');
+                    
+                    if (!result?.emailVerified) {
+                        console.log('⏳ Email not verified, showing verification screen');
+                        showNotification('⚠️ Please verify your email first', 'warning', 5000);
+                        
+                        // Show email verification screen
+                        document.getElementById('authContainer').style.display = 'none';
+                        document.getElementById('onlineContainer').style.display = 'none';
+                        document.getElementById('gameContainer').style.display = 'none';
+                        
+                        const verificationContainer = document.getElementById('emailVerificationContainer');
+                        verificationContainer.style.display = 'flex';
+                        document.getElementById('verificationEmail').textContent = email;
+                    } else {
+                        console.log('✅ Email verified, showing profile');
+                        showNotification('✅ Welcome back! Going to your profile...', 'success', 2000);
+                        
+                        // Email verified, show profile
+                        setTimeout(() => {
+                            document.getElementById('authContainer').style.display = 'none';
+                            document.getElementById('emailVerificationContainer').style.display = 'none';
+                            document.getElementById('gameContainer').style.display = 'none';
+                            document.getElementById('onlineContainer').style.display = 'block';
+                        }, 500);
+                    }
+                } else {
+                    showNotification('❌ ' + (result?.error || 'Login failed'), 'error', 5000);
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                showNotification('❌ Error: ' + error.message, 'error', 5000);
+            }
+        }
+
+        async function handleRegister(event) {
+            event.preventDefault();
+            const username = document.getElementById('registerUsername').value;
+            const email = document.getElementById('registerEmail').value;
+            const password = document.getElementById('registerPassword').value;
+            const confirm = document.getElementById('registerConfirmPassword').value;
+
+            if (password !== confirm) {
+                showNotification('❌ Passwords do not match', 'error', 5000);
+                return;
+            }
+
+            showNotification('🎮 Creating account...', 'info', 10000);
+
+            try {
+                const result = await authManager?.register(email, password, username);
+
+                if (result?.success) {
+                    console.log('✅ Registration successful');
+                    showNotification('✅ Account created! Check your email to verify.', 'success', 3000);
+                    
+                    // Hide auth and show verification after a short delay
+                    setTimeout(() => {
+                        document.getElementById('authContainer').style.display = 'none';
+                        document.getElementById('onlineContainer').style.display = 'none';
+                        document.getElementById('gameContainer').style.display = 'none';
+                        
+                        const verificationContainer = document.getElementById('emailVerificationContainer');
+                        verificationContainer.style.display = 'flex';
+                        document.getElementById('verificationEmail').textContent = email;
+                    }, 1000);
+                } else {
+                    showNotification('❌ ' + (result?.error || 'Registration failed'), 'error', 5000);
+                }
+            } catch (error) {
+                console.error('Registration error:', error);
+                showNotification('❌ Error: ' + error.message, 'error', 5000);
+            }
+        }
+
+        async function handlePasswordReset(event) {
+            event.preventDefault();
+            const email = document.getElementById('resetEmail').value;
+
+            showNotification('📧 Sending reset email...', 'info', 10000);
+            const result = await authManager?.sendPasswordReset(email);
+
+            if (result?.success) {
+                showNotification('✅ Check your email for reset instructions', 'success', 5000);
+                setTimeout(() => {
+                    document.getElementById('passwordResetForm').style.display = 'none';
+                    document.getElementById('loginForm').style.display = 'block';
+                }, 1500);
+            } else {
+                showNotification('❌ ' + (result?.error || 'Failed to send reset email'), 'error', 5000);
+            }
+        }
+
+        async function handleLogout() {
+            if (confirm('Are you sure you want to log out?')) {
+                try {
+                    console.log('🔐 Logging out...');
+                    
+                    // Sign out from Firebase
+                    await firebase.auth().signOut();
+                    
+                    console.log('✅ Signed out');
+                    showNotification('✅ Logged out successfully', 'success', 2000);
+                    
+                    // IMMEDIATELY redirect to start screen
+                    setTimeout(() => {
+                        document.getElementById('onlineContainer').style.display = 'none';
+                        document.getElementById('authContainer').style.display = 'none';
+                        document.getElementById('emailVerificationContainer').style.display = 'none';
+                        document.getElementById('gameContainer').style.display = 'block';
+                        document.getElementById('startScreen').style.display = 'block';
+                    }, 500);
+                } catch (error) {
+                    console.error('Logout error:', error);
+                    showNotification('❌ Logout error: ' + error.message, 'error', 5000);
+                    // REDIRECT ANYWAY even if error
+                    document.getElementById('onlineContainer').style.display = 'none';
+                    document.getElementById('authContainer').style.display = 'none';
+                    document.getElementById('emailVerificationContainer').style.display = 'none';
+                    document.getElementById('gameContainer').style.display = 'block';
+                    document.getElementById('startScreen').style.display = 'block';
+                    
+                    alert('✅ Logged out - back to start screen');
+                }
+            }
+        }
+
+        // Email Verification Functions
+        function showEmailVerification(email) {
+            const authContainer = document.getElementById('authContainer');
+            const onlineContainer = document.getElementById('onlineContainer');
+            const verificationContainer = document.getElementById('emailVerificationContainer');
+            const verificationEmail = document.getElementById('verificationEmail');
+            
+            if (authContainer) authContainer.style.display = 'none';
+            if (onlineContainer) onlineContainer.style.display = 'none';
+            if (verificationContainer) {
+                verificationContainer.style.display = 'flex';
+                if (verificationEmail) verificationEmail.textContent = email;
+            }
+        }
+
+        async function checkEmailVerificationStatus() {
+            console.log('🔄 Checking email verification...');
+            
+            showNotification('⏳ Checking verification status...', 'info', 10000);
+
+            try {
+                // Check if email is verified
+                const result = await authManager?.checkEmailVerification();
+
+                console.log('✅ Verification check result:', result);
+
+                if (result?.isVerified) {
+                    console.log('✅ Email verified! Redirecting to profile...');
+                    showNotification('✅ Email verified! Going to your profile...', 'success', 2000);
+                    
+                    // Hide verification screen after a short delay
+                    setTimeout(() => {
+                        document.getElementById('emailVerificationContainer').style.display = 'none';
+                        document.getElementById('authContainer').style.display = 'none';
+                        document.getElementById('gameContainer').style.display = 'none';
+                        
+                        // Show profile/online lobbies
+                        document.getElementById('onlineContainer').style.display = 'block';
+                    }, 1000);
+                    
+                } else {
+                    console.log('⏳ Email not verified yet');
+                    showNotification('⏳ Email not verified yet. Check your inbox and spam folder.', 'warning', 6000);
+                }
+            } catch (error) {
+                console.error('Verification check error:', error);
+                showNotification('❌ Verification check failed: ' + error.message, 'error', 5000);
+                alert('❌ Error checking verification: ' + error.message);
+            }
+        }
+
+        async function resendVerificationEmail() {
+            showNotification('📧 Sending verification email...', 'info', 10000);
+            const result = await authManager?.resendVerificationEmail();
+
+            if (result?.success) {
+                showNotification('✅ Verification email sent! Check your inbox and spam folder.', 'success', 5000);
+            } else if (result?.notConfigured) {
+                showNotification('⚠️ ' + result.error, 'warning', 5000);
+            } else {
+                showNotification('❌ ' + (result?.error || 'Failed to resend email'), 'error', 5000);
+            }
+        }
+
+        // Online Game Handlers
+        async function createGameRoom() {
+            uiManager?.showLoading('Creating game room...');
+            const result = await onlineGameManager?.createGameRoom(4);
+            uiManager?.hideLoading();
+
+            if (result?.success) {
+                uiManager?.showNotification('✅ Game room created!', 'success');
+                loadAvailableGames();
+            } else {
+                uiManager?.showNotification('❌ ' + (result?.error || 'Failed to create game'), 'error');
+            }
+        }
+
+        async function loadAvailableGames() {
+            const result = await onlineGameManager?.getAvailableGames();
+            const list = document.getElementById('lobbiesList');
+            
+            if (!list) return;
+
+            if (!result?.success || result.games.length === 0) {
+                list.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: #666;">No games available. Create one to get started!</p>';
+                return;
+            }
+
+            list.innerHTML = result.games.map(game => `
+                <div class="lobby-card">
+                    <div class="lobby-header">
+                        <div class="lobby-host">👤 ${game.hostUsername}</div>
+                        <div class="lobby-players">${game.currentPlayers}/${game.maxPlayers}</div>
+                    </div>
+                    <button class="lobby-btn" onclick="joinOnlineGame('${game.id}')">Join Game</button>
+                </div>
+            `).join('');
+        }
+
+        async function joinOnlineGame(gameId) {
+            uiManager?.showLoading('Joining game...');
+            const result = await onlineGameManager?.joinGameRoom(gameId);
+            uiManager?.hideLoading();
+
+            if (result?.success) {
+                uiManager?.showNotification('✅ Joined game room!', 'success');
+                
+                // Initialize online game
+                const gameInitialized = await initializeOnlineGame(gameId);
+                if (gameInitialized) {
+                    // Hide lobby, show game
+                    document.getElementById('onlineContainer').style.display = 'none';
+                    document.getElementById('onlineGameContainer').style.display = 'block';
+                } else {
+                    loadAvailableGames();
+                }
+            } else {
+                uiManager?.showNotification('❌ ' + (result?.error || 'Failed to join game'), 'error');
+            }
+        }
+
+        // Matchmaking System
+        let currentMatchmakingFormat = null;
+        let currentMatchmakingListener = null;
+        let currentMatchmakingSignalListener = null;
+        let currentPoolListener = null;
+        let currentMatchmakingHeartbeat = null;
+        let currentMatchmakingStarted = false;
+        const matchmakingRequiredPlayers = {
+            '1v1': 2,
+            '1v2': 3,
+            '1v3': 4
+        };
+
+        function showGameFormatModal() {
+            const modal = document.getElementById('gameFormatModal');
+            if (modal) modal.style.display = 'flex';
+        }
+
+        function closeGameFormatModal() {
+            const modal = document.getElementById('gameFormatModal');
+            if (modal) modal.style.display = 'none';
+        }
+
+        async function selectGameFormat(format) {
+            currentMatchmakingFormat = format;
+            closeGameFormatModal();
+            
+            const modal = document.getElementById('matchmakingModal');
+            if (!modal) return;
+
+            // Update modal header
+            const formatDisplay = format === '1v1' ? '⚔️ 1v1' : format === '1v2' ? '👥 1v2' : '🎯 1v3';
+            const requiredPlayers = matchmakingRequiredPlayers[format];
+            
+            const matchmakingHeader = modal.querySelector('h2');
+            if (matchmakingHeader) {
+                matchmakingHeader.textContent = `${formatDisplay} - Searching for opponent(s)...`;
+            }
+
+            // Show modal
+            modal.style.display = 'flex';
+
+            showNotification(`🔍 Searching for ${format} match...`, 'info', 10000);
+            
+            try {
+                const userId = authManager?.getCurrentUserId();
+                const userProfile = authManager?.getCurrentUser();
+                
+                if (!userId) {
+                    showNotification('❌ Not logged in', 'error');
+                    return;
+                }
+
+                // Add self to matchmaking pool for this format
+                const db = firebase.firestore();
+                const now = new Date();
+                
+                // Add to format-specific matchmaking subcollection
+                await db.collection('matchmaking').doc(format).collection('players').doc(userId).set({
+                    uid: userId,
+                    username: userProfile?.displayName || 'Player',
+                    joinedAt: now,
+                    status: 'waiting'
+                });
+
+                console.log(`✅ Added to ${format} matchmaking pool`);
+
+                // Now search for other players already waiting for this format
+                await findMatchInPool(format, userId, userProfile, requiredPlayers);
+
+            } catch (error) {
+                console.error('❌ Matchmaking error:', error);
+                showNotification('❌ Failed to join matchmaking', 'error');
+                closeMatchmakingModal();
+            }
+        }
+
+        /**
+         * Find a match from the player pool for this format
+         */
+        async function findMatchInPool(format, currentUserId, currentUserProfile, requiredPlayers) {
+            const db = firebase.firestore();
+            
+            try {
+                // Get all players waiting for this format (excluding current user)
+                const snapshot = await db.collection('matchmaking')
+                    .doc(format)
+                    .collection('players')
+                    .where('status', '==', 'waiting')
+                    .limit(requiredPlayers)
+                    .get();
+
+                const waitingPlayers = [];
+                snapshot.forEach(doc => {
+                    if (doc.id !== currentUserId) {
+                        waitingPlayers.push({
+                            id: doc.id,
+                            username: doc.data().username,
+                            joinedAt: doc.data().joinedAt
+                        });
+                    }
+                });
+
+                console.log(`📊 Found ${waitingPlayers.length} players waiting for ${format}`);
+
+                // Check if we have enough players to start a match
+                if (waitingPlayers.length >= requiredPlayers - 1) {
+                    // We have enough! Create match with current user + waiting players
+                    const matchPlayers = [
+                        { id: currentUserId, username: currentUserProfile?.displayName || 'Player' },
+                        ...waitingPlayers.slice(0, requiredPlayers - 1)
+                    ];
+                    
+                    console.log('✅ Enough players found! Creating match...');
+                    await createMatchWithPlayers(format, matchPlayers);
+                } else {
+                    // Not enough players yet, set up a listener to watch for new joiners
+                    console.log(`⏳ Waiting for ${requiredPlayers - 1 - waitingPlayers.length} more player(s)...`);
+                    setupMatchmakingPoolListener(format, currentUserId, currentUserProfile, requiredPlayers);
+                }
+
+            } catch (error) {
+                console.error('Error finding match in pool:', error);
+                showNotification('❌ Error searching for match', 'error');
+                closeMatchmakingModal();
+            }
+        }
+
+        /**
+         * Listen for new players joining the matchmaking pool
+         */
+        function setupMatchmakingPoolListener(format, currentUserId, currentUserProfile, requiredPlayers) {
+            if (currentPoolListener) {
+                currentPoolListener();
+            }
+
+            const db = firebase.firestore();
+            const poolRef = db.collection('matchmaking').doc(format).collection('players');
+
+            currentPoolListener = poolRef
+                .where('status', '==', 'waiting')
+                .onSnapshot(snapshot => {
+                    const waitingPlayers = [];
+                    snapshot.forEach(doc => {
+                        if (doc.id !== currentUserId) {
+                            waitingPlayers.push({
+                                id: doc.id,
+                                username: doc.data().username,
+                                joinedAt: doc.data().joinedAt
+                            });
+                        }
+                    });
+
+                    console.log(`📊 Pool updated: ${waitingPlayers.length} players waiting`);
+                    updateMatchmakingDisplay(waitingPlayers, requiredPlayers);
+
+                    // When we have enough players, create the match
+                    if (waitingPlayers.length >= requiredPlayers - 1 && !currentMatchmakingStarted) {
+                        console.log('✅ Enough players found! Creating match...');
+                        currentMatchmakingStarted = true;
+                        
+                        const matchPlayers = [
+                            { id: currentUserId, username: currentUserProfile?.displayName || 'Player' },
+                            ...waitingPlayers.slice(0, requiredPlayers - 1)
+                        ];
+
+                        createMatchWithPlayers(format, matchPlayers);
+                    }
+                }, error => {
+                    console.error('❌ Pool listener error:', error);
+                    if (error.code !== 'cancelled') {
+                        showNotification('⚠️ Connection lost', 'warning');
+                    }
+                });
+        }
+
+        /**
+         * Create a match with selected players
+         */
+        async function createMatchWithPlayers(format, players) {
+            try {
+                // Stop listening for new players
+                if (currentPoolListener) {
+                    currentPoolListener();
+                    currentPoolListener = null;
+                }
+
+                const db = firebase.firestore();
+                const gameRoomId = `matchmade_${format}_${Date.now()}`;
+                
+                console.log('🎮 Creating game room with players:', players);
+
+                const playerData = players.map(p => ({
+                    uid: p.id,
+                    username: p.username,
+                    status: 'active',
+                    joinedAt: new Date(),
+                    hand: [],
+                    cardCount: 0,
+                    peakCardsPlayed: 0
+                }));
+
+                // Create game room in Firestore
+                await db.collection('gameRooms').doc(gameRoomId).set({
+                    id: gameRoomId,
+                    format: format,
+                    players: playerData,
+                    playerIds: players.map(p => p.id),
+                    hostId: players[0].id,
+                    maxPlayers: players.length,
+                    currentPlayers: players.length,
+                    status: 'initializing',
+                    createdAt: new Date(),
+                    gameState: {
+                        currentRound: 1,
+                        currentPlayerIndex: 0,
+                        direction: 1,
+                        deck: [],
+                        discardPile: [],
+                        lastPlayedCard: null,
+                        gameStatus: 'waiting',
+                        highCardPlayed: false,
+                        peakCardsPlayed: 0,
+                        gameLog: []
+                    }
+                });
+
+                console.log('✅ Game room created:', gameRoomId);
+
+                // Remove all matched players from the matchmaking pool
+                const batch = db.batch();
+                for (const player of players) {
+                    const playerRef = db.collection('matchmaking').doc(format).collection('players').doc(player.id);
+                    batch.update(playerRef, { status: 'matched' });
+                }
+                await batch.commit();
+
+                console.log('📣 Notified all players of match');
+
+                // Join the game immediately
+                closeMatchmakingModal();
+                const currentUserId = authManager?.getCurrentUserId();
+                await joinMatchmadeGame(gameRoomId, currentUserId);
+
+            } catch (error) {
+                console.error('❌ Error creating game room:', error);
+                showNotification('❌ Failed to create game room', 'error');
+                currentMatchmakingStarted = false;
+            }
+        }
+
+        /**
+         * Cancel matchmaking
+         */
+        function cancelMatchmaking() {
+            try {
+                // Stop pool listener
+                if (currentPoolListener) {
+                    currentPoolListener();
+                    currentPoolListener = null;
+                }
+
+                if (currentMatchmakingListener) {
+                    currentMatchmakingListener();
+                    currentMatchmakingListener = null;
+                }
+                if (currentMatchmakingSignalListener) {
+                    currentMatchmakingSignalListener();
+                    currentMatchmakingSignalListener = null;
+                }
+                if (currentMatchmakingHeartbeat) {
+                    clearInterval(currentMatchmakingHeartbeat);
+                    currentMatchmakingHeartbeat = null;
+                }
+
+                // Remove player from matchmaking pool for their format
+                const userId = authManager?.getCurrentUserId();
+                if (userId && currentMatchmakingFormat) {
+                    const db = firebase.firestore();
+                    db.collection('matchmaking')
+                        .doc(currentMatchmakingFormat)
+                        .collection('players')
+                        .doc(userId)
+                        .delete()
+                        .catch(e => console.warn('Could not remove from pool:', e));
+                }
+
+                currentMatchmakingFormat = null;
+                currentMatchmakingStarted = false;
+                
+                closeMatchmakingModal();
+                showNotification('❌ Matchmaking cancelled', 'info');
+            } catch (error) {
+                console.error('Error cancelling matchmaking:', error);
+            }
+        }
+
+        /**
+         * Update matchmaking display
+         */
+        function updateMatchmakingDisplay(players, required) {
+            const playerList = document.getElementById('matchmakingPlayerList');
+            if (!playerList) return;
+
+            playerList.innerHTML = `
+                <div style="text-align: center; padding: 20px; color: #888;">
+                    <p>⏳ ${players.length} / ${required} players found</p>
+                    <div style="margin-top: 10px; font-size: 24px;">
+                        ${Array(required).fill('👤').map((p, i) => `<span style="opacity: ${i < players.length ? 1 : 0.3};">${p}</span>`).join(' ')}
+                    </div>
+                </div>
+            `;
+        }
+
+        /**
+         * Create game room and signal all players
+         */
+        async function createGameRoomForMatch(format, players) {
+            try {
+                console.log('🎮 Creating game room for format:', format, 'with', players.length, 'players');
+                
+                const gameRoomId = `matchmade_${format}_${Date.now()}`;
+                const playerIds = players.map(p => p.id);
+                const playerData = players.map(p => ({
+                    uid: p.id,
+                    username: p.username,
+                    status: 'active',
+                    joinedAt: new Date(),
+                    hand: [],
+                    cardCount: 0,
+                    peakCardsPlayed: 0
+                }));
+
+                // Create game room in Firestore
+                const db = firebase.firestore();
+                console.log('📝 Creating game room:', gameRoomId);
+                
+                await db.collection('gameRooms').doc(gameRoomId).set({
+                    id: gameRoomId,
+                    format: format,
+                    players: playerData,
+                    playerIds: playerIds,
+                    hostId: playerIds[0],
+                    maxPlayers: playerIds.length,
+                    currentPlayers: playerIds.length,
+                    status: 'initializing',
+                    readyPlayers: [],
+                    createdAt: new Date(),
+                    gameState: {
+                        currentRound: 1,
+                        currentPlayerIndex: 0,
+                        direction: 1,
+                        deck: [],
+                        discardPile: [],
+                        lastPlayedCard: null,
+                        gameStatus: 'waiting',
+                        highCardPlayed: false,
+                        peakCardsPlayed: 0,
+                        gameLog: []
+                    }
+                });
+
+                console.log('✅ Game room created:', gameRoomId);
+
+                // Signal all players in the matchmaking document
+                await db.collection('matchmaking').doc(format).set({
+                    gameRoomId: gameRoomId,
+                    status: 'ready',
+                    createdAt: new Date()
+                }, { merge: true });
+
+                console.log('📣 Sent game room signal to all players');
+
+                // Remove players from matchmaking queue
+                const queueRef = db.collection('matchmaking').doc(format).collection('queue');
+                const batch = db.batch();
+
+                for (const playerId of playerIds) {
+                    batch.delete(queueRef.doc(playerId));
+                }
+
+                await batch.commit();
+                console.log('🗑️ Cleaned up matchmaking queue');
+
+            } catch (error) {
+                console.error('❌ Error creating game room:', error);
+                showNotification('❌ Failed to create game', 'error');
+                currentMatchmakingStarted = false;
+            }
+        }
+
+        function updateMatchmakingDisplay(players, requiredPlayers) {
+            const playerCountEl = document.querySelector('#matchmakingModal .matchmaking-players');
+            const playerListEl = document.querySelector('#matchmakingModal .player-list');
+
+            if (playerCountEl) {
+                playerCountEl.textContent = `Players found: ${players.length}/${requiredPlayers}`;
+            }
+
+            if (playerListEl) {
+                playerListEl.innerHTML = players.map(player => `
+                    <div class="player-item">
+                        <span>👤 ${player.username}</span>
+                        <span class="player-status">Waiting...</span>
+                    </div>
+                `).join('');
+            }
+
+            // Update start button
+            const startBtn = document.querySelector('#matchmakingModal .start-game-btn');
+            if (startBtn) {
+                startBtn.style.display = players.length >= requiredPlayers ? 'block' : 'none';
+            }
+        }
+
+        function cancelMatchmaking() {
+            if (!currentMatchmakingFormat) return;
+
+            try {
+                const userId = authManager?.getCurrentUserId();
+                if (!userId) return;
+
+                // Stop heartbeat
+                if (currentMatchmakingHeartbeat) {
+                    clearInterval(currentMatchmakingHeartbeat);
+                    currentMatchmakingHeartbeat = null;
+                }
+
+                // Remove from queue
+                const db = firebase.firestore();
+                db.collection('matchmaking')
+                    .doc(currentMatchmakingFormat)
+                    .collection('queue')
+                    .doc(userId)
+                    .delete();
+
+                // Stop listening
+                if (currentMatchmakingListener) {
+                    currentMatchmakingListener();
+                    currentMatchmakingListener = null;
+                }
+
+                // Stop listening for signals
+                if (currentMatchmakingSignalListener) {
+                    currentMatchmakingSignalListener();
+                    currentMatchmakingSignalListener = null;
+                }
+
+                currentMatchmakingFormat = null;
+                currentMatchmakingStarted = false;
+                closeMatchmakingModal();
+                showNotification('❌ Matchmaking cancelled', 'info');
+
+            } catch (error) {
+                console.error('❌ Cancel error:', error);
+                showNotification('❌ Failed to cancel matchmaking', 'error');
+            }
+        }
+
+        function closeMatchmakingModal() {
+            const modal = document.getElementById('matchmakingModal');
+            if (modal) modal.style.display = 'none';
+        }
+
+        /**
+        /**
+         * Join the matchmade game
+         */
+        async function joinMatchmadeGame(gameRoomId, playerId) {
+            try {
+                console.log('🚀 Joining matchmade game:', gameRoomId, 'as player:', playerId);
+                
+                showNotification('🎮 Match found! Entering game...', 'success', 2000);
+
+                // Initialize online game room for current user
+                currentOnlineGameRoom = new OnlineGameRoom(gameRoomId, playerId, authManager);
+                const initResult = await currentOnlineGameRoom.initializeGame();
+
+                if (initResult.success) {
+                    console.log('✅ Game initialized successfully');
+                    
+                    // Deal initial hands
+                    await currentOnlineGameRoom.dealInitialHands();
+                    
+                    // Show online game container
+                    document.getElementById('onlineContainer').style.display = 'none';
+                    document.getElementById('onlineGameContainer').style.display = 'block';
+                    
+                    // Start UI update loop
+                    startOnlineGameUIUpdates();
+                    
+                    showNotification('✅ Game started! Get ready to play!', 'success', 3000);
+                } else {
+                    console.error('❌ Failed to initialize game:', initResult.error);
+                    showNotification('❌ Failed to initialize game: ' + initResult.error, 'error');
+                }
+
+                currentMatchmakingFormat = null;
+                currentMatchmakingStarted = false;
+
+            } catch (error) {
+                console.error('❌ Error joining matchmade game:', error);
+                showNotification('❌ Failed to join game: ' + error.message, 'error');
+                currentMatchmakingStarted = false;
+            }
+        }
+
+        // Global reference to current online game
+        let currentOnlineGameRoom = null;
+
+        // Start UI update loop for online game
+        function startOnlineGameUIUpdates() {
+            const updateInterval = setInterval(() => {
+                if (!currentOnlineGameRoom) {
+                    clearInterval(updateInterval);
+                    return;
+                }
+
+                const gameState = currentOnlineGameRoom.getGameState();
+                
+                // Update UI elements
+                document.getElementById('onlineRoundNumber').textContent = gameState.currentRound;
+                document.getElementById('onlineDeckCount').textContent = gameState.deck.length;
+                document.getElementById('onlineHighCardPlayed').textContent = gameState.highCardPlayed ? '✅ Yes' : '❌ No';
+                
+                const currentPlayer = currentOnlineGameRoom.getCurrentPlayer();
+                if (currentPlayer) {
+                    document.getElementById('onlineCurrentPlayer').textContent = currentPlayer.username;
+                }
+
+                // Update players container
+                updateOnlinePlayersDisplay(gameState.players);
+
+                // Update last played card
+                if (gameState.lastPlayedCard) {
+                    const cardDisplay = gameState.lastPlayedCard.type === 'peak' 
+                        ? 'PEAK' 
+                        : gameState.lastPlayedCard.number;
+                    document.getElementById('onlineLastPlayedCard').innerHTML = `
+                        <div class="card ${gameState.lastPlayedCard.type}" style="margin: 0 auto;">
+                            ${cardDisplay}
+                        </div>
+                    `;
+                }
+            }, 500);
+        }
+
+
+        // ========== ONLINE GAME LOGIC ==========
+        let onlineGameState = null;
+        let onlineGameListener = null;
+
+        async function initializeOnlineGame(gameId) {
+            try {
+                console.log('🎮 Initializing online game:', gameId);
+                
+                const db = firebase.firestore();
+                const gameRef = db.collection('gameRooms').doc(gameId);
+                const gameDoc = await gameRef.get();
+
+                if (!gameDoc.exists) {
+                    throw new Error('Game not found');
+                }
+
+                const game = gameDoc.data();
+                const currentPlayerId = authManager?.getCurrentUserId();
+                
+                // Initialize game state
+                onlineGameState = {
+                    gameId: gameId,
+                    players: game.players.map((p, idx) => ({
+                        uid: p.uid,
+                        username: p.username,
+                        hand: [],
+                        isActive: true,
+                        isDisqualified: false,
+                        hasFinished: false
+                    })),
+                    deck: createOnlineDeck(),
+                    discardPile: [],
+                    currentPlayerIndex: 0,
+                    roundNumber: 1,
+                    gameOver: false,
+                    winner: null,
+                    direction: 1
+                };
+
+                // Deal initial 7 cards to each player
+                const cardsPerPlayer = 7;
+                for (let i = 0; i < cardsPerPlayer; i++) {
+                    for (let j = 0; j < onlineGameState.players.length; j++) {
+                        if (onlineGameState.deck.length > 0) {
+                            const card = onlineGameState.deck.shift();
+                            onlineGameState.players[j].hand.push(card);
+                        }
+                    }
+                }
+
+                // Save game state to Firebase
+                await gameRef.update({
+                    gameState: onlineGameState,
+                    status: 'playing',
+                    lastUpdated: new Date()
+                });
+
+                // Set up real-time listener
+                setupOnlineGameListener(gameId);
+
+                console.log('✅ Online game initialized');
+                updateOnlineDisplay();
+                
+                return true;
+            } catch (error) {
+                console.error('Error initializing online game:', error);
+                showNotification('❌ ' + error.message, 'error');
+                return false;
+            }
+        }
+
+        function setupOnlineGameListener(gameId) {
+            const db = firebase.firestore();
+            
+            if (onlineGameListener) {
+                onlineGameListener();
+            }
+
+            onlineGameListener = db.collection('gameRooms').doc(gameId)
+                .onSnapshot(doc => {
+                    if (doc.exists && doc.data().gameState) {
+                        onlineGameState = doc.data().gameState;
+                        updateOnlineDisplay();
+                    }
+                }, error => {
+                    console.error('Error listening to game updates:', error);
+                });
+        }
+
+        function createOnlineDeck() {
+            const deck = [];
+            const suits = ['♠', '♥', '♦', '♣'];
+            
+            // Add numbered cards 1-10 for each suit (5 times)
+            for (let i = 0; i < 5; i++) {
+                for (const suit of suits) {
+                    for (let num = 1; num <= 10; num++) {
+                        deck.push(`${num}${suit}`);
+                    }
+                }
+            }
+            
+            // Add 10 Peak cards
+            for (let i = 0; i < 10; i++) {
+                deck.push('🔺');
+            }
+            
+            // Shuffle
+            return deck.sort(() => Math.random() - 0.5);
+        }
+
+        async function drawOnlineCard() {
+            try {
+                if (!onlineGameState) {
+                    showNotification('❌ Game not initialized', 'error');
+                    return;
+                }
+
+                const currentPlayerId = authManager?.getCurrentUserId();
+                const currentPlayer = onlineGameState.players[onlineGameState.currentPlayerIndex];
+                
+                if (currentPlayer.uid !== currentPlayerId) {
+                    showNotification("⏳ Not your turn!", 'error');
+                    audioManager?.playSound('loseSound', 0.3);
+                    return;
+                }
+
+                // Refill deck if empty
+                if (onlineGameState.deck.length === 0) {
+                    if (onlineGameState.discardPile.length > 1) {
+                        const topCard = onlineGameState.discardPile[onlineGameState.discardPile.length - 1];
+                        onlineGameState.deck = onlineGameState.discardPile.slice(0, -1);
+                        onlineGameState.discardPile = [topCard];
+                        onlineGameState.deck.sort(() => Math.random() - 0.5);
+                        showNotification('🔄 Deck refilled!', 'info');
+                    } else {
+                        showNotification('❌ No cards available!', 'error');
+                        return;
+                    }
+                }
+
+                const card = onlineGameState.deck.shift();
+                currentPlayer.hand.push(card);
+                audioManager?.playSound('cardFlip');
+
+                showNotification(`🃏 You drew: ${card}`, 'info');
+
+                await nextOnlineTurn();
+                await saveOnlineGameState();
+
+            } catch (error) {
+                console.error('Error drawing card:', error);
+                showNotification('❌ Error drawing card', 'error');
+            }
+        }
+
+        async function playOnlineCard(cardIndex) {
+            try {
+                if (!onlineGameState) {
+                    showNotification('❌ Game not initialized', 'error');
+                    return;
+                }
+
+                const currentPlayerId = authManager?.getCurrentUserId();
+                const currentPlayer = onlineGameState.players[onlineGameState.currentPlayerIndex];
+                
+                if (currentPlayer.uid !== currentPlayerId) {
+                    showNotification("⏳ Not your turn!", 'error');
+                    return;
+                }
+
+                if (cardIndex >= currentPlayer.hand.length) {
+                    showNotification('❌ Invalid card', 'error');
+                    return;
+                }
+
+                const card = currentPlayer.hand.splice(cardIndex, 1)[0];
+                onlineGameState.discardPile.push(card);
+                audioManager?.playSound('cardPlace');
+
+                showNotification(`♠️ You played: ${card}`, 'info');
+
+                // Check if player finished
+                if (currentPlayer.hand.length === 0) {
+                    currentPlayer.hasFinished = true;
+                    showNotification(`🎉 ${currentPlayer.username} finished!`, 'success');
+                    
+                    // Check if game is over (only 1 player left)
+                    const finishedCount = onlineGameState.players.filter(p => p.hasFinished).length;
+                    if (finishedCount === onlineGameState.players.length - 1) {
+                        onlineGameState.gameOver = true;
+                        onlineGameState.winner = currentPlayer.username;
+                        showNotification(`🏆 ${currentPlayer.username} WON THE GAME!`, 'success');
+                        audioManager?.playSound('winSound');
+                    }
+                }
+
+                await nextOnlineTurn();
+                await saveOnlineGameState();
+
+            } catch (error) {
+                console.error('Error playing card:', error);
+                showNotification('❌ Error playing card', 'error');
+            }
+        }
+
+        async function nextOnlineTurn() {
+            if (onlineGameState.gameOver) return;
+
+            onlineGameState.currentPlayerIndex = (onlineGameState.currentPlayerIndex + onlineGameState.direction + onlineGameState.players.length) % onlineGameState.players.length;
+
+            // Skip disqualified players
+            while (onlineGameState.players[onlineGameState.currentPlayerIndex].isDisqualified && !onlineGameState.gameOver) {
+                onlineGameState.currentPlayerIndex = (onlineGameState.currentPlayerIndex + onlineGameState.direction + onlineGameState.players.length) % onlineGameState.players.length;
+            }
+
+            updateOnlineDisplay();
+        }
+
+        async function saveOnlineGameState() {
+            try {
+                if (!onlineGameState || !onlineGameState.gameId) return;
+
+                const db = firebase.firestore();
+                const gameRef = db.collection('gameRooms').doc(onlineGameState.gameId);
+
+                await gameRef.update({
+                    gameState: onlineGameState,
+                    lastUpdated: new Date()
+                });
+
+                console.log('💾 Game state saved');
+            } catch (error) {
+                console.error('Error saving game state:', error);
+            }
+        }
+
+        function updateOnlineDisplay() {
+            if (!onlineGameState) return;
+
+            const currentPlayer = onlineGameState.players[onlineGameState.currentPlayerIndex];
+
+            // Update info
+            document.getElementById('onlineRoundNumber').textContent = onlineGameState.roundNumber;
+            document.getElementById('onlineDeckCount').textContent = onlineGameState.deck.length;
+            document.getElementById('onlineCurrentPlayer').textContent = currentPlayer?.username || '-';
+            document.getElementById('onlineGameDirection').textContent = onlineGameState.direction === 1 ? '↙️' : '↗️';
+
+            // Update players display
+            updateOnlinePlayersDisplay();
+
+            // Update last played card
+            if (onlineGameState.discardPile.length > 0) {
+                const lastCard = onlineGameState.discardPile[onlineGameState.discardPile.length - 1];
+                document.getElementById('onlineLastPlayedCard').innerHTML = `<div class="card regular" style="margin: 0 auto;">${lastCard}</div>`;
+            }
+
+            // Update player's hand
+            const currentUserId = authManager?.getCurrentUserId();
+            const myPlayer = onlineGameState.players.find(p => p.uid === currentUserId);
+            
+            if (myPlayer) {
+                const handContainer = document.getElementById('onlinePlayerHand');
+                if (handContainer) {
+                    if (myPlayer.hand.length === 0) {
+                        handContainer.innerHTML = '<div style="color: #999;">No cards in hand</div>';
+                    } else {
+                        handContainer.innerHTML = myPlayer.hand.map((card, idx) => `
+                            <div class="card" style="cursor: pointer; padding: 10px; background: #667eea; border-radius: 6px; min-width: 50px; text-align: center; color: white; font-weight: bold;" onclick="playOnlineCard(${idx})" title="Click to play this card">
+                                ${card}
+                            </div>
+                        `).join('');
+                    }
+                }
+            }
+
+            // Enable/disable draw button based on turn
+            const drawBtn = document.getElementById('onlineDrawBtn');
+            if (drawBtn && currentPlayer && currentUserId) {
+                drawBtn.disabled = currentPlayer.uid !== currentUserId;
+            }
+        }
+
+        function updateOnlinePlayersDisplay() {
+            if (!onlineGameState) return;
+
+            const container = document.getElementById('onlinePlayersContainer');
+            if (!container) return;
+
+            const avatarIcons = ['👤', '🎭', '🤖', '👾'];
+            const avatarColors = [
+                'linear-gradient(135deg, #ff9a9e, #fecfef)',
+                'linear-gradient(135deg, #a8edea, #fed6e3)', 
+                'linear-gradient(135deg, #fbc2eb, #a6c1ee)',
+                'linear-gradient(135deg, #74b9ff, #0984e3)'
+            ];
+
+            container.innerHTML = onlineGameState.players.map((player, idx) => {
+                const isCurrentTurn = idx === onlineGameState.currentPlayerIndex;
+                const statusClass = isCurrentTurn ? 'current-turn' : '';
+                const finishedClass = player.hasFinished ? 'finished' : '';
+                
+                return `
+                    <div class="player-seat ${statusClass} ${finishedClass}" style="opacity: ${player.isDisqualified ? 0.5 : 1};">
+                        <div class="player-avatar" style="background: ${avatarColors[idx]}; ${isCurrentTurn ? 'border: 3px solid gold;' : ''}">
+                            <div class="avatar-icon">${avatarIcons[idx]}</div>
+                        </div>
+                        <div class="player-name">${player.username}</div>
+                        <div class="card-count">${player.hand.length} 🃏</div>
+                        ${player.hasFinished ? '<div style="color: #FFD700; font-size: 0.9em;">✅ Finished</div>' : ''}
+                        ${player.isDisqualified ? '<div style="color: #ff6b6b; font-size: 0.9em;">❌ Disqualified</div>' : ''}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function handleOnlineGameAction() {
+            if (confirm('Are you sure you want to leave this game?')) {
+                if (currentOnlineGameRoom) {
+                    currentOnlineGameRoom.cleanup();
+                    currentOnlineGameRoom = null;
+                }
+                document.getElementById('onlineGameContainer').style.display = 'none';
+                document.getElementById('onlineContainer').style.display = 'block';
+                showNotification('👋 You left the game', 'info');
+            }
+        }
+
+        function showOnlineGameState() {
+            if (!currentOnlineGameRoom) return;
+            const state = currentOnlineGameRoom.getGameState();
+            console.log('📊 Online Game State:', state);
+            showNotification('📊 Game state logged to console', 'info');
+        }
+
+        // Tab Switching
+        function switchOnlineTab(tab) {
+            const tabs = ['lobbiesTab', 'leaderboardTab', 'profileTab'];
+            tabs.forEach(t => {
+                const el = document.getElementById(t);
+                if (el) el.style.display = t === tab + 'Tab' ? 'block' : 'none';
+            });
+
+            if (tab === 'leaderboard') {
+                loadLeaderboard();
+            } else if (tab === 'profile') {
+                loadProfile();
+            }
+        }
+
+        function switchLobbiesView(view) {
+            const availView = document.getElementById('availableGamesView');
+            const createView = document.getElementById('createGameView');
+
+            if (view === 'available') {
+                if (availView) availView.style.display = 'block';
+                if (createView) createView.style.display = 'none';
+                loadAvailableGames();
+            } else if (view === 'create') {
+                if (availView) availView.style.display = 'none';
+                if (createView) createView.style.display = 'block';
+            }
+        }
+
+        async function loadLeaderboard() {
+            const leaderboard = await authManager?.getLeaderboard(50);
+            const tbody = document.getElementById('leaderboardBody');
+
+            if (!tbody || !leaderboard || leaderboard.length === 0) {
+                if (tbody) tbody.innerHTML = '<tr><td colspan="5" style="text-align: center;">No data yet</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = leaderboard.map(player => `
+                <tr>
+                    <td>${player.rank}</td>
+                    <td>${player.username}</td>
+                    <td>${player.stats?.gamesWon || 0}</td>
+                    <td>${player.stats?.winRate || 0}%</td>
+                    <td>${player.stats?.totalPoints || 0}</td>
+                </tr>
+            `).join('');
+        }
+
+        function loadProfile() {
+            if (!authManager?.userProfile) return;
+
+            const stats = authManager.userProfile.stats || {};
+            const container = document.getElementById('playerStatsContainer');
+
+            if (container) {
+                container.innerHTML = `
+                    <div class="player-stat">
+                        <span class="player-stat-label">Games Played</span>
+                        <span class="player-stat-value">${stats.gamesPlayed || 0}</span>
+                    </div>
+                    <div class="player-stat">
+                        <span class="player-stat-label">Games Won</span>
+                        <span class="player-stat-value">${stats.gamesWon || 0}</span>
+                    </div>
+                    <div class="player-stat">
+                        <span class="player-stat-label">Win Rate</span>
+                        <span class="player-stat-value">${stats.winRate || 0}%</span>
+                    </div>
+                    <div class="player-stat">
+                        <span class="player-stat-label">Total Points</span>
+                        <span class="player-stat-value">${stats.totalPoints || 0}</span>
+                    </div>
+                `;
+            }
+        }
+
+        // ==========================================
+        // Mode Selection Handlers
+        // ==========================================
+
+        /**
+         * Start Local Play Mode
+         * Shows the existing local game setup
+         */
+        function startLocalMode() {
+            console.log('🏠 Local Mode Selected');
+            
+            // Show game container and start screen
+            const gameContainer = document.getElementById('gameContainer');
+            if (gameContainer) gameContainer.style.display = 'block';
+            
+            const startScreen = document.getElementById('startScreen');
+            if (startScreen) startScreen.style.display = 'block';
+
+            // Hide online containers
+            const onlineContainer = document.getElementById('onlineContainer');
+            if (onlineContainer) onlineContainer.style.display = 'none';
+            const authContainer = document.getElementById('authContainer');
+            if (authContainer) authContainer.style.display = 'none';
+            const emailVerificationContainer = document.getElementById('emailVerificationContainer');
+            if (emailVerificationContainer) emailVerificationContainer.style.display = 'none';
+
+            uiManager?.showNotification('🏠 Local Play Mode - Play with friends on this device', 'info', 2000);
+        }
+
+        /**
+         * Start Online Play Mode
+         * Redirects to authentication if needed
+         */
+        function startOnlineMode() {
+            console.log('🌍 Online Mode Selected');
+            
+            // Hide gameContainer and startScreen
+            const gameContainer = document.getElementById('gameContainer');
+            if (gameContainer) gameContainer.style.display = 'none';
+            
+            const startScreen = document.getElementById('startScreen');
+            if (startScreen) startScreen.style.display = 'none';
+            
+            if (authManager?.isAuthenticated) {
+                // Already logged in, show online lobbies
+                const onlineContainer = document.getElementById('onlineContainer');
+                if (onlineContainer) onlineContainer.style.display = 'block';
+                uiManager?.showNotification('✅ Welcome to Online Play!', 'success', 2000);
+            } else {
+                // Not logged in, show auth screen
+                const authContainer = document.getElementById('authContainer');
+                if (authContainer) authContainer.style.display = 'flex';
+                uiManager?.showAuthUI();
+                uiManager?.showLoginForm();
+            }
+        }
+
+        /**
+         * Allow switching back to local from anywhere
+         */
+        function switchBackToLocal() {
+            console.log('🔄 Switching back to Local Mode');
+            
+            // Show game container (contains the startScreen)
+            const gameContainer = document.getElementById('gameContainer');
+            if (gameContainer) gameContainer.style.display = 'block';
+            
+            // Show start screen within game container
+            const startScreen = document.getElementById('startScreen');
+            if (startScreen) startScreen.style.display = 'block';
+            
+            // Hide all other top-level containers
+            const onlineContainer = document.getElementById('onlineContainer');
+            const authContainer = document.getElementById('authContainer');
+            const emailVerificationContainer = document.getElementById('emailVerificationContainer');
+            
+            if (onlineContainer) onlineContainer.style.display = 'none';
+            if (authContainer) authContainer.style.display = 'none';
+            if (emailVerificationContainer) emailVerificationContainer.style.display = 'none';
+            
+            uiManager?.showNotification('🏠 Back to Local Play', 'info', 1500);
+        }
+
+        /**
+         * Navigate to login screen from start screen
+         */
+        function goToLoginScreen() {
+            console.log('🔐 Going to Login Screen');
+            
+            // Hide game container (start screen)
+            const gameContainer = document.getElementById('gameContainer');
+            if (gameContainer) gameContainer.style.display = 'none';
+            
+            // Show auth container
+            const authContainer = document.getElementById('authContainer');
+            if (authContainer) authContainer.style.display = 'flex';
+            
+            // Show login form (hide register and verification)
+            const loginForm = document.getElementById('loginForm');
+            const registerForm = document.getElementById('registerForm');
+            const emailVerificationContainer = document.getElementById('emailVerificationContainer');
+            
+            if (loginForm) loginForm.style.display = 'block';
+            if (registerForm) registerForm.style.display = 'none';
+            if (emailVerificationContainer) emailVerificationContainer.style.display = 'none';
+        }
+
+        /**
+         * Update the start login button based on authentication state
+         */
+        function updateStartLoginButton() {
+            const btn = document.getElementById('startLoginBtn');
+            if (!btn) return;
+
+            if (authManager?.isAuthenticated) {
+                // User is logged in - show profile icon
+                const userProfile = authManager?.getCurrentUser();
+                const username = userProfile?.displayName || 'Profile';
+                
+                btn.innerHTML = `👤 ${username}`;
+                btn.title = 'View your profile';
+                btn.onclick = () => {
+                    // If in local mode, show online profile
+                    if (document.getElementById('gameContainer')?.style.display !== 'none') {
+                        uiManager?.showOnlineLobbies();
+                    } else {
+                        // Already in online mode, just switch to profile tab
+                        switchOnlineTab('profile');
+                    }
+                };
+            } else {
+                // User is not logged in - show login button
+                btn.innerHTML = '🔐 Login';
+                btn.title = 'Sign in to your account';
+                btn.onclick = () => goToLoginScreen();
+            }
+        }
+
+        // Initialize on load
+        document.addEventListener('DOMContentLoaded', () => {
+            setTimeout(() => {
+                // Update button on initial load
+                updateStartLoginButton();
+
+                if (authManager?.isAuthenticated) {
+                    // Check email verification before showing online lobbies
+                    if (authManager?.isEmailVerified?.()) {
+                        uiManager?.showOnlineLobbies();
+                    } else {
+                        // Not verified - show verification screen
+                        const email = authManager?.currentUser?.email || 'your email';
+                        showEmailVerification(email);
+                    }
+                } else {
+                    startLocalMode();
+                }
+                console.log('✅ Peak Card Game Ready');
+            }, 500);
+
+            // Listen for auth state changes
+            window.addEventListener('authStateChanged', () => {
+                console.log('🔐 Auth state changed - updating button');
+                updateStartLoginButton();
+            });
+        });
+        /**
+         * Initialize and update game lobby
+         */
+        let onlineLobbyListener = null;
+
+        function initializeGameLobby() {
+            try {
+                const username = authManager?.getCurrentUser()?.displayName || 'Player';
+                document.getElementById('lobbyUsername').textContent = username;
+                
+                // Update online players list
+                updateOnlinePlayersList();
+
+                // Start listening for online players updates
+                setupOnlinePlayersListener();
+            } catch (error) {
+                console.error('Error initializing lobby:', error);
+            }
+        }
+
+        function setupOnlinePlayersListener() {
+            const db = firebase.firestore();
+            const now = new Date();
+            const fiveMinutesAgo = new Date(now.getTime() - 5 * 60 * 1000);
+
+            if (onlineLobbyListener) {
+                onlineLobbyListener();
+            }
+
+            // Listen to all users collection for online players
+            onlineLobbyListener = db.collection('users')
+                .where('lastSeen', '>=', fiveMinutesAgo)
+                .onSnapshot(snapshot => {
+                    const onlinePlayers = [];
+                    const currentUserId = authManager?.getCurrentUserId();
+
+                    snapshot.forEach(doc => {
+                        if (doc.id !== currentUserId) {
+                            onlinePlayers.push({
+                                uid: doc.id,
+                                username: doc.data().displayName || 'Player',
+                                lastSeen: doc.data().lastSeen,
+                                wins: doc.data().wins || 0,
+                                losses: doc.data().losses || 0
+                            });
+                        }
+                    });
+
+                    displayOnlinePlayersList(onlinePlayers);
+                }, error => {
+                    console.warn('Error listening to online players:', error);
+                });
+        }
+
+        function updateOnlinePlayersList() {
+            const db = firebase.firestore();
+            const now = new Date();
+            const fiveMinutesAgo = new Date(now.getTime() - 5 * 60 * 1000);
+
+            db.collection('users')
+                .where('lastSeen', '>=', fiveMinutesAgo)
+                .get()
+                .then(snapshot => {
+                    const onlinePlayers = [];
+                    const currentUserId = authManager?.getCurrentUserId();
+
+                    snapshot.forEach(doc => {
+                        if (doc.id !== currentUserId) {
+                            onlinePlayers.push({
+                                uid: doc.id,
+                                username: doc.data().displayName || 'Player',
+                                wins: doc.data().wins || 0,
+                                losses: doc.data().losses || 0
+                            });
+                        }
+                    });
+
+                    displayOnlinePlayersList(onlinePlayers);
+                })
+                .catch(error => console.warn('Error fetching online players:', error));
+        }
+
+        function displayOnlinePlayersList(players) {
+            const playersList = document.getElementById('onlinePlayersList');
+            const countEl = document.getElementById('onlinePlayerCount');
+
+            if (!playersList) return;
+
+            countEl.textContent = players.length;
+
+            if (players.length === 0) {
+                playersList.innerHTML = `
+                    <div class="empty-state">
+                        <p>😴 No other players online</p>
+                        <p style="font-size: 0.9em; margin-top: 10px;">Click "Find Match" to start waiting for opponents</p>
+                    </div>
+                `;
+                return;
+            }
+
+            playersList.innerHTML = players.map(player => `
+                <div class="player-item">
+                    <div class="player-info">
+                        <div>
+                            <div class="player-name">👤 ${escapeHtml(player.username)}</div>
+                            <div class="player-status">W: ${player.wins} | L: ${player.losses}</div>
+                        </div>
+                    </div>
+                    <button class="player-action-btn" onclick="quickMatchWithPlayer('${player.uid}', '${escapeHtml(player.username)}')">
+                        Challenge
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        function quickMatchWithPlayer(opponentUid, opponentName) {
+            // For now, show format selection - in future could directly create 1v1
+            console.log('Challenge initiated with:', opponentName);
+            showNotification(`🎯 Challenging ${opponentName}...`, 'info', 2000);
+            showGameFormatModal();
+        }
+
+        function showCreateGameModal() {
+            showNotification('🎮 Create Game feature coming soon!', 'info');
+        }
+
+        function showPlayerStats() {
+            const username = authManager?.getCurrentUser()?.displayName || 'Player';
+            showNotification(`📊 Stats for ${username} coming soon!`, 'info');
+        }
+
+        function showLeaderboard() {
+            showNotification('🏆 Leaderboard coming soon!', 'info');
+        }
+
+        function switchBackToLocal() {
+            const startScreen = document.getElementById('startScreen');
+            const onlineContainer = document.getElementById('onlineContainer');
+            const onlineGameContainer = document.getElementById('onlineGameContainer');
+            const gameContainer = document.getElementById('gameContainer');
+            
+            // Show start screen properly
+            if (startScreen) startScreen.style.display = 'flex';
+            if (gameContainer) gameContainer.style.display = 'block';
+            
+            // Hide online components
+            if (onlineContainer) onlineContainer.style.display = 'none';
+            if (onlineGameContainer) onlineGameContainer.style.display = 'none';
+            
+            // Stop listening
+            if (onlineLobbyListener) {
+                onlineLobbyListener();
+                onlineLobbyListener = null;
+            }
+            
+            showNotification('👋 Switched to Local Play', 'info');
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Update lobby when user logs in
+        window.addEventListener('onlineContainerShown', () => {
+            initializeGameLobby();
+        });
+
+        // Override startOnlineMode to initialize lobby
+        const originalStartOnlineMode = window.startOnlineMode;
+        window.startOnlineMode = function() {
+            originalStartOnlineMode?.call(this);
+            // Add a small delay to ensure DOM is ready
+            setTimeout(() => {
+                initializeGameLobby();
+            }, 100);
+        };
+    </script>
     <!-- Footer with Privacy Policy -->
     <footer>
         Peak Card Game - A multiplayer card game | 
