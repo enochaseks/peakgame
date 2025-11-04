@@ -3,6 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
     <title>Peak Card Game</title>
     
     <!-- Favicon Links -->
@@ -18,6 +21,27 @@
     <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-database.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-firestore.js"></script>
+    <script>
+        // Force clear all caches on page load
+        if ('serviceWorker' in navigator) {
+            caches.keys().then(cacheNames => {
+                cacheNames.forEach(cacheName => {
+                    caches.delete(cacheName);
+                });
+            });
+        }
+        
+        // Clear localStorage if needed (optional)
+        // localStorage.clear();
+        
+        // Disable back/forward cache (bfcache)
+        window.addEventListener('pageshow', (event) => {
+            if (event.persisted) {
+                console.log('Page restored from bfcache, clearing state');
+                window.location.reload();
+            }
+        });
+    </script>
     <script>
         // Initialize Firebase
         const firebaseConfig = {
@@ -3221,7 +3245,7 @@
                 </div>
                 <div class="subtitle">Card Game</div>
             </div>
-            <div id="startScreen" class="setup-form" style="margin-top: -10px;">
+            <div id="startScreen" class="setup-form" style="margin-top: -10px; display: flex !important;">
                 <!-- Login Button at Top -->
                 <div style="display: flex; justify-content: flex-end; margin-bottom: 15px;">
                     <button class="btn" id="startLoginBtn" onclick="goToLoginScreen()" style="font-size: 0.9em; padding: 8px 16px;" disabled title="Coming soon">
