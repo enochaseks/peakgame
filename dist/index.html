@@ -8824,7 +8824,11 @@
             if (gameContainer) gameContainer.style.display = 'block';
             
             const startScreen = document.getElementById('startScreen');
-            if (startScreen) startScreen.style.display = 'block';
+            if (startScreen) {
+                startScreen.style.display = 'flex !important';
+                startScreen.style.visibility = 'visible';
+                startScreen.style.opacity = '1';
+            }
 
             // Hide online containers
             const onlineContainer = document.getElementById('onlineContainer');
@@ -8948,24 +8952,22 @@
 
         // Initialize on load
         document.addEventListener('DOMContentLoaded', () => {
-            setTimeout(() => {
-                // Update button on initial load
-                updateStartLoginButton();
+            // Update button on initial load
+            updateStartLoginButton();
 
-                if (authManager?.isAuthenticated) {
-                    // Check email verification before showing online lobbies
-                    if (authManager?.isEmailVerified?.()) {
-                        uiManager?.showOnlineLobbies();
-                    } else {
-                        // Not verified - show verification screen
-                        const email = authManager?.currentUser?.email || 'your email';
-                        showEmailVerification(email);
-                    }
+            if (authManager?.isAuthenticated) {
+                // Check email verification before showing online lobbies
+                if (authManager?.isEmailVerified?.()) {
+                    uiManager?.showOnlineLobbies();
                 } else {
-                    startLocalMode();
+                    // Not verified - show verification screen
+                    const email = authManager?.currentUser?.email || 'your email';
+                    showEmailVerification(email);
                 }
-                console.log('✅ Peak Card Game Ready');
-            }, 500);
+            } else {
+                startLocalMode();
+            }
+            console.log('✅ Peak Card Game Ready');
 
             // Listen for auth state changes
             window.addEventListener('authStateChanged', () => {
@@ -9152,6 +9154,18 @@
             }, 100);
         };
     </script>
+
+    <!-- Show Start Modal on Page Load -->
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const setupModal = document.getElementById("setupModal");
+            if (setupModal) {
+                setupModal.style.display = "block";
+                console.log('✅ Start screen modal shown');
+            }
+        });
+    </script>
+
     <!-- Footer with Privacy Policy -->
     <footer>
         Peak Card Game - A multiplayer card game | 
