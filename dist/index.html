@@ -714,6 +714,29 @@
             transform-origin: center;
         }
         
+        .player-seat.current-turn .player-avatar {
+            animation: glowPulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes glowPulse {
+            0%, 100% { 
+                box-shadow: 0 0 20px gold, 0 0 30px gold;
+            }
+            50% { 
+                box-shadow: 0 0 30px gold, 0 0 50px gold;
+            }
+        }
+
+        .player-seat.disqualified {
+            opacity: 0.5;
+            filter: grayscale(0.8);
+        }
+
+        .player-seat.finished .player-avatar {
+            border: 3px solid #00ff00;
+            box-shadow: 0 0 20px #00ff00;
+        }
+        
         @media (min-width: 480px) {
             .player-seat {
                 width: 120px;
@@ -2836,8 +2859,8 @@
     <div class="rules-panel" id="rulesPanel">
         <h3>Peak Card Game Rules</h3>
         <ul>
-            <li><strong>Players:</strong> Exactly 4 players</li>
-            <li><strong>Starting Cards:</strong> 7 per player</li>
+            <li><strong>Players:</strong> 2-4 players</li>
+            <li><strong>Starting Cards:</strong> 7 per player (Local) | 5 per player (Online)</li>
             <li><strong>Cannot finish on:</strong> Cards 1-4, Peak, Reverse, Star, Goblin, Pause</li>
             <li><strong>Can finish on:</strong> Cards 5-6</li>
             <li><strong>Can finish on 8-10:</strong> Only if high card played this round</li>
@@ -2869,12 +2892,12 @@
                         <input type="password" id="loginPassword" placeholder="••••••••" required>
                         <div class="form-error" id="loginPasswordError"></div>
                     </div>
-                    <button type="submit" class="auth-btn auth-btn-primary">Sign In</button>
+                    <button type="submit" class="auth-btn auth-btn-primary" onclick="audioManager?.playSound('buttonClick')">Sign In</button>
                 </form>
                 <div class="auth-links">
-                    <span class="auth-link" onclick="uiManager?.showRegisterForm()">Create new account</span>
-                    <span class="auth-link" onclick="uiManager?.showPasswordResetForm()">Forgot password?</span>
-                    <span class="auth-link" onclick="switchBackToLocal()">⬅️ Back to local play</span>
+                    <span class="auth-link" onclick="audioManager?.playSound('buttonClick'); uiManager?.showRegisterForm()">Create new account</span>
+                    <span class="auth-link" onclick="audioManager?.playSound('buttonClick'); uiManager?.showPasswordResetForm()">Forgot password?</span>
+                    <span class="auth-link" onclick="audioManager?.playSound('buttonClick'); switchBackToLocal()">⬅️ Back to local play</span>
                 </div>
             </div>
 
@@ -2903,11 +2926,11 @@
                         <input type="password" id="registerConfirmPassword" placeholder="••••••••" required>
                         <div class="form-error" id="registerConfirmError"></div>
                     </div>
-                    <button type="submit" class="auth-btn auth-btn-primary">Create Account</button>
+                    <button type="submit" class="auth-btn auth-btn-primary" onclick="audioManager?.playSound('buttonClick')">Create Account</button>
                 </form>
                 <div class="auth-links">
-                    <span class="auth-link" onclick="uiManager?.showLoginForm()">Already have an account?</span>
-                    <span class="auth-link" onclick="switchBackToLocal()">⬅️ Back to local play</span>
+                    <span class="auth-link" onclick="audioManager?.playSound('buttonClick'); uiManager?.showLoginForm()">Already have an account?</span>
+                    <span class="auth-link" onclick="audioManager?.playSound('buttonClick'); switchBackToLocal()">⬅️ Back to local play</span>
                 </div>
             </div>
 
@@ -2979,7 +3002,7 @@
                 </div>
                 
                 <!-- Find Match Button -->
-                <button class="lobby-action-btn find-match-btn" onclick="showGameFormatModal()">
+                <button class="lobby-action-btn find-match-btn" onclick="audioManager?.playSound('buttonClick'); showGameFormatModal()">
                     <div class="btn-icon">🎯</div>
                     <div class="btn-text">
                         <div class="btn-title">Find Match</div>
@@ -2988,7 +3011,7 @@
                 </button>
 
                 <!-- Create Private Game Button -->
-                <button class="lobby-action-btn create-game-btn" onclick="showCreateGameModal()">
+                <button class="lobby-action-btn create-game-btn" onclick="audioManager?.playSound('buttonClick'); showCreateGameModal()">
                     <div class="btn-icon">➕</div>
                     <div class="btn-text">
                         <div class="btn-title">Create Game</div>
@@ -2997,7 +3020,7 @@
                 </button>
 
                 <!-- Statistics Button -->
-                <button class="lobby-action-btn stats-btn" onclick="showPlayerStats()">
+                <button class="lobby-action-btn stats-btn" onclick="audioManager?.playSound('buttonClick'); showPlayerStats()">
                     <div class="btn-icon">📊</div>
                     <div class="btn-text">
                         <div class="btn-title">My Stats</div>
@@ -3006,7 +3029,7 @@
                 </button>
 
                 <!-- Leaderboard Button -->
-                <button class="lobby-action-btn leaderboard-btn" onclick="showLeaderboard()">
+                <button class="lobby-action-btn leaderboard-btn" onclick="audioManager?.playSound('buttonClick'); showLeaderboard()">
                     <div class="btn-icon">🏆</div>
                     <div class="btn-text">
                         <div class="btn-title">Leaderboard</div>
@@ -3043,8 +3066,8 @@
 
         <!-- Exit Button -->
         <div class="lobby-footer">
-            <button class="btn-logout" onclick="switchBackToLocal()">⬅️ Back to Local Play</button>
-            <button class="btn-logout" onclick="handleLogout()">🚪 Logout</button>
+            <button class="btn-logout" onclick="audioManager?.playSound('buttonClick'); switchBackToLocal()">⬅️ Back to Local Play</button>
+            <button class="btn-logout" onclick="audioManager?.playSound('buttonClick'); handleLogout()">🚪 Logout</button>
         </div>
 
         <!-- Game Format Modal (Existing) -->
@@ -3089,6 +3112,23 @@
                 </div>
                 <div class="modal-footer">
                     <button class="btn btn-cancel" onclick="cancelMatchmaking()">Cancel Search</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Leaderboard Modal -->
+    <div id="leaderboardModal" class="modal" style="display: none; z-index: 9999; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8);">
+        <div class="modal-content" style="max-width: 600px; background: #fff; color: #333; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);">
+            <div class="modal-header">
+                <h2>🏆 Leaderboard</h2>
+                <button class="close-btn" onclick="closeLeaderboardModal()">✕</button>
+            </div>
+            <div class="modal-body">
+                <div id="leaderboardList" style="max-height: 400px; overflow-y: auto;">
+                    <div style="text-align: center; padding: 20px;">
+                        <p>🔄 Loading leaderboard...</p>
+                    </div>
                 </div>
             </div>
         </div>
@@ -3224,6 +3264,14 @@
             </div>
         </div>
 
+        <!-- Player's Hand Section -->
+        <div style="margin-top: 20px; padding: 15px; background: rgba(255,255,255,0.1); border-radius: 8px;">
+            <div style="font-size: 1.1em; font-weight: bold; margin-bottom: 10px; color: #fff;">Your Hand:</div>
+            <div id="playerHandContainer" style="display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; min-height: 80px;">
+                <!-- Player cards will be generated here -->
+            </div>
+        </div>
+
         <div class="controls">
             <button class="btn draw" id="drawBtn" onclick="drawCard().catch(console.error)" disabled>🃏 DRAW CARD</button>
             <button class="btn quit" id="gameActionBtn" onclick="handleGameAction()">🔄 NEW GAME</button>
@@ -3248,22 +3296,8 @@
             <div id="startScreen" class="setup-form" style="margin-top: -10px; display: flex !important;">
                 <!-- Login Button at Top -->
                 <div style="display: flex; justify-content: flex-end; margin-bottom: 15px;">
-                    <button class="btn" id="startLoginBtn" onclick="goToLoginScreen()" style="font-size: 0.9em; padding: 8px 16px;" disabled title="Coming soon">
-                        🔐 Login (Coming Soon)
-                    </button>
-                </div>
-
-                <!-- Mode Selector Buttons -->
-                <div style="display: flex; gap: 15px; margin-bottom: 25px; justify-content: center;">
-                    <button class="mode-selector-btn mode-local-btn" id="localModeBtn" onclick="startLocalMode()" title="Play with friends on this device">
-                        <span style="font-size: 1.8em; display: block; margin-bottom: 5px;">🏠</span>
-                        <span style="font-weight: bold;">Local Play</span>
-                        <small style="display: block; font-size: 0.8em; margin-top: 3px;">This Device</small>
-                    </button>
-                    <button class="mode-selector-btn mode-online-btn" id="onlineModeBtn" onclick="startOnlineMode()" title="Coming soon" disabled style="opacity: 0.5; cursor: not-allowed;">
-                        <span style="font-size: 1.8em; display: block; margin-bottom: 5px;">🌍</span>
-                        <span style="font-weight: bold;">Online Play</span>
-                        <small style="display: block; font-size: 0.8em; margin-top: 3px;">Coming Soon</small>
+                    <button class="btn" id="startLoginBtn" onclick="audioManager?.playSound('buttonClick'); goToLoginScreen()" style="font-size: 0.9em; padding: 8px 16px;">
+                        🔐 Login
                     </button>
                 </div>
 
@@ -3294,8 +3328,9 @@
                 <p style="margin-top: 10px; margin-bottom: 5px;">Game PIN:</p>
                 <input type="text" class="player-input" id="gamePin" placeholder="Enter 4-digit PIN" maxlength="4" pattern="[0-9]{4}" style="margin-bottom: 10px;">
                 <div style="display: flex; gap: 10px; margin-top: 20px;">
-                    <button class="btn" onclick="createGame()" id="createGameBtn" style="flex: 1;">🎮 Create Game</button>
-                    <button class="btn" onclick="event.preventDefault(); joinGame();" id="joinBtn" disabled style="flex: 1;">🚪 Join Game</button>
+                    <button class="btn" onclick="audioManager?.playSound('buttonClick'); createGame()" id="createGameBtn" style="flex: 1;">🎮 Create Game</button>
+                    <button class="btn" onclick="audioManager?.playSound('buttonClick'); event.preventDefault(); joinGame();" id="joinBtn" disabled style="flex: 1;">🚪 Join Game</button>
+                    <button class="btn" onclick="audioManager?.playSound('buttonClick'); startOnlineMode()" id="onlineModeBtn" style="flex: 1; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">🌍 Online Play</button>
                 </div>
                 
                 <!-- Audio Controls -->
@@ -5151,6 +5186,9 @@
             // Update players
             updatePlayersDisplay();
 
+            // Update player's hand in the new container
+            updatePlayerHandDisplay();
+
             // Update draw button - only enable for current player's turn
             const drawBtn = document.getElementById('drawBtn');
             const isMyTurn = game.players[game.currentPlayerIndex]?.name === gameSession.playerName;
@@ -5252,46 +5290,10 @@
                     avatarDiv.appendChild(statusDiv);
                 }
 
-                // Create simplified hand display (just show a few cards as indicators)
-                const handDiv = document.createElement('div');
-                handDiv.className = 'player-hand';
-                handDiv.id = `player-${playerIndex}-hand`;
-
-                const lastCard = game.discardPile[game.discardPile.length - 1];
-                
-                // Show cards based on whether this is the logged-in player's own hand
-                const isOwnHand = (player.name === gameSession.playerName);
-                
-                // Mark if this is the own hand for special styling
-                if (isOwnHand) {
-                    handDiv.classList.add('own-hand');
-                }
-                const cardsToShow = isOwnHand ? player.hand : player.hand.slice(0, 3);
-                
-                cardsToShow.forEach((card, cardIndex) => {
-                    // Cards are only playable if it's your own hand AND it's your turn
-                    const isPlayable = isOwnHand && playerIndex === game.currentPlayerIndex && game.players && game.players[playerIndex];
-                    const displayCard = isOwnHand ? card : createCardBack();
-                    const cardElement = createCardElement(displayCard, playerIndex, cardIndex, false, isPlayable, !isOwnHand);
-                    handDiv.appendChild(cardElement);
-                });
-
-                // If player has more than 3 cards and it's not own hand, show "..."
-                if (!isOwnHand && player.hand.length > 3) {
-                    const moreDiv = document.createElement('div');
-                    moreDiv.style.fontSize = '0.8em';
-                    moreDiv.style.color = '#666';
-                    moreDiv.style.alignSelf = 'center';
-                    moreDiv.textContent = '...';
-                    handDiv.appendChild(moreDiv);
-                }
-
-                // Assemble avatar
+                // Assemble avatar - just icon, name, and card count (no hand display)
                 avatarDiv.appendChild(iconDiv);
                 avatarDiv.appendChild(nameDiv);
                 avatarDiv.appendChild(cardCountDiv);
-                // Always show cards - either own cards (face up) or card backs (face down)
-                avatarDiv.appendChild(handDiv);
 
                 seatDiv.appendChild(avatarDiv);
                 container.appendChild(seatDiv);
@@ -5310,6 +5312,57 @@
                 isReverseCard: () => false,
                 canFinishOn: () => false
             };
+        }
+
+        function updatePlayerHandDisplay() {
+            const handContainer = document.getElementById('playerHandContainer');
+            if (!handContainer) return;
+
+            // Find the current player
+            const currentPlayer = game.players.find(p => p.name === gameSession.playerName);
+            if (!currentPlayer) {
+                handContainer.innerHTML = '<div style="color: #999;">Not in game</div>';
+                return;
+            }
+
+            // Clear and render the player's hand
+            if (currentPlayer.hand.length === 0) {
+                handContainer.innerHTML = '<div style="color: #999;">No cards in hand</div>';
+            } else {
+                handContainer.innerHTML = '';
+                const playerIndex = game.players.findIndex(p => p.name === gameSession.playerName);
+                const isMyTurn = playerIndex === game.currentPlayerIndex;
+
+                currentPlayer.hand.forEach((card, cardIndex) => {
+                    const cardElement = document.createElement('div');
+                    cardElement.className = 'card ' + card.type;
+                    cardElement.textContent = card.toString();
+                    cardElement.style.cursor = isMyTurn ? 'pointer' : 'default';
+                    cardElement.style.padding = '15px 20px';
+                    cardElement.style.fontSize = '1.5em';
+                    cardElement.style.minWidth = '60px';
+                    cardElement.style.textAlign = 'center';
+                    cardElement.style.borderRadius = '8px';
+                    cardElement.style.transition = 'all 0.3s ease';
+                    
+                    if (isMyTurn) {
+                        cardElement.classList.add('playable');
+                        cardElement.onclick = async () => {
+                            await playCard(playerIndex, cardIndex);
+                        };
+                        cardElement.onmouseenter = () => {
+                            cardElement.style.transform = 'translateY(-10px) scale(1.1)';
+                        };
+                        cardElement.onmouseleave = () => {
+                            cardElement.style.transform = 'translateY(0) scale(1)';
+                        };
+                    } else {
+                        cardElement.style.opacity = '0.6';
+                    }
+                    
+                    handContainer.appendChild(cardElement);
+                });
+            }
         }
 
         function createCardElement(card, playerIndex, cardIndex, isLastPlayed = false, isPlayable = false, isCardBack = false) {
@@ -7615,15 +7668,16 @@
                         document.getElementById('verificationEmail').textContent = email;
                     } else {
                         console.log('✅ Email verified, showing profile');
-                        showNotification('✅ Welcome back! Going to your profile...', 'success', 2000);
+                        showNotification('✅ Welcome back!', 'success', 1500);
                         
-                        // Email verified, show profile
-                        setTimeout(() => {
-                            document.getElementById('authContainer').style.display = 'none';
-                            document.getElementById('emailVerificationContainer').style.display = 'none';
-                            document.getElementById('gameContainer').style.display = 'none';
-                            document.getElementById('onlineContainer').style.display = 'block';
-                        }, 500);
+                        // Email verified, show profile immediately
+                        document.getElementById('authContainer').style.display = 'none';
+                        document.getElementById('emailVerificationContainer').style.display = 'none';
+                        document.getElementById('gameContainer').style.display = 'none';
+                        document.getElementById('onlineContainer').style.display = 'block';
+                        
+                        // Initialize lobby immediately
+                        initializeGameLobby();
                     }
                 } else {
                     showNotification('❌ ' + (result?.error || 'Login failed'), 'error', 5000);
@@ -7754,17 +7808,16 @@
 
                 if (result?.isVerified) {
                     console.log('✅ Email verified! Redirecting to profile...');
-                    showNotification('✅ Email verified! Going to your profile...', 'success', 2000);
+                    showNotification('✅ Email verified!', 'success', 1500);
                     
-                    // Hide verification screen after a short delay
-                    setTimeout(() => {
-                        document.getElementById('emailVerificationContainer').style.display = 'none';
-                        document.getElementById('authContainer').style.display = 'none';
-                        document.getElementById('gameContainer').style.display = 'none';
-                        
-                        // Show profile/online lobbies
-                        document.getElementById('onlineContainer').style.display = 'block';
-                    }, 1000);
+                    // Show profile/online lobbies immediately
+                    document.getElementById('emailVerificationContainer').style.display = 'none';
+                    document.getElementById('authContainer').style.display = 'none';
+                    document.getElementById('gameContainer').style.display = 'none';
+                    document.getElementById('onlineContainer').style.display = 'block';
+                    
+                    // Initialize lobby immediately
+                    initializeGameLobby();
                     
                 } else {
                     console.log('⏳ Email not verified yet');
@@ -7872,6 +7925,18 @@
         }
 
         async function selectGameFormat(format) {
+            // Check if this is for a challenge
+            if (window.pendingChallengeOpponent) {
+                const opponent = window.pendingChallengeOpponent;
+                window.pendingChallengeOpponent = null; // Clear it
+                closeGameFormatModal();
+                
+                // Send challenge with the selected format
+                await sendChallengeWithFormat(format, opponent.uid, opponent.name);
+                return;
+            }
+
+            // Otherwise, proceed with normal matchmaking
             currentMatchmakingFormat = format;
             closeGameFormatModal();
             
@@ -8324,21 +8389,36 @@
 
                 // Initialize online game room for current user
                 currentOnlineGameRoom = new OnlineGameRoom(gameRoomId, playerId, authManager);
+                console.log('📦 OnlineGameRoom created');
+                
                 const initResult = await currentOnlineGameRoom.initializeGame();
+                console.log('🎮 Init result:', initResult);
 
                 if (initResult.success) {
                     console.log('✅ Game initialized successfully');
                     
-                    // Deal initial hands
-                    await currentOnlineGameRoom.dealInitialHands();
+                    // Check if hands already dealt (in case second player is joining)
+                    const gameState = currentOnlineGameRoom.getGameState();
+                    const firstPlayer = gameState.players[0];
+                    
+                    if (!firstPlayer.hand || firstPlayer.hand.length === 0) {
+                        console.log('🃏 Dealing initial hands...');
+                        await currentOnlineGameRoom.dealInitialHands();
+                    } else {
+                        console.log('✅ Hands already dealt');
+                    }
                     
                     // Show online game container
                     document.getElementById('onlineContainer').style.display = 'none';
                     document.getElementById('onlineGameContainer').style.display = 'block';
                     
+                    // Set up event listener for real-time game state updates
+                    window.addEventListener('gameStateUpdated', handleGameStateUpdate);
+                    
                     // Start UI update loop
                     startOnlineGameUIUpdates();
                     
+                    console.log('✅ currentOnlineGameRoom is now:', currentOnlineGameRoom);
                     showNotification('✅ Game started! Get ready to play!', 'success', 3000);
                 } else {
                     console.error('❌ Failed to initialize game:', initResult.error);
@@ -8358,41 +8438,324 @@
         // Global reference to current online game
         let currentOnlineGameRoom = null;
 
-        // Start UI update loop for online game
+        /**
+         * Handle real-time game state updates from Firestore
+         */
+        function handleGameStateUpdate(event) {
+            if (!currentOnlineGameRoom) return;
+            
+            console.log('🔄 Game state updated from Firestore');
+            
+            // Update UI when Firestore notifies us of changes
+            updateOnlineGameUI();
+        }
+
+        /**
+         * Update all online game UI elements
+         */
+        function updateOnlineGameUI() {
+            if (!currentOnlineGameRoom) return;
+            
+            const gameState = currentOnlineGameRoom.getGameState();
+            
+            // Update game info
+            document.getElementById('onlineRoundNumber').textContent = gameState.currentRound;
+            document.getElementById('onlineDeckCount').textContent = gameState.deck.length;
+            document.getElementById('onlineHighCardPlayed').textContent = gameState.highCardPlayed ? '✅ Yes' : '❌ No';
+            
+            const currentPlayer = currentOnlineGameRoom.getCurrentPlayer();
+            if (currentPlayer) {
+                document.getElementById('onlineCurrentPlayer').textContent = currentPlayer.username;
+            }
+
+            // Update direction indicator
+            const directionText = gameState.direction === 1 ? '↻ Clockwise' : '↺ Counter-CW';
+            document.getElementById('onlineGameDirection').textContent = directionText;
+
+            // Update players display
+            updateOnlinePlayersDisplay();
+
+            // Update player's hand
+            updateOnlinePlayerHand();
+
+            // Update draw button state
+            const isMyTurn = currentOnlineGameRoom.isMyTurn();
+            document.getElementById('onlineDrawBtn').disabled = !isMyTurn;
+
+            // Update last played card
+            if (gameState.lastPlayedCard) {
+                renderOnlineLastPlayedCard(gameState.lastPlayedCard);
+            }
+        }
+
+        // Store interval ID so we can clear it
+        let onlineGameUIInterval = null;
+
+        // Start UI update loop for online game (fallback only, main updates come from Firestore)
         function startOnlineGameUIUpdates() {
-            const updateInterval = setInterval(() => {
+            // Clear any existing interval
+            if (onlineGameUIInterval) {
+                clearInterval(onlineGameUIInterval);
+            }
+            
+            // Initial update
+            updateOnlineGameUI();
+            
+            // Fallback interval at 2 seconds (much slower) in case Firestore updates fail
+            // Most updates will come from the gameStateUpdated event listener
+            onlineGameUIInterval = setInterval(() => {
                 if (!currentOnlineGameRoom) {
-                    clearInterval(updateInterval);
+                    clearInterval(onlineGameUIInterval);
+                    onlineGameUIInterval = null;
                     return;
                 }
 
-                const gameState = currentOnlineGameRoom.getGameState();
-                
-                // Update UI elements
-                document.getElementById('onlineRoundNumber').textContent = gameState.currentRound;
-                document.getElementById('onlineDeckCount').textContent = gameState.deck.length;
-                document.getElementById('onlineHighCardPlayed').textContent = gameState.highCardPlayed ? '✅ Yes' : '❌ No';
-                
-                const currentPlayer = currentOnlineGameRoom.getCurrentPlayer();
-                if (currentPlayer) {
-                    document.getElementById('onlineCurrentPlayer').textContent = currentPlayer.username;
-                }
+                // Only update if we haven't received an update recently
+                updateOnlineGameUI();
+            }, 2000);
+        }
 
-                // Update players container
-                updateOnlinePlayersDisplay(gameState.players);
+        /**
+         * Render last played card in center
+         */
+        function renderOnlineLastPlayedCard(card) {
+            let cardDisplay = '';
+            let cardClass = card.type;
+            
+            switch (card.type) {
+                case 'peak':
+                    cardDisplay = '⛰️ PEAK';
+                    break;
+                case 'reverse':
+                    cardDisplay = '🔄 REVERSE';
+                    break;
+                case 'star':
+                    cardDisplay = '✨ STAR';
+                    break;
+                case 'goblin':
+                    cardDisplay = '👹 GOBLIN';
+                    break;
+                case 'pause':
+                    cardDisplay = '⏸️ PAUSE';
+                    break;
+                default:
+                    cardDisplay = card.number;
+            }
+            
+            document.getElementById('onlineLastPlayedCard').innerHTML = `
+                <div class="card ${cardClass}" style="margin: 0 auto;">
+                    ${cardDisplay}
+                </div>
+            `;
+        }
 
-                // Update last played card
-                if (gameState.lastPlayedCard) {
-                    const cardDisplay = gameState.lastPlayedCard.type === 'peak' 
-                        ? 'PEAK' 
-                        : gameState.lastPlayedCard.number;
-                    document.getElementById('onlineLastPlayedCard').innerHTML = `
-                        <div class="card ${gameState.lastPlayedCard.type}" style="margin: 0 auto;">
-                            ${cardDisplay}
-                        </div>
-                    `;
+        /**
+         * Update player's hand display with clickable cards
+         */
+        function updateOnlinePlayerHand() {
+            if (!currentOnlineGameRoom) {
+                return;
+            }
+            
+            const myPlayer = currentOnlineGameRoom.getMyPlayer();
+            if (!myPlayer || !myPlayer.hand) {
+                return;
+            }
+            
+            const handContainer = document.getElementById('onlinePlayerHand');
+            const isMyTurn = currentOnlineGameRoom.isMyTurn();
+            
+            handContainer.innerHTML = '';
+            
+            if (myPlayer.hand.length === 0) {
+                handContainer.innerHTML = '<div style="color: #fff; font-style: italic;">No cards in hand</div>';
+                return;
+            }
+            
+            myPlayer.hand.forEach((card, index) => {
+                const cardElement = document.createElement('div');
+                
+                // Use the same card class structure as local gameplay
+                if (card.type === 'peak') {
+                    cardElement.className = 'card peak';
+                    cardElement.textContent = '⛰️';
+                } else if (card.type === 'reverse') {
+                    cardElement.className = 'card reverse';
+                    cardElement.textContent = '🔄';
+                } else if (card.type === 'star') {
+                    cardElement.className = 'card star';
+                    cardElement.textContent = '✨';
+                } else if (card.type === 'goblin') {
+                    cardElement.className = 'card goblin';
+                    cardElement.textContent = '👹';
+                } else if (card.type === 'pause') {
+                    cardElement.className = 'card pause';
+                    cardElement.textContent = '⏸️';
+                } else {
+                    // Number card
+                    cardElement.className = 'card regular';
+                    cardElement.textContent = card.number;
                 }
-            }, 500);
+                
+                // Add playable state
+                if (isMyTurn) {
+                    cardElement.classList.add('playable');
+                    cardElement.style.cursor = 'pointer';
+                    
+                    // Click to play card
+                    cardElement.onclick = async (e) => {
+                        e.stopPropagation();
+                        e.preventDefault();
+                        console.log('🎴 Card clicked! Index:', index, 'Card:', card);
+                        
+                        // Disable further clicks during processing
+                        cardElement.style.pointerEvents = 'none';
+                        
+                        try {
+                            console.log('📞 Calling playOnlineCard with index:', index);
+                            console.log('🎮 currentOnlineGameRoom before call:', currentOnlineGameRoom);
+                            await playOnlineCard(index);
+                            console.log('✅ playOnlineCard completed');
+                        } catch (err) {
+                            console.error('❌ Error in card click handler:', err);
+                        } finally {
+                            // Re-enable after a short delay
+                            setTimeout(() => {
+                                cardElement.style.pointerEvents = 'auto';
+                            }, 500);
+                        }
+                    };
+                } else {
+                    cardElement.style.opacity = '0.6';
+                    cardElement.style.cursor = 'default';
+                }
+                
+                handContainer.appendChild(cardElement);
+            });
+        }
+
+        /**
+         * Play a card from online hand
+         */
+        async function playOnlineCard(cardIndex) {
+            console.log('🎴 playOnlineCard called with index:', cardIndex);
+            console.log('🎮 currentOnlineGameRoom:', currentOnlineGameRoom);
+            
+            if (!currentOnlineGameRoom) {
+                console.error('❌ No game room');
+                showNotification('❌ Game not initialized! Please refresh the page.', 'error', 5000);
+                return;
+            }
+            
+            const isMyTurn = currentOnlineGameRoom.isMyTurn();
+            const gameState = currentOnlineGameRoom.getGameState();
+            const myPlayer = currentOnlineGameRoom.getMyPlayer();
+            
+            console.log('🎯 Turn check:', {
+                isMyTurn: isMyTurn,
+                currentPlayerIndex: gameState.currentPlayerIndex,
+                myPlayer: myPlayer,
+                playerId: currentOnlineGameRoom.playerId
+            });
+            
+            if (!isMyTurn) {
+                console.log('❌ Not your turn');
+                showNotification('⏳ Wait for your turn!', 'error', 3000);
+                audioManager?.playSound('loseSound', 0.3);
+                return;
+            }
+            
+            console.log('✅ It is your turn, attempting to play card...');
+            
+            try {
+                const result = await currentOnlineGameRoom.playCard(cardIndex);
+                console.log('🎴 Play result:', result);
+                
+                if (result && result.success) {
+                    const card = result.card;
+                    
+                    // Play special card animations and sounds
+                    if (card.type === 'peak') {
+                        playSpecialCardAnimationEnhanced('peak');
+                        audioManager?.playSound('peakCard', 0.8);
+                        showNotification('⛰️ PEAK! Next player picks up 5 cards!', 'warning', 3000);
+                    } else if (card.type === 'reverse') {
+                        playSpecialCardAnimationEnhanced('reverse');
+                        audioManager?.playSound('buttonClick');
+                        const directionText = result.newDirection === 1 ? 'clockwise ↻' : 'counter-clockwise ↺';
+                        showNotification(`🔄 Direction reversed! Now playing ${directionText}`, 'special', 3000);
+                    } else if (card.type === 'star') {
+                        playSpecialCardAnimationEnhanced('star');
+                        audioManager?.playSound('starSound', 0.6);
+                        showNotification('✨ STAR! Removing all Peak cards!', 'success', 3000);
+                    } else if (card.type === 'goblin') {
+                        playSpecialCardAnimationEnhanced('goblin');
+                        audioManager?.playSound('goblinSound', 0.6);
+                        showNotification('👹 GOBLIN! Everyone gets a bad card!', 'warning', 3000);
+                    } else if (card.type === 'pause') {
+                        playSpecialCardAnimationEnhanced('pause');
+                        playSpecialCardAnimationEnhanced('legendary'); // Extra effect for legendary card
+                        audioManager?.playSound('buttonClick');
+                        showNotification('⏸️ PAUSE! Next player frozen for 2 mins!', 'legendary', 3000);
+                    } else {
+                        // Regular number card
+                        audioManager?.playSound('cardPlace');
+                        showNotification(`✅ Played ${card.number}!`, 'success', 2000);
+                    }
+                    
+                    updateOnlineGameUI();
+                    
+                    if (result.gameOver) {
+                        showNotification(`🎉 ${result.winner?.username} wins!`, 'success', 5000);
+                        audioManager?.playSound('winSound');
+                    }
+                } else {
+                    console.error('❌ Play failed:', result);
+                    showNotification(`❌ ${result?.error || 'Failed to play card'}`, 'error', 3000);
+                    audioManager?.playSound('loseSound', 0.3);
+                }
+                
+            } catch (error) {
+                console.error('❌ Exception:', error);
+                showNotification('❌ ' + error.message, 'error', 3000);
+                audioManager?.playSound('loseSound', 0.3);
+            }
+        }
+
+        /**
+         * Draw a card in online game
+         */
+        async function drawOnlineCard() {
+            if (!currentOnlineGameRoom) {
+                showNotification('❌ Game not initialized', 'error');
+                return;
+            }
+            
+            // Check if it's your turn
+            if (!currentOnlineGameRoom.isMyTurn()) {
+                showNotification('⏳ Wait for your turn!', 'error');
+                audioManager?.playSound('loseSound', 0.3);
+                return;
+            }
+            
+            try {
+                audioManager?.playSound('cardFlip');
+                
+                const result = await currentOnlineGameRoom.drawCard();
+                
+                if (result.success) {
+                    showNotification(`🃏 Drew a card`, 'info', 2000);
+                    updateOnlinePlayerHand();
+                } else {
+                    showNotification(`❌ ${result.error}`, 'error');
+                    audioManager?.playSound('loseSound', 0.3);
+                }
+                
+            } catch (error) {
+                console.error('Error drawing card:', error);
+                showNotification('❌ Failed to draw card: ' + error.message, 'error');
+                audioManager?.playSound('loseSound', 0.3);
+            }
         }
 
 
@@ -8552,135 +8915,11 @@
             }
         }
 
-        async function playOnlineCard(cardIndex) {
-            try {
-                if (!onlineGameState) {
-                    showNotification('❌ Game not initialized', 'error');
-                    return;
-                }
-
-                const currentPlayerId = authManager?.getCurrentUserId();
-                const currentPlayer = onlineGameState.players[onlineGameState.currentPlayerIndex];
-                
-                if (currentPlayer.uid !== currentPlayerId) {
-                    showNotification("⏳ Not your turn!", 'error');
-                    return;
-                }
-
-                if (cardIndex >= currentPlayer.hand.length) {
-                    showNotification('❌ Invalid card', 'error');
-                    return;
-                }
-
-                const card = currentPlayer.hand.splice(cardIndex, 1)[0];
-                onlineGameState.discardPile.push(card);
-                audioManager?.playSound('cardPlace');
-
-                showNotification(`♠️ You played: ${card}`, 'info');
-
-                // Check if player finished
-                if (currentPlayer.hand.length === 0) {
-                    currentPlayer.hasFinished = true;
-                    showNotification(`🎉 ${currentPlayer.username} finished!`, 'success');
-                    
-                    // Check if game is over (only 1 player left)
-                    const finishedCount = onlineGameState.players.filter(p => p.hasFinished).length;
-                    if (finishedCount === onlineGameState.players.length - 1) {
-                        onlineGameState.gameOver = true;
-                        onlineGameState.winner = currentPlayer.username;
-                        showNotification(`🏆 ${currentPlayer.username} WON THE GAME!`, 'success');
-                        audioManager?.playSound('winSound');
-                    }
-                }
-
-                await nextOnlineTurn();
-                await saveOnlineGameState();
-
-            } catch (error) {
-                console.error('Error playing card:', error);
-                showNotification('❌ Error playing card', 'error');
-            }
-        }
-
-        async function nextOnlineTurn() {
-            if (onlineGameState.gameOver) return;
-
-            onlineGameState.currentPlayerIndex = (onlineGameState.currentPlayerIndex + onlineGameState.direction + onlineGameState.players.length) % onlineGameState.players.length;
-
-            // Skip disqualified players
-            while (onlineGameState.players[onlineGameState.currentPlayerIndex].isDisqualified && !onlineGameState.gameOver) {
-                onlineGameState.currentPlayerIndex = (onlineGameState.currentPlayerIndex + onlineGameState.direction + onlineGameState.players.length) % onlineGameState.players.length;
-            }
-
-            updateOnlineDisplay();
-        }
-
-        async function saveOnlineGameState() {
-            try {
-                if (!onlineGameState || !onlineGameState.gameId) return;
-
-                const db = firebase.firestore();
-                const gameRef = db.collection('gameRooms').doc(onlineGameState.gameId);
-
-                await gameRef.update({
-                    gameState: onlineGameState,
-                    lastUpdated: new Date()
-                });
-
-                console.log('💾 Game state saved');
-            } catch (error) {
-                console.error('Error saving game state:', error);
-            }
-        }
-
-        function updateOnlineDisplay() {
-            if (!onlineGameState) return;
-
-            const currentPlayer = onlineGameState.players[onlineGameState.currentPlayerIndex];
-
-            // Update info
-            document.getElementById('onlineRoundNumber').textContent = onlineGameState.roundNumber;
-            document.getElementById('onlineDeckCount').textContent = onlineGameState.deck.length;
-            document.getElementById('onlineCurrentPlayer').textContent = currentPlayer?.username || '-';
-            document.getElementById('onlineGameDirection').textContent = onlineGameState.direction === 1 ? '↙️' : '↗️';
-
-            // Update players display
-            updateOnlinePlayersDisplay();
-
-            // Update last played card
-            if (onlineGameState.discardPile.length > 0) {
-                const lastCard = onlineGameState.discardPile[onlineGameState.discardPile.length - 1];
-                document.getElementById('onlineLastPlayedCard').innerHTML = `<div class="card regular" style="margin: 0 auto;">${lastCard}</div>`;
-            }
-
-            // Update player's hand
-            const currentUserId = authManager?.getCurrentUserId();
-            const myPlayer = onlineGameState.players.find(p => p.uid === currentUserId);
-            
-            if (myPlayer) {
-                const handContainer = document.getElementById('onlinePlayerHand');
-                if (handContainer) {
-                    if (myPlayer.hand.length === 0) {
-                        handContainer.innerHTML = '<div style="color: #999;">No cards in hand</div>';
-                    } else {
-                        handContainer.innerHTML = myPlayer.hand.map((card, idx) => `
-                            <div class="card" style="cursor: pointer; padding: 10px; background: #667eea; border-radius: 6px; min-width: 50px; text-align: center; color: white; font-weight: bold;" onclick="playOnlineCard(${idx})" title="Click to play this card">
-                                ${card}
-                            </div>
-                        `).join('');
-                    }
-                }
-            }
-
-            // Enable/disable draw button based on turn
-            const drawBtn = document.getElementById('onlineDrawBtn');
-            if (drawBtn && currentPlayer && currentUserId) {
-                drawBtn.disabled = currentPlayer.uid !== currentUserId;
-            }
-        }
-
         function updateOnlinePlayersDisplay() {
-            if (!onlineGameState) return;
+            if (!currentOnlineGameRoom) return;
+
+            const gameState = currentOnlineGameRoom.getGameState();
+            if (!gameState || !gameState.players) return;
 
             const container = document.getElementById('onlinePlayersContainer');
             if (!container) return;
@@ -8693,20 +8932,27 @@
                 'linear-gradient(135deg, #74b9ff, #0984e3)'
             ];
 
-            container.innerHTML = onlineGameState.players.map((player, idx) => {
-                const isCurrentTurn = idx === onlineGameState.currentPlayerIndex;
+            const myPlayer = currentOnlineGameRoom.getMyPlayer();
+
+            container.innerHTML = gameState.players.map((player, idx) => {
+                const isCurrentTurn = idx === gameState.currentPlayerIndex;
+                const isMe = player.uid === myPlayer?.uid;
                 const statusClass = isCurrentTurn ? 'current-turn' : '';
-                const finishedClass = player.hasFinished ? 'finished' : '';
+                const finishedClass = player.status === 'finished' ? 'finished' : '';
+                const disqualifiedClass = player.status === 'disqualified' ? 'disqualified' : '';
                 
                 return `
-                    <div class="player-seat ${statusClass} ${finishedClass}" style="opacity: ${player.isDisqualified ? 0.5 : 1};">
-                        <div class="player-avatar" style="background: ${avatarColors[idx]}; ${isCurrentTurn ? 'border: 3px solid gold;' : ''}">
-                            <div class="avatar-icon">${avatarIcons[idx]}</div>
+                    <div class="player-seat ${statusClass} ${finishedClass} ${disqualifiedClass}">
+                        <div class="player-avatar" style="background: ${avatarColors[idx % avatarColors.length]}; ${isCurrentTurn ? 'border: 3px solid gold; box-shadow: 0 0 20px gold;' : ''}">
+                            <div class="avatar-icon">${avatarIcons[idx % avatarIcons.length]}</div>
                         </div>
-                        <div class="player-name">${player.username}</div>
-                        <div class="card-count">${player.hand.length} 🃏</div>
-                        ${player.hasFinished ? '<div style="color: #FFD700; font-size: 0.9em;">✅ Finished</div>' : ''}
-                        ${player.isDisqualified ? '<div style="color: #ff6b6b; font-size: 0.9em;">❌ Disqualified</div>' : ''}
+                        <div class="player-name" style="font-weight: ${isMe ? 'bold' : 'normal'}; color: ${isMe ? '#FFD700' : '#fff'};">
+                            ${player.username} ${isMe ? '(You)' : ''}
+                        </div>
+                        <div class="card-count">${player.cardCount || 0} 🃏</div>
+                        ${player.status === 'finished' ? '<div style="color: #00ff00; font-size: 0.9em; margin-top: 4px;">✅ Finished</div>' : ''}
+                        ${player.status === 'disqualified' ? '<div style="color: #ff6b6b; font-size: 0.9em; margin-top: 4px;">❌ Disqualified</div>' : ''}
+                        ${player.pausedUntil && Date.now() < player.pausedUntil ? `<div style="color: #ffa500; font-size: 0.9em; margin-top: 4px;">⏸️ Paused</div>` : ''}
                     </div>
                 `;
             }).join('');
@@ -8714,6 +8960,15 @@
 
         function handleOnlineGameAction() {
             if (confirm('Are you sure you want to leave this game?')) {
+                // Clear interval
+                if (onlineGameUIInterval) {
+                    clearInterval(onlineGameUIInterval);
+                    onlineGameUIInterval = null;
+                }
+                
+                // Remove event listener
+                window.removeEventListener('gameStateUpdated', handleGameStateUpdate);
+                
                 if (currentOnlineGameRoom) {
                     currentOnlineGameRoom.cleanup();
                     currentOnlineGameRoom = null;
@@ -8859,6 +9114,10 @@
                 // Already logged in, show online lobbies
                 const onlineContainer = document.getElementById('onlineContainer');
                 if (onlineContainer) onlineContainer.style.display = 'block';
+                
+                // Initialize lobby immediately
+                initializeGameLobby();
+                
                 uiManager?.showNotification('✅ Welcome to Online Play!', 'success', 2000);
             } else {
                 // Not logged in, show auth screen
@@ -8934,9 +9193,11 @@
                 btn.innerHTML = `👤 ${username}`;
                 btn.title = 'View your profile';
                 btn.onclick = () => {
+                    audioManager?.playSound('buttonClick');
                     // If in local mode, show online profile
                     if (document.getElementById('gameContainer')?.style.display !== 'none') {
                         uiManager?.showOnlineLobbies();
+                        initializeGameLobby();
                     } else {
                         // Already in online mode, just switch to profile tab
                         switchOnlineTab('profile');
@@ -8982,60 +9243,101 @@
 
         function initializeGameLobby() {
             try {
-                const username = authManager?.getCurrentUser()?.displayName || 'Player';
-                document.getElementById('lobbyUsername').textContent = username;
+                console.log('🎮 Initializing game lobby...');
                 
-                // Update online players list
+                // Get username from auth manager or firebase auth directly
+                const username = authManager?.getCurrentUser()?.displayName || 
+                                firebase.auth().currentUser?.displayName || 
+                                'Player';
+                
+                const lobbyUsernameEl = document.getElementById('lobbyUsername');
+                if (lobbyUsernameEl) {
+                    lobbyUsernameEl.textContent = username;
+                }
+                
+                // Update online players list immediately
                 updateOnlinePlayersList();
 
                 // Start listening for online players updates
                 setupOnlinePlayersListener();
+                
+                console.log('✅ Lobby initialized for:', username);
             } catch (error) {
                 console.error('Error initializing lobby:', error);
+                // Even if there's an error, try to get username from Firebase Auth
+                const lobbyUsernameEl = document.getElementById('lobbyUsername');
+                if (lobbyUsernameEl) {
+                    const fallbackUsername = firebase.auth().currentUser?.displayName || 
+                                           firebase.auth().currentUser?.email?.split('@')[0] || 
+                                           'User';
+                    lobbyUsernameEl.textContent = fallbackUsername;
+                }
             }
         }
 
         function setupOnlinePlayersListener() {
             const db = firebase.firestore();
-            const now = new Date();
-            const fiveMinutesAgo = new Date(now.getTime() - 5 * 60 * 1000);
 
             if (onlineLobbyListener) {
+                console.log('🔄 Cleaning up old listener');
                 onlineLobbyListener();
+                onlineLobbyListener = null;
             }
 
-            // Listen to all users collection for online players
-            onlineLobbyListener = db.collection('users')
-                .where('lastSeen', '>=', fiveMinutesAgo)
-                .onSnapshot(snapshot => {
-                    const onlinePlayers = [];
-                    const currentUserId = authManager?.getCurrentUserId();
+            try {
+                // Get all users - no filter needed
+                onlineLobbyListener = db.collection('users')
+                    .limit(50)
+                    .onSnapshot(snapshot => {
+                        const onlinePlayers = [];
+                        const currentUserId = authManager?.getCurrentUserId();
 
-                    snapshot.forEach(doc => {
-                        if (doc.id !== currentUserId) {
-                            onlinePlayers.push({
-                                uid: doc.id,
-                                username: doc.data().displayName || 'Player',
-                                lastSeen: doc.data().lastSeen,
-                                wins: doc.data().wins || 0,
-                                losses: doc.data().losses || 0
-                            });
+                        snapshot.forEach(doc => {
+                            if (doc.id !== currentUserId) {
+                                const data = doc.data();
+                                onlinePlayers.push({
+                                    uid: doc.id,
+                                    username: data.username || data.displayName || data.email?.split('@')[0],
+                                    lastSeen: data.lastSeen,
+                                    wins: data.wins || 0,
+                                    losses: data.losses || 0
+                                });
+                            }
+                        });
+
+                        displayOnlinePlayersList(onlinePlayers);
+                    }, error => {
+                        console.warn('Error listening to online players:', error);
+                        const playersList = document.getElementById('onlinePlayersList');
+                        if (playersList) {
+                            playersList.innerHTML = `
+                                <div class="empty-state">
+                                    <p>⚠️ Connection lost</p>
+                                </div>
+                            `;
                         }
                     });
-
-                    displayOnlinePlayersList(onlinePlayers);
-                }, error => {
-                    console.warn('Error listening to online players:', error);
-                });
+            } catch (error) {
+                console.error('Error setting up listener:', error);
+            }
         }
 
         function updateOnlinePlayersList() {
             const db = firebase.firestore();
-            const now = new Date();
-            const fiveMinutesAgo = new Date(now.getTime() - 5 * 60 * 1000);
+            const playersList = document.getElementById('onlinePlayersList');
+            
+            // Show loading state
+            if (playersList) {
+                playersList.innerHTML = `
+                    <div class="empty-state">
+                        <p>🔄 Loading players...</p>
+                    </div>
+                `;
+            }
 
+            // Get all users - no filter needed
             db.collection('users')
-                .where('lastSeen', '>=', fiveMinutesAgo)
+                .limit(50)
                 .get()
                 .then(snapshot => {
                     const onlinePlayers = [];
@@ -9043,18 +9345,30 @@
 
                     snapshot.forEach(doc => {
                         if (doc.id !== currentUserId) {
+                            const data = doc.data();
                             onlinePlayers.push({
                                 uid: doc.id,
-                                username: doc.data().displayName || 'Player',
-                                wins: doc.data().wins || 0,
-                                losses: doc.data().losses || 0
+                                username: data.username || data.displayName || data.email?.split('@')[0],
+                                wins: data.wins || 0,
+                                losses: data.losses || 0
                             });
                         }
                     });
 
                     displayOnlinePlayersList(onlinePlayers);
                 })
-                .catch(error => console.warn('Error fetching online players:', error));
+                .catch(error => {
+                    console.warn('Error fetching online players:', error);
+                    // Show error state
+                    if (playersList) {
+                        playersList.innerHTML = `
+                            <div class="empty-state">
+                                <p>⚠️ Could not load players</p>
+                                <p style="font-size: 0.9em; margin-top: 10px;">Check your connection</p>
+                            </div>
+                        `;
+                    }
+                });
         }
 
         function displayOnlinePlayersList(players) {
@@ -9091,23 +9405,506 @@
         }
 
         function quickMatchWithPlayer(opponentUid, opponentName) {
-            // For now, show format selection - in future could directly create 1v1
             console.log('Challenge initiated with:', opponentName);
-            showNotification(`🎯 Challenging ${opponentName}...`, 'info', 2000);
-            showGameFormatModal();
+            
+            const currentUser = authManager?.getCurrentUser();
+            if (!currentUser) {
+                showNotification('❌ You must be logged in to challenge players', 'error');
+                return;
+            }
+
+            const challengerId = currentUser.uid;
+            const challengerName = currentUser.displayName || 'Player';
+
+            // Directly send 1v1 challenge (no format selection needed for challenges)
+            sendChallengeWithFormat('1v1', opponentUid, opponentName);
         }
 
+        async function sendChallengeWithFormat(format, opponentUid, opponentName) {
+            const currentUser = authManager?.getCurrentUser();
+            if (!currentUser) {
+                showNotification('❌ You must be logged in to challenge players', 'error');
+                return;
+            }
+
+            const challengerId = currentUser.uid;
+            
+            // Get challenger's username from Firestore
+            const db = firebase.firestore();
+            const userDoc = await db.collection('users').doc(challengerId).get();
+            const challengerName = userDoc.exists ? userDoc.data().username : (currentUser.displayName || 'Player');
+
+            try {
+                // Create challenge in Firestore
+                const challengeRef = await db.collection('challenges').add({
+                    challengerId: challengerId,
+                    challengerName: challengerName,
+                    opponentId: opponentUid,
+                    opponentName: opponentName,
+                    gameFormat: format,
+                    status: 'pending',
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    expiresAt: new Date(Date.now() + 10 * 60 * 1000) // 10 minutes from now
+                });
+
+                // Show modal instead of notification
+                showChallengeWaitingModal(opponentName, challengeRef.id);
+                
+                // Wait for response
+                waitForChallengeResponse(challengeRef.id, opponentName);
+
+            } catch (error) {
+                console.error('Error sending challenge:', error);
+                showNotification('❌ Failed to send challenge', 'error');
+            }
+        }
+
+        function showChallengeWaitingModal(opponentName, challengeId) {
+            const modal = document.createElement('div');
+            modal.id = 'challengeWaitingModal';
+            modal.className = 'modal';
+            modal.style.display = 'block';
+            modal.style.zIndex = '10000';
+            modal.innerHTML = `
+                <div class="modal-content" style="max-width: 400px;">
+                    <div class="modal-header">
+                        <h2>⏳ Challenge Sent</h2>
+                    </div>
+                    <div class="modal-body">
+                        <p style="font-size: 1.1em; margin: 20px 0;">
+                            Challenge sent to <strong>${escapeHtml(opponentName)}</strong>
+                        </p>
+                        <p style="opacity: 0.8; margin: 10px 0;">
+                            Waiting for them to accept...
+                        </p>
+                        <button class="btn" style="margin-top: 20px;" onclick="cancelChallenge('${challengeId}')">
+                            Cancel Challenge
+                        </button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+        }
+
+        function cancelChallenge(challengeId) {
+            const db = firebase.firestore();
+            db.collection('challenges').doc(challengeId).update({
+                status: 'cancelled'
+            });
+            
+            const modal = document.getElementById('challengeWaitingModal');
+            if (modal) modal.remove();
+            
+            showNotification('Challenge cancelled', 'info');
+        }
+
+        function waitForChallengeResponse(challengeId, opponentName) {
+            const db = firebase.firestore();
+            const timeout = setTimeout(() => {
+                const modal = document.getElementById('challengeWaitingModal');
+                if (modal) modal.remove();
+                showNotification('⏰ Challenge expired - no response from ' + opponentName, 'warning', 5000);
+                if (challengeListener) challengeListener();
+            }, 10 * 60 * 1000); // 10 minutes
+
+            const challengeListener = db.collection('challenges').doc(challengeId)
+                .onSnapshot(async (snapshot) => {
+                    const data = snapshot.data();
+                    if (!data) return;
+
+                    if (data.status === 'accepted') {
+                        clearTimeout(timeout);
+                        challengeListener();
+                        
+                        const modal = document.getElementById('challengeWaitingModal');
+                        if (modal) modal.remove();
+                        
+                        showNotification('✅ Challenge accepted! Starting game...', 'success', 2000);
+                        
+                        // Wait a bit for the game room to be created by the accepter
+                        setTimeout(async () => {
+                            await startChallengeGame(challengeId, data);
+                        }, 1000);
+                    } else if (data.status === 'declined') {
+                        clearTimeout(timeout);
+                        challengeListener();
+                        
+                        const modal = document.getElementById('challengeWaitingModal');
+                        if (modal) modal.remove();
+                        
+                        showNotification('❌ Challenge declined by ' + opponentName, 'error', 3000);
+                    } else if (data.status === 'cancelled') {
+                        clearTimeout(timeout);
+                        challengeListener();
+                    }
+                });
+        }
+
+        async function startChallengeGame(challengeId, challengeData) {
+            try {
+                const db = firebase.firestore();
+                const gameRoomId = `challenge_${challengeId}`;
+                const currentUserId = authManager?.getCurrentUserId();
+                
+                console.log('🎮 Checking challenge game room:', gameRoomId);
+
+                // Check if game room already exists
+                const gameRoomDoc = await db.collection('gameRooms').doc(gameRoomId).get();
+                
+                if (gameRoomDoc.exists) {
+                    // Game room already created, just join it
+                    console.log('✅ Game room exists, joining...');
+                    await joinMatchmadeGame(gameRoomId, currentUserId);
+                    return;
+                }
+
+                // Create game room if it doesn't exist
+                console.log('🎮 Creating new challenge game room:', gameRoomId);
+
+                const playerData = [
+                    {
+                        uid: challengeData.challengerId,
+                        username: challengeData.challengerName,
+                        status: 'active',
+                        joinedAt: new Date(),
+                        hand: [],
+                        cardCount: 0,
+                        peakCardsPlayed: 0
+                    },
+                    {
+                        uid: challengeData.opponentId,
+                        username: challengeData.opponentName,
+                        status: 'active',
+                        joinedAt: new Date(),
+                        hand: [],
+                        cardCount: 0,
+                        peakCardsPlayed: 0
+                    }
+                ];
+
+                // Create game room in Firestore
+                await db.collection('gameRooms').doc(gameRoomId).set({
+                    id: gameRoomId,
+                    format: challengeData.gameFormat || '1v1',
+                    challengeId: challengeId,
+                    players: playerData,
+                    playerIds: [challengeData.challengerId, challengeData.opponentId],
+                    hostId: challengeData.challengerId,
+                    maxPlayers: 2,
+                    currentPlayers: 2,
+                    status: 'initializing',
+                    createdAt: new Date(),
+                    gameState: {
+                        currentRound: 1,
+                        currentPlayerIndex: 0,
+                        direction: 1,
+                        deck: [],
+                        discardPile: [],
+                        lastPlayedCard: null,
+                        gameStatus: 'waiting',
+                        highCardPlayed: false,
+                        peakCardsPlayed: 0,
+                        gameLog: []
+                    }
+                });
+
+                console.log('✅ Challenge game room created:', gameRoomId);
+
+                // Join the game
+                await joinMatchmadeGame(gameRoomId, currentUserId);
+
+            } catch (error) {
+                console.error('❌ Error creating challenge game:', error);
+                showNotification('❌ Failed to create game', 'error');
+            }
+        }
+
+        // Listen for incoming challenges
+        let challengeIncomingListener = null;
+
+        function setupChallengeListener() {
+            const currentUser = authManager?.getCurrentUser();
+            if (!currentUser) return;
+
+            const db = firebase.firestore();
+            
+            if (challengeIncomingListener) {
+                challengeIncomingListener();
+            }
+
+            challengeIncomingListener = db.collection('challenges')
+                .where('opponentId', '==', currentUser.uid)
+                .where('status', '==', 'pending')
+                .onSnapshot(snapshot => {
+                    snapshot.docChanges().forEach(change => {
+                        if (change.type === 'added') {
+                            const challenge = change.doc.data();
+                            const challengeId = change.doc.id;
+                            showChallengeNotification(challengeId, challenge);
+                        }
+                    });
+                });
+        }
+
+        function showChallengeNotification(challengeId, challenge) {
+            const modal = document.createElement('div');
+            modal.className = 'modal';
+            modal.style.display = 'block';
+            modal.style.zIndex = '10000';
+            modal.innerHTML = `
+                <div class="modal-content" style="max-width: 400px;">
+                    <div class="modal-header">
+                        <h2>⚔️ Challenge Request</h2>
+                    </div>
+                    <div class="modal-body">
+                        <p style="font-size: 1.1em; margin: 20px 0;">
+                            <strong>${escapeHtml(challenge.challengerName)}</strong> wants to challenge you to a game!
+                        </p>
+                        <div style="display: flex; gap: 10px; margin-top: 20px;">
+                            <button class="btn" style="flex: 1; background: #4CAF50;" onclick="acceptChallenge('${challengeId}')">
+                                ✅ Accept
+                            </button>
+                            <button class="btn" style="flex: 1; background: #f44336;" onclick="declineChallenge('${challengeId}')">
+                                ❌ Decline
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+
+            // Auto-decline after 10 minutes
+            setTimeout(() => {
+                if (document.body.contains(modal)) {
+                    declineChallenge(challengeId);
+                }
+            }, 10 * 60 * 1000);
+        }
+
+        async function acceptChallenge(challengeId) {
+            try {
+                const db = firebase.firestore();
+                
+                // Get challenge data first
+                const challengeDoc = await db.collection('challenges').doc(challengeId).get();
+                const challengeData = challengeDoc.data();
+                
+                // Remove modal
+                const modals = document.querySelectorAll('.modal');
+                modals.forEach(m => {
+                    if (m.innerHTML.includes(challengeId)) {
+                        m.remove();
+                    }
+                });
+
+                showNotification('✅ Challenge accepted! Creating game...', 'success', 2000);
+                
+                // Create the game room FIRST
+                const gameRoomId = `challenge_${challengeId}`;
+                const currentUserId = authManager?.getCurrentUserId();
+                
+                console.log('🎮 Accepter creating game room:', gameRoomId);
+
+                const playerData = [
+                    {
+                        uid: challengeData.challengerId,
+                        username: challengeData.challengerName,
+                        status: 'active',
+                        joinedAt: new Date(),
+                        hand: [],
+                        cardCount: 0,
+                        peakCardsPlayed: 0
+                    },
+                    {
+                        uid: challengeData.opponentId,
+                        username: challengeData.opponentName,
+                        status: 'active',
+                        joinedAt: new Date(),
+                        hand: [],
+                        cardCount: 0,
+                        peakCardsPlayed: 0
+                    }
+                ];
+
+                // Create game room in Firestore
+                await db.collection('gameRooms').doc(gameRoomId).set({
+                    id: gameRoomId,
+                    format: challengeData.gameFormat || '1v1',
+                    challengeId: challengeId,
+                    players: playerData,
+                    playerIds: [challengeData.challengerId, challengeData.opponentId],
+                    hostId: challengeData.challengerId,
+                    maxPlayers: 2,
+                    currentPlayers: 2,
+                    status: 'initializing',
+                    createdAt: new Date(),
+                    gameState: {
+                        currentRound: 1,
+                        currentPlayerIndex: 0,
+                        direction: 1,
+                        deck: [],
+                        discardPile: [],
+                        lastPlayedCard: null,
+                        gameStatus: 'waiting',
+                        highCardPlayed: false,
+                        peakCardsPlayed: 0,
+                        gameLog: []
+                    }
+                });
+
+                console.log('✅ Game room created by accepter');
+
+                // Update challenge status AFTER game room is created
+                await db.collection('challenges').doc(challengeId).update({
+                    status: 'accepted',
+                    acceptedAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                
+                // Wait a moment for Firestore to sync, then join the game
+                console.log('⏳ Waiting for game room to sync...');
+                await new Promise(resolve => setTimeout(resolve, 1500));
+                
+                console.log('🎮 Accepter joining game room now...');
+                await joinMatchmadeGame(gameRoomId, currentUserId);
+                
+            } catch (error) {
+                console.error('Error accepting challenge:', error);
+                showNotification('❌ Failed to accept challenge', 'error');
+            }
+        }
+
+        async function declineChallenge(challengeId) {
+            const db = firebase.firestore();
+            await db.collection('challenges').doc(challengeId).update({
+                status: 'declined',
+                declinedAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+
+            // Remove modal
+            const modals = document.querySelectorAll('.modal');
+            modals.forEach(m => {
+                if (m.innerHTML.includes(challengeId)) {
+                    m.remove();
+                }
+            });
+
+            showNotification('Challenge declined', 'info', 2000);
+        }
+
+        // Start listening for challenges when user logs in
+        window.addEventListener('authStateChanged', (event) => {
+            if (event.detail.isAuthenticated) {
+                setupChallengeListener();
+            }
+        });
+
         function showCreateGameModal() {
-            showNotification('🎮 Create Game feature coming soon!', 'info');
+            // Switch back to local play mode to use PIN-based game creation
+            switchBackToLocal();
+            showNotification('🎮 Enter a PIN to create a game', 'info', 2000);
         }
 
         function showPlayerStats() {
-            const username = authManager?.getCurrentUser()?.displayName || 'Player';
+            const user = authManager?.getCurrentUser() || firebase.auth().currentUser;
+            const username = user?.displayName || user?.email?.split('@')[0] || 'User';
             showNotification(`📊 Stats for ${username} coming soon!`, 'info');
+            
+            // Initialize lobby to load online players
+            initializeGameLobby();
         }
 
         function showLeaderboard() {
-            showNotification('🏆 Leaderboard coming soon!', 'info');
+            console.log('🏆 showLeaderboard called');
+            const modal = document.getElementById('leaderboardModal');
+            console.log('Modal element:', modal);
+            if (modal) {
+                modal.style.display = 'block';
+                modal.style.visibility = 'visible';
+                modal.style.opacity = '1';
+                modal.style.pointerEvents = 'auto';
+                console.log('Modal display set to block');
+                loadLeaderboard();
+            } else {
+                console.error('Leaderboard modal not found!');
+            }
+        }
+
+        function closeLeaderboardModal() {
+            const modal = document.getElementById('leaderboardModal');
+            if (modal) modal.style.display = 'none';
+        }
+
+        async function loadLeaderboard() {
+            const leaderboardList = document.getElementById('leaderboardList');
+            if (!leaderboardList) return;
+
+            // Show loading state
+            leaderboardList.innerHTML = `
+                <div style="text-align: center; padding: 20px;">
+                    <p>🔄 Loading leaderboard...</p>
+                </div>
+            `;
+
+            try {
+                const db = firebase.firestore();
+                const snapshot = await db.collection('users')
+                    .orderBy('stats.gamesWon', 'desc')
+                    .limit(50)
+                    .get();
+
+                if (snapshot.empty) {
+                    leaderboardList.innerHTML = `
+                        <div style="text-align: center; padding: 20px;">
+                            <p>📊 No players yet</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                const players = [];
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    const stats = data.stats || {};
+                    players.push({
+                        username: data.username || data.displayName || data.email?.split('@')[0] || 'Player',
+                        gamesWon: stats.gamesWon || 0,
+                        gamesPlayed: stats.gamesPlayed || 0,
+                        winRate: stats.gamesPlayed > 0 ? Math.round((stats.gamesWon / stats.gamesPlayed) * 100) : 0,
+                        totalPoints: stats.totalPoints || 0
+                    });
+                });
+
+                // Display leaderboard
+                leaderboardList.innerHTML = players.map((player, index) => {
+                    const medal = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : `${index + 1}.`;
+                    return `
+                        <div style="display: flex; align-items: center; justify-content: space-between; padding: 15px; border-bottom: 1px solid rgba(255,255,255,0.1); background: ${index < 3 ? 'rgba(255,215,0,0.1)' : 'transparent'};">
+                            <div style="display: flex; align-items: center; gap: 15px;">
+                                <div style="font-size: 1.5em; min-width: 40px;">${medal}</div>
+                                <div>
+                                    <div style="font-weight: bold; font-size: 1.1em;">${escapeHtml(player.username)}</div>
+                                    <div style="font-size: 0.9em; opacity: 0.8;">
+                                        🎮 ${player.gamesPlayed} played | 🏆 ${player.gamesWon} won
+                                    </div>
+                                </div>
+                            </div>
+                            <div style="text-align: right;">
+                                <div style="font-weight: bold; color: #4CAF50;">${player.winRate}%</div>
+                                <div style="font-size: 0.9em; opacity: 0.8;">⭐ ${player.totalPoints} pts</div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+
+            } catch (error) {
+                console.error('Error loading leaderboard:', error);
+                leaderboardList.innerHTML = `
+                    <div style="text-align: center; padding: 20px;">
+                        <p>⚠️ Could not load leaderboard</p>
+                        <p style="font-size: 0.9em; margin-top: 10px;">${error.message}</p>
+                    </div>
+                `;
+            }
         }
 
         function switchBackToLocal() {

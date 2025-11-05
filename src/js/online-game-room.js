@@ -95,12 +95,48 @@ class OnlineGameRoom {
             }
         }
 
-        // Add 10 Peak cards (special cards)
+        // Add 10 Peak cards (⛰️ Next player picks up 5 cards)
         for (let i = 0; i < 10; i++) {
             deck.push({
                 number: 'PEAK',
                 type: 'peak',
-                effect: 'pickupFive' // Next player picks up 5 cards
+                effect: 'pickupFive'
+            });
+        }
+
+        // Add 4 Reverse cards (🔄 Changes play direction)
+        for (let i = 0; i < 4; i++) {
+            deck.push({
+                number: 'REVERSE',
+                type: 'reverse',
+                effect: 'reverseDirection'
+            });
+        }
+
+        // Add 4 Star cards (✨ Removes all Peak cards from other players)
+        for (let i = 0; i < 4; i++) {
+            deck.push({
+                number: 'STAR',
+                type: 'star',
+                effect: 'removePeaks'
+            });
+        }
+
+        // Add 4 Goblin cards (👹 Gives bad cards 1-4 to all other players)
+        for (let i = 0; i < 4; i++) {
+            deck.push({
+                number: 'GOBLIN',
+                type: 'goblin',
+                effect: 'giveBadCards'
+            });
+        }
+
+        // Add 4 Pause cards (⏸️ Pauses another player for 2 minutes)
+        for (let i = 0; i < 4; i++) {
+            deck.push({
+                number: 'PAUSE',
+                type: 'pause',
+                effect: 'pausePlayer'
             });
         }
 
@@ -161,46 +197,63 @@ class OnlineGameRoom {
      */
     async playCard(cardIndex, playerIndex = null) {
         try {
-            const actualPlayerIndex = playerIndex !== null ? playerIndex : this.gameState.currentPlayerIndex;
+            let actualPlayerIndex = playerIndex;
+            if (actualPlayerIndex === null) {
+                actualPlayerIndex = this.getPlayerIndexByUid(this.playerId);
+            }
+
+            if (actualPlayerIndex !== this.gameState.currentPlayerIndex) {
+                throw new Error('Not your turn!');
+            }
+
             const player = this.gameState.players[actualPlayerIndex];
             
             if (!player || !player.hand || !player.hand[cardIndex]) {
                 throw new Error('Invalid card selection');
             }
 
+            if (player.status !== 'active') {
+                throw new Error('You cannot play cards');
+            }
+
             const card = player.hand[cardIndex];
 
-            // Validate card play based on Peak Card Game rules
             const validation = this.validateCardPlay(card, this.gameState.lastPlayedCard);
             if (!validation.valid) {
                 throw new Error(validation.reason);
             }
 
-            // Remove card from player's hand
             player.hand.splice(cardIndex, 1);
+            player.cardCount = player.hand.length;
 
-            // Apply card effect
-            await this.applyCardEffect(card, actualPlayerIndex);
-
-            // Update game state
             this.gameState.lastPlayedCard = card;
             this.gameState.discardPile.push(card);
 
-            // Check if player finished
+            await this.applyCardEffect(card, actualPlayerIndex);
+
             if (player.hand.length === 0) {
-                return await this.handlePlayerFinish(actualPlayerIndex);
+                if (this.canFinishOnCard(card)) {
+                    return await this.handlePlayerFinish(actualPlayerIndex);
+                } else {
+                    if (this.gameState.deck.length > 0) {
+                        player.hand.push(this.gameState.deck.pop());
+                        player.cardCount = player.hand.length;
+                        this.gameState.gameLog.push(`❌ ${player.username} cannot finish on ${card.number}!`);
+                    }
+                }
             }
 
-            // Move to next player
             await this.advanceToNextPlayer();
-
-            // Save game state
             await this.saveGameState();
 
-            return { success: true, card: card };
+            return { 
+                success: true, 
+                card: card,
+                newDirection: this.gameState.direction 
+            };
 
         } catch (error) {
-            console.error('❌ Error playing card:', error);
+            console.error('Error playing card:', error);
             return { success: false, error: error.message };
         }
     }
@@ -209,43 +262,19 @@ class OnlineGameRoom {
      * Validate if card can be played based on Peak Card Game rules
      */
     validateCardPlay(card, lastPlayedCard) {
-        // No card played yet - can play anything
+        // No card played yet - can play anything except can't finish on certain cards
         if (!lastPlayedCard) {
             return { valid: true };
         }
 
-        // Peak cards can always be played
-        if (card.type === 'peak') {
+        // Special cards can always be played
+        if (card.type === 'peak' || card.type === 'reverse' || card.type === 'star' || card.type === 'goblin' || card.type === 'pause') {
             return { valid: true };
         }
 
-        // Numbers must be higher than last played
+        // Numbers must follow game rules
         if (card.type === 'number') {
-            // Cannot finish on 1-4
-            if (card.number <= 4) {
-                return { 
-                    valid: false, 
-                    reason: 'Cannot finish on cards 1-4' 
-                };
-            }
-
-            // Can finish on 5-6
-            if (card.number >= 5 && card.number <= 6) {
-                return { valid: true };
-            }
-
-            // Can only finish on 8-10 if someone else dropped high card
-            if (card.number >= 8 && card.number <= 10) {
-                if (this.gameState.highCardPlayed) {
-                    return { valid: true };
-                } else {
-                    return { 
-                        valid: false, 
-                        reason: 'Can only finish on 8-10 if high card was played' 
-                    };
-                }
-            }
-
+            // Can always play cards 1-10 during the game
             return { valid: true };
         }
 
@@ -253,16 +282,50 @@ class OnlineGameRoom {
     }
 
     /**
+     * Check if player can finish on this card
+     */
+    canFinishOnCard(card) {
+        // Cannot finish on special cards
+        if (card.type === 'peak' || card.type === 'reverse' || card.type === 'star' || card.type === 'goblin' || card.type === 'pause') {
+            return false;
+        }
+
+        // Cannot finish on cards 1-4
+        if (card.type === 'number' && card.number >= 1 && card.number <= 4) {
+            return false;
+        }
+
+        // Can finish on 5-6
+        if (card.type === 'number' && card.number >= 5 && card.number <= 6) {
+            return true;
+        }
+
+        // Can only finish on 8-10 if high card was played this round
+        if (card.type === 'number' && card.number >= 8 && card.number <= 10) {
+            return this.gameState.highCardPlayed;
+        }
+
+        return false;
+    }
+
+    /**
      * Apply card effect
      */
     async applyCardEffect(card, playerIndex) {
         try {
+            // Peak Card Effect: Next player picks up 5 cards
             if (card.type === 'peak' && card.effect === 'pickupFive') {
-                // Next player picks up 5 cards
                 const nextPlayerIndex = (playerIndex + this.gameState.direction + this.gameState.players.length) % this.gameState.players.length;
                 const nextPlayer = this.gameState.players[nextPlayerIndex];
 
                 for (let i = 0; i < 5; i++) {
+                    // Refill deck if needed
+                    if (this.gameState.deck.length === 0 && this.gameState.discardPile.length > 1) {
+                        const topCard = this.gameState.discardPile[this.gameState.discardPile.length - 1];
+                        this.gameState.deck = this.shuffleDeck(this.gameState.discardPile.slice(0, -1));
+                        this.gameState.discardPile = [topCard];
+                    }
+                    
                     if (this.gameState.deck.length > 0) {
                         nextPlayer.hand.push(this.gameState.deck.pop());
                     }
@@ -277,11 +340,86 @@ class OnlineGameRoom {
                 }
 
                 this.gameState.peakCardsPlayed++;
+                this.gameState.gameLog.push(`⛰️ ${nextPlayer.username} picked up 5 cards from Peak!`);
+            }
+
+            // Reverse Card Effect: Change direction
+            if (card.type === 'reverse' && card.effect === 'reverseDirection') {
+                this.gameState.direction *= -1;
+                const directionText = this.gameState.direction === 1 ? 'clockwise ↻' : 'counter-clockwise ↺';
+                this.gameState.gameLog.push(`🔄 Direction reversed! Now playing ${directionText}`);
+            }
+
+            // Star Card Effect: Remove all Peak cards from other players
+            if (card.type === 'star' && card.effect === 'removePeaks') {
+                let totalRemoved = 0;
+                for (let i = 0; i < this.gameState.players.length; i++) {
+                    if (i !== playerIndex) {
+                        const player = this.gameState.players[i];
+                        const peakCards = player.hand.filter(c => c.type === 'peak');
+                        totalRemoved += peakCards.length;
+                        
+                        // Remove peak cards from hand
+                        player.hand = player.hand.filter(c => c.type !== 'peak');
+                        player.cardCount = player.hand.length;
+                        
+                        // Put peak cards back in deck and shuffle
+                        this.gameState.deck.push(...peakCards);
+                    }
+                }
+                
+                if (totalRemoved > 0) {
+                    this.gameState.deck = this.shuffleDeck(this.gameState.deck);
+                    this.gameState.gameLog.push(`✨ Star removed ${totalRemoved} Peak cards!`);
+                } else {
+                    this.gameState.gameLog.push(`✨ Star played, but no Peak cards found`);
+                }
+            }
+
+            // Goblin Card Effect: Give bad cards (1-4) to all other players
+            if (card.type === 'goblin' && card.effect === 'giveBadCards') {
+                const badCardNumbers = [1, 2, 3, 4];
+                for (let i = 0; i < this.gameState.players.length; i++) {
+                    if (i !== playerIndex && this.gameState.players[i].status === 'active') {
+                        const randomBad = badCardNumbers[Math.floor(Math.random() * badCardNumbers.length)];
+                        const badCard = {
+                            number: randomBad,
+                            type: 'number',
+                            effect: null
+                        };
+                        this.gameState.players[i].hand.push(badCard);
+                        this.gameState.players[i].cardCount++;
+                        
+                        // Check disqualification
+                        if (this.gameState.players[i].cardCount > 20) {
+                            this.gameState.players[i].status = 'disqualified';
+                            this.gameState.gameLog.push(`${this.gameState.players[i].username} disqualified (over 20 cards)`);
+                        }
+                    }
+                }
+                this.gameState.gameLog.push(`👹 Goblin gave bad cards to all players!`);
+            }
+
+            // Pause Card Effect: Pause a player for 2 minutes
+            if (card.type === 'pause' && card.effect === 'pausePlayer') {
+                // Find next active player to pause
+                let targetIndex = (playerIndex + 1) % this.gameState.players.length;
+                while (this.gameState.players[targetIndex].status !== 'active' || targetIndex === playerIndex) {
+                    targetIndex = (targetIndex + 1) % this.gameState.players.length;
+                    if (targetIndex === playerIndex) break; // Safety check
+                }
+                
+                if (targetIndex !== playerIndex) {
+                    const targetPlayer = this.gameState.players[targetIndex];
+                    targetPlayer.pausedUntil = Date.now() + (2 * 60 * 1000); // 2 minutes
+                    this.gameState.gameLog.push(`⏸️ ${targetPlayer.username} is paused for 2 minutes!`);
+                }
             }
 
             // Track if high card (8-10) was played
             if (card.type === 'number' && card.number >= 8) {
                 this.gameState.highCardPlayed = true;
+                this.gameState.gameLog.push(`🎯 High card ${card.number} played! Others can finish on 8-10`);
             }
 
         } catch (error) {
@@ -323,15 +461,24 @@ class OnlineGameRoom {
         try {
             const currentPlayer = this.gameState.players[this.gameState.currentPlayerIndex];
             
+            // Refill deck if empty
             if (this.gameState.deck.length === 0) {
-                // Reshuffle discard pile as new deck
-                this.gameState.deck = this.shuffleDeck(this.gameState.discardPile);
-                this.gameState.discardPile = [];
+                if (this.gameState.discardPile.length > 1) {
+                    // Keep the top card of discard pile
+                    const topCard = this.gameState.discardPile[this.gameState.discardPile.length - 1];
+                    this.gameState.deck = this.shuffleDeck(this.gameState.discardPile.slice(0, -1));
+                    this.gameState.discardPile = [topCard];
+                    this.gameState.gameLog.push(`🔄 Deck refilled from discard pile!`);
+                } else {
+                    throw new Error('No cards left to draw');
+                }
             }
 
             const card = this.gameState.deck.pop();
             currentPlayer.hand.push(card);
             currentPlayer.cardCount = currentPlayer.hand.length;
+            
+            this.gameState.gameLog.push(`🃏 ${currentPlayer.username} drew a card`);
 
             // Check if disqualified
             if (currentPlayer.cardCount > 20) {
@@ -355,16 +502,36 @@ class OnlineGameRoom {
      */
     async advanceToNextPlayer() {
         try {
+            let attempts = 0;
+            const maxAttempts = this.gameState.players.length * 2;
+            
             do {
                 this.gameState.currentPlayerIndex = (this.gameState.currentPlayerIndex + this.gameState.direction + this.gameState.players.length) % this.gameState.players.length;
                 const nextPlayer = this.gameState.players[this.gameState.currentPlayerIndex];
                 
+                // Check if player is paused
+                if (nextPlayer.pausedUntil && Date.now() < nextPlayer.pausedUntil) {
+                    const remainingTime = Math.ceil((nextPlayer.pausedUntil - Date.now()) / 1000);
+                    this.gameState.gameLog.push(`⏸️ ${nextPlayer.username} is paused (${remainingTime}s remaining)`);
+                    attempts++;
+                    continue;
+                }
+                
+                // Clear pause if time expired
+                if (nextPlayer.pausedUntil && Date.now() >= nextPlayer.pausedUntil) {
+                    nextPlayer.pausedUntil = null;
+                    this.gameState.gameLog.push(`▶️ ${nextPlayer.username} is no longer paused!`);
+                }
+                
+                // Found active player
                 if (nextPlayer.status === 'active') {
                     break;
                 }
-            } while (true);
+                
+                attempts++;
+            } while (attempts < maxAttempts);
 
-            console.log('✅ Advanced to next player');
+            console.log('✅ Advanced to next player:', this.gameState.players[this.gameState.currentPlayerIndex].username);
             return { success: true };
 
         } catch (error) {
@@ -457,5 +624,27 @@ class OnlineGameRoom {
     getPlayerHand(playerIndex = null) {
         const idx = playerIndex !== null ? playerIndex : this.gameState.currentPlayerIndex;
         return this.gameState.players[idx]?.hand || [];
+    }
+
+    /**
+     * Get player index by UID
+     */
+    getPlayerIndexByUid(uid) {
+        return this.gameState.players.findIndex(p => p.uid === uid);
+    }
+
+    /**
+     * Is it this player's turn?
+     */
+    isMyTurn() {
+        const myIndex = this.getPlayerIndexByUid(this.playerId);
+        return myIndex === this.gameState.currentPlayerIndex;
+    }
+
+    /**
+     * Get my player data
+     */
+    getMyPlayer() {
+        return this.gameState.players.find(p => p.uid === this.playerId);
     }
 }
